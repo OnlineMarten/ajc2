@@ -52,6 +52,10 @@
                             </tr>
                         </tbody>
                     </table>
+                     <div v-else>
+                        <br><hr>
+                        <p>no categories yet</p>
+                    </div>
                 </div>
                 <!--card body-->
 

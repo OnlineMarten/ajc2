@@ -14,7 +14,7 @@
 
 @section('content')
 <h1>Dit is het dashboard</h1>
-<event-component></event-component>
+
 
 
 @endsection

@@ -30,6 +30,18 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="{{ route('dashboard') }}">Dashboard <span class="sr-only">(current)</span></a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('event.index') }}">Events <span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('category.index') }}">Categories <span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('ticket.index') }}">Tickets <span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('upsale.index') }}">Upsells <span class="sr-only"></span></a>
+                    </li>
 
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -47,7 +59,7 @@
                                 {{ __('Tickets') }}
                             </a>
                             <a class="dropdown-item" href="{{ route('upsale.index') }}">
-                                {{ __('Upsales') }}
+                                {{ __('Upsells') }}
                             </a>
                         </div>
                     </li>

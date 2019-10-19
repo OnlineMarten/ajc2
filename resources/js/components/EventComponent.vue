@@ -28,7 +28,7 @@
                                 <th>Title</th>
                                 <th>Description</th>
                                 <th>Event date</th>
-                                <th>Event times</th>
+                                <!--<th>Event times</th>-->
                                 <th>min-max</th>
                                 <th>sold</th>
                                 <th>status</th>
@@ -46,12 +46,15 @@
                                 <td>
                                     {{ event.description }}
                                 </td>
+
                                 <td>
-                                    {{ event.event_date }}
+                                    {{ new Date(event.event_date) | dateFormat('dd DD MMM YYYY', dateFormatConfig) }}
                                 </td>
+                                <!--
                                 <td>
-                                    {{ event.start_time }} -  {{ event.end_time }}
+                                    {{ event.start_time}} - {{ event.end_time}}
                                 </td>
+                                -->
                                 <td>
                                     {{ event.min_per_sale }}-{{ event.max_per_sale }}
                                 </td>
@@ -75,6 +78,10 @@
                             </tr>
                         </tbody>
                     </table>
+                     <div v-else>
+                        <br><hr>
+                        <p>no events yet</p>
+                    </div>
                 </div>
                 <!--card body-->
 
@@ -114,18 +121,21 @@
 
 
 
-                        <div class="form-group">
-                            <label for="name">Title:</label>
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-3 col-form-label">Title:</label>
+                            <div class="col-sm-8">
                             <input required type="text" name="title" id="title" class="form-control"
                                 v-model="event.title">
+                            </div>
 
                         </div>
 
-                        <div class="form-group">
-                            <label for="title">Description (Optional):</label>
-
-                            <textarea name="description" id="description" cols="30" rows="5" class="form-control"
+                        <div class="form-group row">
+                            <label for="title" class="col-sm-3 col-form-label">Description (Optional):</label>
+                            <div class="col-sm-8">
+                            <textarea name="description" id="description" cols="30" rows="2" class="form-control"
                                 v-model="event.description"></textarea>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -145,23 +155,25 @@
 
                         </div>
 
-                        <div class="form-group">
-                            <label for="start_time">Start time:</label>
-
+                        <div class="form-group row">
+                            <label for="start_time" class="col-sm-3 col-form-label">Start time:</label>
+                            <div class="col-sm-8">
                             <input required type="time" name="start_time" id="start_time" class="form-control"
                                 v-model="event.start_time">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="end_time">End time:</label>
-
+                        <div class="form-group row">
+                            <label for="end_time" class="col-sm-3 col-form-label">End time:</label>
+                            <div class="col-sm-8">
                             <input required type="time" name="end_time" id="end_time" class="form-control"
                                 v-model="event.end_time">
+                            </div>
                         </div>
                         <div class="form-group row">
                             <label for="capacity" class="col-sm-3 col-form-label">Total capacity</label>
                             <div class="col-sm-8">
                             <input type="number" class="form-control form-control-sm" name="capacity" min="0" step="1" v-model="event.capacity">
-                            <small class="form-text text-muted">Total number of seats available</small>
+                            <small class="form-text text-muted">Total number of seats available, minimal 1</small>
                             </div>
                         </div>
 
@@ -169,6 +181,7 @@
                             <label for="min_per_sale" class="col-sm-3 col-form-label">Min tickets/sale</label>
                             <div class="col-sm-8">
                             <input type="number" class="form-control form-control-sm" name="min_per_sale" min="0" step="1" v-model="event.min_per_sale">
+                            <small class="form-text text-muted">Optional, no value entered means minimum per sale is 1</small>
                             </div>
                         </div>
 
@@ -176,6 +189,7 @@
                             <label for="max_per_sale" class="col-sm-3 col-form-label">Max tickets/sale</label>
                             <div class="col-sm-8">
                             <input type="number" class="form-control form-control-sm" name="max_per_sale" min="0" step="1" v-model="event.max_per_sale">
+                            <small class="form-text text-muted">Optional, no value entered means maximum per sale is equal to total capacity</small>
                             </div>
                         </div>
 
@@ -191,7 +205,7 @@
                             <label for="active" class="col-sm-3 col-form-label">Open for sale</label>
                             <div class="col-sm-8">
                             <select class="form-control form-control-sm" name="active" v-model="event.active">
-                                <option value="1">Yes</option>
+                                <option value="1" selected>Yes</option>
                                 <option value="0">No</option>
                             </select>
                             <small class="form-text text-muted">select yes to start selling immediately.<br>Select no to close for sale and then you have to open it later manually.</small>
@@ -222,6 +236,7 @@
 
 
 <script>
+
 export default {
   data() {
     return {
@@ -235,7 +250,7 @@ export default {
         max_per_sale: "",
         capacity: "",
         tickets_reserved: "",
-        active: "",
+        active: "1",
         sold_out: ""
       },
         errors: "",
@@ -244,7 +259,25 @@ export default {
         add_update: "",
         show: false,
         dateValue: "",
+        dateFormatConfig: {
+          dayOfWeekNames: [
+            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+            'Friday', 'Saturday'
+          ],
+          dayOfWeekNamesShort: [
+            'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+          ],
+          monthNames: [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+          ],
+          monthNamesShort: [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+          ]
+        }
     };
+
   },
 
   mounted() {
@@ -276,6 +309,7 @@ export default {
         .then(response => {
           $("#add_event_model").modal("hide");
           //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
+          this.readEvents();
           this.showMessage(response.data.message);
         })
 

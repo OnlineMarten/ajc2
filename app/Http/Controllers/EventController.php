@@ -57,7 +57,7 @@ class EventController extends Controller
             'event_date' => 'required',//|date',
             'start_time' => 'required',
             'end_time' => 'required',
-            'capacity' => 'required|numeric|min:0'
+            'capacity' => 'required|numeric|min:1'
         ]);
 
         //place event dates in array
@@ -74,26 +74,27 @@ class EventController extends Controller
             $event->event_date = $event_date;
             $event->start_time = $request->start_time;
             $event->end_time = $request->end_time;
-            $event->min_per_sale = $request->min_per_sale;
-            $event->max_per_sale = $request->max_per_sale;
             $event->capacity = $request->capacity;
-            $event->tickets_reserved = $request->tickets_reserved;
+            if($request->min_per_sale) {$event->min_per_sale = $request->min_per_sale;}else $event->min_per_sale = 1;
+            if($request->max_per_sale) {$event->max_per_sale = $request->max_per_sale;}else $event->max_per_sale =$event->capacity;
+            if($request->tickets_reserved) {$event->tickets_reserved = $request->tickets_reserved;}else $event->tickets_reserved = 0;
             $event->active = $request->active;
 
             $event->save();
+            logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" created by '.auth()->user()->name);
         }
 
         //attach the selected upgrades to the event
      //   $event->tickets()->sync($request->tickets);
      //   $event->upgrades()->sync($request->upgrades);
 
-        logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" created by '.auth()->user()->name);
+
 
         //session()->flash('alert-success', 'Event added');
 
 
         return response()->json([
-            'message'       => 'New Event "'.request("title"). '" created'
+            'message'       => 'New Event(s) created'
         ], 200);
     }
 
