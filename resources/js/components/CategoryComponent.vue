@@ -94,42 +94,43 @@
                         <label for="order">Order:</label>
                         <input required type="number" step="1" min="1" name="order" id="order" class="form-control"
                                 v-model="category.order">
-                        </div>
+                        <small class="form-text text-muted">category display order</small>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="name">Title:</label>
-                            <input required type="text" name="title" id="title" class="form-control"
-                                v-model="category.title">
+                    <div class="form-group">
+                        <label for="name">Title:</label>
+                        <input required type="text" name="title" id="title" class="form-control"
+                            v-model="category.title">
 
-                        </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="title">Description (Optional):</label>
+                    <div class="form-group">
+                        <label for="title">Description (Optional):</label>
 
-                            <textarea name="description" id="description" cols="30" rows="5" class="form-control"
-                                v-model="category.description"></textarea>
-                        </div>
+                        <textarea name="description" id="description" cols="30" rows="5" class="form-control"
+                            v-model="category.description"></textarea>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="title">Admin notes (Optional, internal use only):</label>
+                    <div class="form-group">
+                        <label for="title">Admin notes (Optional, internal use only):</label>
 
-                            <textarea name="admin_notes" id="admin_notes" cols="30" rows="5" class="form-control"
-                                v-model="category.admin_notes"></textarea>
-                        </div>
+                        <textarea name="admin_notes" id="admin_notes" cols="30" rows="5" class="form-control"
+                            v-model="category.admin_notes"></textarea>
+                    </div>
 
-                        </div>
-                        <!--modal body-->
+                    </div>
+                    <!--modal body-->
 
-                        <div class="modal-footer">
-                            <!-- in case of add-->
-                            <span v-if="add_update=='add'">
-                        <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" @click="createCategory" class="btn btn-primary">Create</button>
+                    <div class="modal-footer">
+                        <!-- in case of add-->
+                        <span v-if="add_update=='add'">
+                            <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" @click="createCategory" class="btn btn-primary">Create</button>
                         </span>
-                            <!-- in case of update-->
-                            <span v-if="add_update=='update'">
-                        <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" @click="updateCategory" class="btn btn-primary">Update</button>
+                        <!-- in case of update-->
+                        <span v-if="add_update=='update'">
+                            <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" @click="updateCategory" class="btn btn-primary">Update</button>
                         </span>
                     </div>
                 </div><!-- /.modal-content -->

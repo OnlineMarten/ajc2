@@ -16,12 +16,12 @@
 
                 </div>
                 <!--card header-->
-
                 <div class="card-body">
                     <button @click="initAddEvent()" class="btn btn-primary btn-xs float-left">
                             + Add New Event
                     </button>
-                    <table class="table  table-striped table-responsive table-sm" v-if="events.length > 0" ref="table">
+                    <br><hr>
+                    <table class="table table-striped table-responsive table-sm" v-if="events.length > 0" ref="table">
                         <thead>
                             <tr>
 
@@ -212,6 +212,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select tickets for sale:</label>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item  ml-3" v-for="ticket in tickets" :key="ticket.id">
+
+                                    <input class="form-check-input" type="checkbox" :value="ticket.id"
+                                                                        v-bind:id="ticket.name" :name="ticket.name" v-model="checkedTickets">
+                                    <label class="form-check-label" for="defaultCheck1">{{ ticket.title }} </label>
+
+                                </li>
+                            </ul>
+                            <br>
+                        </div>
+
 
                         </div>
                         <!--modal body-->
@@ -240,25 +254,44 @@
 export default {
   data() {
     return {
+
+        //event data
         event: {
-        title: "",
-        description: "",
-        event_date: "",
-        start_time: "",
-        end_time: "",
-        min_per_sale: "",
-        max_per_sale: "",
-        capacity: "",
-        tickets_reserved: "",
-        active: "1",
-        sold_out: ""
-      },
+            title: "",
+            description: "",
+            event_date: "",
+            start_time: "",
+            end_time: "",
+            min_per_sale: "",
+            max_per_sale: "",
+            capacity: "",
+            tickets_reserved: "",
+            active: "1",
+            sold_out: "",
+            checkedTickets: []
+
+        },
         errors: "",
         events: [],
         message: "",
         add_update: "",
         show: false,
         dateValue: "",
+
+        //ticket data
+        ticket: {
+            title: "",
+            description: "",
+            admin_notes: "",
+            price: "",
+            vat: "",
+            order: "",
+        },
+
+        tickets: [],
+        checkedTickets: [],
+
+        //date config
         dateFormatConfig: {
           dayOfWeekNames: [
             'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
@@ -282,6 +315,7 @@ export default {
 
   mounted() {
     this.readEvents();
+    this.readTickets()
   },
 
   methods: {
@@ -290,6 +324,8 @@ export default {
       this.event.event_date = "";
       this.date="";
       this.add_update = "add";
+      this.readTickets();
+      this.checkedTickets=[];
       $("#add_event_model").modal("show");
     },
 
@@ -303,8 +339,9 @@ export default {
     },
 
     createEvent() {
+        this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
       axios
-        .post("event", this.$data.event)
+        .post("event", this.$data.event )
 
         .then(response => {
           $("#add_event_model").modal("hide");
@@ -348,13 +385,21 @@ export default {
 
 
     initUpdate(index) {
+
       this.errors = "";
       this.add_update = "update";
       $("#add_event_model").modal("show");
       this.event = this.events[index];
+       axios.get("eventgettickets/"+ this.events[index].id)
+
+        .then(response => {
+        this.checkedTickets = response.data.checkedtickets;
+
+      });
     },
 
     updateEvent() {
+        this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
       axios
         .put("event/" + this.event.id, this.$data.event)
 
@@ -389,7 +434,15 @@ export default {
             // Error
           });
       }
-    }
+    },
+
+    //ticket functions
+    readTickets() {
+      axios.get("ticket").then(response => {
+        this.tickets = response.data.tickets;
+      });
+    },
+
   }
 };
 </script>

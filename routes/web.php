@@ -44,4 +44,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/admin/ticket', 'TicketController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('/admin/upsale', 'UpsaleController')->only([  'index',  'store', 'update', 'destroy'    ]);
 
+    Route::get('/admin/eventgettickets/{event_id}', 'EventTicketController@allTicketsConnectedToEvent')->name('eventgettickets');
+
 });//end route group admin

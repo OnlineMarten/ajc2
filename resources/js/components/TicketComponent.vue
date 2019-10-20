@@ -2,7 +2,6 @@
 <div class="component-holder">
     <div class="row">
         <div class="col-md-12">
-
             <div class="alert alert-info alert-dismissible fade show" v-if="show" role="alert" id="alert" name="alert">
                 <button type="button" class="close" v-on:click="show = !show" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -98,11 +97,7 @@
                         </ul>
                     </div>
 
-                    <div class="form-group">
-                        <label for="order">Order:</label>
-                        <input required type="number" step="1" min="1" name="order" id="order" class="form-control"
-                                v-model="ticket.order">
-                    </div>
+
 
                     <div class="form-group">
                         <label for="name">Title:</label>
@@ -114,15 +109,22 @@
                     <div class="form-group">
                         <label for="title">Description (Optional):</label>
 
-                        <textarea name="description" id="description" cols="30" rows="5" class="form-control"
+                        <textarea name="description" id="description" cols="30" rows="2" class="form-control"
                             v-model="ticket.description"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="title">Admin notes (Optional, internal use only):</label>
 
-                        <textarea name="admin_notes" id="admin_notes" cols="30" rows="5" class="form-control"
+                        <textarea name="admin_notes" id="admin_notes" cols="30" rows="2" class="form-control"
                             v-model="ticket.admin_notes"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="order">Order:</label>
+                        <input required type="number" step="1" min="1" name="order" id="order" class="form-control"
+                                v-model="ticket.order">
+                        <small class="form-text text-muted">ticket display order</small>
                     </div>
 
                     <div class="form-group">

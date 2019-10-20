@@ -51,38 +51,60 @@ class EventController extends Controller
     public function store(Request $request)
     {
 
-        $this->validate(request(), [
+        if( config('custom.minimal_tickets_required') > 0) {
+            $this->validate(request(), [
 
-            'title' => 'required|min:3',
-            'event_date' => 'required',//|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'capacity' => 'required|numeric|min:1'
-        ]);
-
-        //place event dates in array
-        $event_dates = explode (",", $request->event_date);
-
-        foreach ($event_dates as &$event_date) {
-
-            $event = new Event;
-
-            if (!$request->tickets_reserved) $request->tickets_reserved=0;
-
-            $event->title = $request->title;
-            $event->description = $request->description;
-            $event->event_date = $event_date;
-            $event->start_time = $request->start_time;
-            $event->end_time = $request->end_time;
-            $event->capacity = $request->capacity;
-            if($request->min_per_sale) {$event->min_per_sale = $request->min_per_sale;}else $event->min_per_sale = 1;
-            if($request->max_per_sale) {$event->max_per_sale = $request->max_per_sale;}else $event->max_per_sale =$event->capacity;
-            if($request->tickets_reserved) {$event->tickets_reserved = $request->tickets_reserved;}else $event->tickets_reserved = 0;
-            $event->active = $request->active;
-
-            $event->save();
-            logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" created by '.auth()->user()->name);
+                'title' => 'required|min:3',
+                'event_date' => 'required',//|date',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'capacity' => 'required|numeric|min:1',
+                'checkedTickets' => 'required|array|min:1',
+            ],
+            [
+                'checkedTickets.required' => 'Minimal one ticket is needed'
+            ]);
         }
+        else {
+            $this->validate(request(), [
+
+                'title' => 'required|min:3',
+                'event_date' => 'required',//|date',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'capacity' => 'required|numeric|min:1',
+                'checkedTickets' => 'required|array|min:1'
+            ]);
+        }
+
+
+            //get all dates
+            $event_dates = explode (",", $request->event_date);
+
+            //and loop through them to create identical events
+            foreach ($event_dates as $event_date) {
+
+                //create new event
+                $event = new Event;
+
+                //fill all aparams except date
+                if (!$request->tickets_reserved) $request->tickets_reserved=0;
+                $event->event_date = $event_date;
+                $event->title = $request->title;
+                $event->description = $request->description;
+                $event->start_time = $request->start_time;
+                $event->end_time = $request->end_time;
+                $event->capacity = $request->capacity;
+                if($request->min_per_sale) {$event->min_per_sale = $request->min_per_sale;}else $event->min_per_sale = 1;
+                if($request->max_per_sale) {$event->max_per_sale = $request->max_per_sale;}else $event->max_per_sale =$event->capacity;
+                if($request->tickets_reserved) {$event->tickets_reserved = $request->tickets_reserved;}else $event->tickets_reserved = 0;
+                $event->active = $request->active;
+                $event->save();
+
+                $event->tickets()->sync($request->checkedTickets);//attach tickets to event
+
+                logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" created by '.auth()->user()->name);
+            }
 
         //attach the selected upgrades to the event
      //   $event->tickets()->sync($request->tickets);
@@ -129,14 +151,31 @@ class EventController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate(request(), [
+        if( config('custom.minimal_tickets_required') > 0) {
+            $this->validate(request(), [
 
-            'title' => 'required|min:3',
-            'event_date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'capacity' => 'required|numeric|min:0'
-        ]);
+                'title' => 'required|min:3',
+                'event_date' => 'required',//|date',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'capacity' => 'required|numeric|min:1',
+                'checkedTickets' => 'required|array|min:1',
+            ],
+            [
+                'checkedTickets.required' => 'Minimal one ticket is needed'
+            ]);
+        }
+        else {
+            $this->validate(request(), [
+
+                'title' => 'required|min:3',
+                'event_date' => 'required',//|date',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'capacity' => 'required|numeric|min:1',
+                'checkedTickets' => 'required|array|min:1'
+            ]);
+        }
 
         $event = Event::findOrFail($id);
 
@@ -157,6 +196,8 @@ class EventController extends Controller
             ], 200);
 
         }
+
+        $event->tickets()->sync($request->checkedTickets);
 
         logger()->channel('info')->info('event "'.$event->title.'" updated by '.auth()->user()->name);
 
@@ -181,9 +222,9 @@ class EventController extends Controller
            // session()->flash('alert-danger', 'Can not delete the event of '. \Carbon\Carbon::parse($event->event_date)->formatLocalized('%a %d %b %Y').', because there are already tickets sold!');
         }
         else{
-          //  $event->tickets()->detach();//remove all connected tickets (and delete from pivot table)
          //   $event->upgrades()->detach();//remove all connected upgrades (and delete from pivot table)
 
+            $event->tickets()->detach();//remove all connected tickets (and delete from pivot table)
             $event->delete();
             logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" deleted by '.auth()->user()->name);
             session()->flash('alert-success', 'Event deleted');

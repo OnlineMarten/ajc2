@@ -138,14 +138,14 @@ class TicketController extends Controller
      */
     public function destroy($id)
     {
-        /*
+
         $dependencies = $this->countDependencies($id);
         if ($dependencies) {
             return response()->json([
-                'message' => 'Can not delete, this ticket is connected to '. $dependencies.' cruise(s)'
+                'message' => 'Can not delete, this ticket is connected to '. $dependencies.' event(s)'
             ], 403);
         }
-        */
+
 
         $ticket = Ticket::findOrFail($id);
         $title = $ticket->title;
@@ -162,5 +162,10 @@ class TicketController extends Controller
             'message' => 'Delete failed!',
         ], 422);
 
+    }
+
+    public function countDependencies($id){
+
+        return Ticket::find($id)->events->Count();
     }
 }

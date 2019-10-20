@@ -14,8 +14,15 @@
 
 @section('content')
 <h1>Dit is het dashboard</h1>
-
-
+<?php
+echo "tickreq=".config('custom.minimal_tickets_required')."<br>";
+if( config('custom.minimal_tickets_required') > 0){
+    echo "min 1 req";
+}
+else{
+    echo "no tick req";
+}
+?>
 
 @endsection
 

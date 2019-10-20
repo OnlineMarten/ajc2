@@ -1978,6 +1978,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2330,9 +2331,24 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      //event data
       event: {
         title: "",
         description: "",
@@ -2344,7 +2360,8 @@ __webpack_require__.r(__webpack_exports__);
         capacity: "",
         tickets_reserved: "",
         active: "1",
-        sold_out: ""
+        sold_out: "",
+        checkedTickets: []
       },
       errors: "",
       events: [],
@@ -2352,6 +2369,18 @@ __webpack_require__.r(__webpack_exports__);
       add_update: "",
       show: false,
       dateValue: "",
+      //ticket data
+      ticket: {
+        title: "",
+        description: "",
+        admin_notes: "",
+        price: "",
+        vat: "",
+        order: ""
+      },
+      tickets: [],
+      checkedTickets: [],
+      //date config
       dateFormatConfig: {
         dayOfWeekNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         dayOfWeekNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -2362,6 +2391,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.readEvents();
+    this.readTickets();
   },
   methods: {
     initAddEvent: function initAddEvent() {
@@ -2369,6 +2399,8 @@ __webpack_require__.r(__webpack_exports__);
       this.event.event_date = "";
       this.date = "";
       this.add_update = "add";
+      this.readTickets();
+      this.checkedTickets = [];
       $("#add_event_model").modal("show");
     },
     showErrors: function showErrors(error) {
@@ -2383,6 +2415,8 @@ __webpack_require__.r(__webpack_exports__);
     },
     createEvent: function createEvent() {
       var _this2 = this;
+
+      this.event.checkedTickets = this.checkedTickets; //place selection in event data so it will be transferred with axios
 
       axios.post("event", this.$data.event).then(function (response) {
         $("#add_event_model").modal("hide"); //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
@@ -2420,39 +2454,54 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     initUpdate: function initUpdate(index) {
+      var _this4 = this;
+
       this.errors = "";
       this.add_update = "update";
       $("#add_event_model").modal("show");
       this.event = this.events[index];
+      axios.get("eventgettickets/" + this.events[index].id).then(function (response) {
+        _this4.checkedTickets = response.data.checkedtickets;
+      });
     },
     updateEvent: function updateEvent() {
-      var _this4 = this;
+      var _this5 = this;
+
+      this.event.checkedTickets = this.checkedTickets; //place selection in event data so it will be transferred with axios
 
       axios.put("event/" + this.event.id, this.$data.event).then(function (response) {
         $("#add_event_model").modal("hide");
 
-        _this4.showMessage(response.data.message);
+        _this5.showMessage(response.data.message);
 
-        _this4.reset();
+        _this5.reset();
       })["catch"](function (error) {
-        _this4.showErrors(error);
+        _this5.showErrors(error);
       });
     },
     deleteEvent: function deleteEvent(index) {
-      var _this5 = this;
+      var _this6 = this;
 
       var conf = confirm('Do you ready want to delete event "' + this.events[index].title + '"?');
 
       if (conf === true) {
         axios["delete"]("event/" + this.events[index].id).then(function (response) {
-          _this5.events.splice(index, 1);
+          _this6.events.splice(index, 1);
 
-          _this5.showMessage(response.data.message);
+          _this6.showMessage(response.data.message);
         })["catch"](function (error) {
-          _this5.showMessage(error.response.data.message); // Error
+          _this6.showMessage(error.response.data.message); // Error
 
         });
       }
+    },
+    //ticket functions
+    readTickets: function readTickets() {
+      var _this7 = this;
+
+      axios.get("ticket").then(function (response) {
+        _this7.tickets = response.data.tickets;
+      });
     }
   }
 });
@@ -2523,6 +2572,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
 //
 //
 //
@@ -38442,7 +38493,11 @@ var render = function() {
                         _vm.$set(_vm.category, "order", $event.target.value)
                       }
                     }
-                  })
+                  }),
+                  _vm._v(" "),
+                  _c("small", { staticClass: "form-text text-muted" }, [
+                    _vm._v("category display order")
+                  ])
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
@@ -38727,13 +38782,15 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
+            _c("br"),
+            _c("hr"),
+            _vm._v(" "),
             _vm.events.length > 0
               ? _c(
                   "table",
                   {
                     ref: "table",
-                    staticClass:
-                      "table  table-striped table-responsive table-sm"
+                    staticClass: "table table-striped table-responsive table-sm"
                   },
                   [
                     _vm._m(0),
@@ -39377,6 +39434,89 @@ var render = function() {
                     _vm._v(" "),
                     _vm._m(2)
                   ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-3 col-form-label",
+                      attrs: { for: "ticket-selection" }
+                    },
+                    [_vm._v("Select tickets for sale:")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "ul",
+                    { staticClass: "list-group list-group-flush" },
+                    _vm._l(_vm.tickets, function(ticket) {
+                      return _c(
+                        "li",
+                        {
+                          key: ticket.id,
+                          staticClass: "list-group-item  ml-3"
+                        },
+                        [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.checkedTickets,
+                                expression: "checkedTickets"
+                              }
+                            ],
+                            staticClass: "form-check-input",
+                            attrs: {
+                              type: "checkbox",
+                              id: ticket.name,
+                              name: ticket.name
+                            },
+                            domProps: {
+                              value: ticket.id,
+                              checked: Array.isArray(_vm.checkedTickets)
+                                ? _vm._i(_vm.checkedTickets, ticket.id) > -1
+                                : _vm.checkedTickets
+                            },
+                            on: {
+                              change: function($event) {
+                                var $$a = _vm.checkedTickets,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = ticket.id,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      (_vm.checkedTickets = $$a.concat([$$v]))
+                                  } else {
+                                    $$i > -1 &&
+                                      (_vm.checkedTickets = $$a
+                                        .slice(0, $$i)
+                                        .concat($$a.slice($$i + 1)))
+                                  }
+                                } else {
+                                  _vm.checkedTickets = $$c
+                                }
+                              }
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c(
+                            "label",
+                            {
+                              staticClass: "form-check-label",
+                              attrs: { for: "defaultCheck1" }
+                            },
+                            [_vm._v(_vm._s(ticket.title) + " ")]
+                          )
+                        ]
+                      )
+                    }),
+                    0
+                  ),
+                  _vm._v(" "),
+                  _c("br")
                 ])
               ]),
               _vm._v(" "),
@@ -39764,39 +39904,6 @@ var render = function() {
                   : _vm._e(),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
-                  _c("label", { attrs: { for: "order" } }, [_vm._v("Order:")]),
-                  _vm._v(" "),
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.ticket.order,
-                        expression: "ticket.order"
-                      }
-                    ],
-                    staticClass: "form-control",
-                    attrs: {
-                      required: "",
-                      type: "number",
-                      step: "1",
-                      min: "1",
-                      name: "order",
-                      id: "order"
-                    },
-                    domProps: { value: _vm.ticket.order },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.$set(_vm.ticket, "order", $event.target.value)
-                      }
-                    }
-                  })
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "form-group" }, [
                   _c("label", { attrs: { for: "name" } }, [_vm._v("Title:")]),
                   _vm._v(" "),
                   _c("input", {
@@ -39846,7 +39953,7 @@ var render = function() {
                       name: "description",
                       id: "description",
                       cols: "30",
-                      rows: "5"
+                      rows: "2"
                     },
                     domProps: { value: _vm.ticket.description },
                     on: {
@@ -39879,7 +39986,7 @@ var render = function() {
                       name: "admin_notes",
                       id: "admin_notes",
                       cols: "30",
-                      rows: "5"
+                      rows: "2"
                     },
                     domProps: { value: _vm.ticket.admin_notes },
                     on: {
@@ -39891,6 +39998,43 @@ var render = function() {
                       }
                     }
                   })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { attrs: { for: "order" } }, [_vm._v("Order:")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.ticket.order,
+                        expression: "ticket.order"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      required: "",
+                      type: "number",
+                      step: "1",
+                      min: "1",
+                      name: "order",
+                      id: "order"
+                    },
+                    domProps: { value: _vm.ticket.order },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.ticket, "order", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("small", { staticClass: "form-text text-muted" }, [
+                    _vm._v("ticket display order")
+                  ])
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
