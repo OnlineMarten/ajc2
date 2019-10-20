@@ -25,6 +25,7 @@ window.Vue = require('vue');
 import VueFilterDateFormat from 'vue-filter-date-format';
 Vue.use(VueFilterDateFormat);
 
+
 Vue.component('multipleDatepicker', require('vue-multiple-datepicker').default);
 //Vue.component('VueFilterDateFormat', require('vue-filter-date-format').default);
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
@@ -33,6 +34,7 @@ Vue.component('ticket-component', require('./components/TicketComponent.vue').de
 
 Vue.component('event-component', require('./components/EventComponent.vue').default);
 
+Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

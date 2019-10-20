@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
@@ -233,5 +234,59 @@ class EventController extends Controller
        return response()->json([
         'message'       => 'Event: "'.$event->title.', date: '. $event->event_date.'" deleted '
     ], 200);
+    }
+
+
+    public function calendarEvents()
+    {
+        $events = Event::
+        orderBy("event_date")
+        ->get();
+
+
+        $calendarevents = [];
+        $e=[];
+
+        foreach ($events as $event) {
+            if ($event->active) {
+
+                $e['date'] = $event->event_date;
+                $e['id'] = $event->id;
+                //green
+                if ($event->tickets_sold < 8 ) {
+                    $e['title'] = ucwords($event->title)."\nBook Now";
+                    $e['backgroundColor'] ="#70CA2E";
+                    $e['classNames'] =[ 'open' ];
+                }
+                //yellow
+                if ($event->tickets_sold >= 8 ) {
+                    $e['title'] = ucwords($event->title)."\nBook Now";
+                    $e['backgroundColor'] ="#F19B12";
+                    $e['classNames'] =[ 'open' ];
+
+                }
+                //red
+                if ($event->sold_out) {
+                    $e['title'] = ucwords($event->title)."\nSold Out";
+                    $e['backgroundColor'] ="#FA0C00";
+                    $e['classNames'] =[ 'closed' ];
+
+                }
+
+
+                array_push($calendarevents,$e);
+
+            }
+
+        }
+
+
+
+    // Output json for our calendar
+
+
+                return response()->json([
+                    'events'    => $calendarevents,
+                ], 200);
     }
 }
