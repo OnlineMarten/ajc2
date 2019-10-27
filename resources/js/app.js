@@ -24,9 +24,15 @@ window.Vue = require('vue');
 
 import VueFilterDateFormat from 'vue-filter-date-format';
 Vue.use(VueFilterDateFormat);
-
-
 Vue.component('multipleDatepicker', require('vue-multiple-datepicker').default);
+
+
+//import DatePicker from 'v-calendar/lib/components/date-picker.umd'
+//Vue.component('date-picker', DatePicker);
+Vue.component('date-picker', require('./components/VCalendarComponent.vue').default);
+
+Vue.component('booking-selection', require('./components/BookingComponent.vue').default);
+
 //Vue.component('VueFilterDateFormat', require('vue-filter-date-format').default);
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('category-component', require('./components/CategoryComponent.vue').default);

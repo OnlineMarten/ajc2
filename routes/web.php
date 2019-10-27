@@ -19,6 +19,7 @@ Auth::routes();
 
 Route::get('/admin', 'AdminController@index')->name('dashboard');
 
+
 /*Route::get('/admin/category-show', function () {
     return view('admin/pages/category/category');// not through controller because the data is retrieved through an axios call on page
 });

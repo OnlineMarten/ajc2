@@ -13,11 +13,12 @@ class EventTicketController extends Controller
         //get all tickets  connected to a specific event
 
         $event = Event::findOrFail($event_id);
-
         $checkedtickets = $event->tickets->pluck('id');
 
         return response()->json([
             'checkedtickets' => $checkedtickets,
         ], 200);
     }
+
+
 }

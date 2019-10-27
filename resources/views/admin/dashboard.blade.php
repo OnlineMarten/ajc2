@@ -14,7 +14,19 @@
 
 @section('content')
 <h1>Dit is het dashboard</h1>
+
+<!--
+<h2>Calendar</h2>
 <calendar-component></calendar-component>
+-->
+
+<hr>
+<p>Config vars</p>
+<?php echo "minimal number of tickets required: ". config('custom.minimal_tickets_required'); ?>
+<hr>
+<h2></h2>
+<hr>
+<booking-selection></booking-selection>
 
 @endsection
 
