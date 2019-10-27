@@ -39,6 +39,7 @@ Vue.component('category-component', require('./components/CategoryComponent.vue'
 Vue.component('ticket-component', require('./components/TicketComponent.vue').default);
 
 Vue.component('event-component', require('./components/EventComponent.vue').default);
+Vue.component('extra-component', require('./components/ExtraComponent.vue').default);
 
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 

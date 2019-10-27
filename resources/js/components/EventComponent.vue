@@ -143,7 +143,20 @@
                             <!-- in case of add-->
                             <span v-if="add_update=='add'">
                                 <label for="event_date">Event date(s):</label>
-                                <multipleDatepicker v-model="event.event_date" name="event_date" id="event_date"></multipleDatepicker>
+
+                                <DatePicker
+        v-model="event.event_date"
+        mode="multiple"
+        :value="null"
+
+        is-inline
+
+        :input-props='{
+            placeholder: "Please choose a date",
+            readonly: true,
+        }'
+    />
+                              <!--  <multipleDatepicker v-model="event.event_date" name="event_date" id="event_date"></multipleDatepicker>-->
                             </span>
 
                             <!-- in case of update-->
@@ -218,8 +231,22 @@
                                 <li class="list-group-item  ml-3" v-for="ticket in tickets" :key="ticket.id">
 
                                     <input class="form-check-input" type="checkbox" :value="ticket.id"
-                                                                        v-bind:id="ticket.name" :name="ticket.name" v-model="checkedTickets">
+                                                                        v-bind:id="ticket.title" :name="ticket.title" v-model="checkedTickets">
                                     <label class="form-check-label" for="defaultCheck1">{{ ticket.title }} </label>
+
+                                </li>
+                            </ul>
+                            <br>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select categories for sale:</label>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item  ml-3" v-for="category in categories" :key="category.id">
+
+                                    <input class="form-check-input" type="checkbox" :value="category.id"
+                                                                        v-bind:id="category.title" :name="category.title" v-model="checkedCategories">
+                                    <label class="form-check-label" for="defaultCheck1">{{ category.title }} </label>
 
                                 </li>
                             </ul>
@@ -250,8 +277,14 @@
 
 
 <script>
+import DatePicker from 'v-calendar/lib/components/date-picker.umd';
+
 
 export default {
+    components: {
+
+    DatePicker
+  },
   data() {
     return {
 
@@ -268,7 +301,8 @@ export default {
             tickets_reserved: "",
             active: "1",
             sold_out: "",
-            checkedTickets: []
+            checkedTickets: [],
+            checkedCategories: []
 
         },
         errors: "",
@@ -287,9 +321,18 @@ export default {
             vat: "",
             order: "",
         },
+        //category data
+        category: {
+        order: "",
+        title: "",
+        description: "",
+        admin_notes: ""
+      },
 
         tickets: [],
+        categories: [],
         checkedTickets: [],
+        checkedCategories: [],
 
         //date config
         dateFormatConfig: {
@@ -315,18 +358,19 @@ export default {
 
   mounted() {
     this.readEvents();
-    this.readTickets()
+    this.readTickets();
+    this.readCategories();
   },
 
   methods: {
     initAddEvent() {
-      this.errors = "";
-      this.event.event_date = "";
-      this.date="";
-      this.add_update = "add";
-      this.readTickets();
-      this.checkedTickets=[];
-      $("#add_event_model").modal("show");
+        this.errors = "";
+        this.event.event_date = "";
+        this.date="";
+        this.add_update = "add";
+        this.checkedTickets=[];
+        this.checkedCategories=[];
+        $("#add_event_model").modal("show");
     },
 
     showErrors(error) {
@@ -340,6 +384,7 @@ export default {
 
     createEvent() {
         this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
+        this.event.checkedCategories = this.checkedCategories;//place selection in event data so it will be transferred with axios
       axios
         .post("event", this.$data.event )
 
@@ -396,10 +441,17 @@ export default {
         this.checkedTickets = response.data.checkedtickets;
 
       });
+      axios.get("eventgetcategories/"+ this.events[index].id)
+
+        .then(response => {
+        this.checkedCategories = response.data.checkedcategories;
+
+      });
     },
 
     updateEvent() {
         this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
+        this.event.checkedCategories = this.checkedCategories;//place selection in event data so it will be transferred with axios
       axios
         .put("event/" + this.event.id, this.$data.event)
 
@@ -440,6 +492,12 @@ export default {
     readTickets() {
       axios.get("ticket").then(response => {
         this.tickets = response.data.tickets;
+      });
+    },
+    //category functions
+    readCategories() {
+      axios.get("category").then(response => {
+        this.categories = response.data.categories;
       });
     },
 

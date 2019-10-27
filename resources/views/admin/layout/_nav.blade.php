@@ -34,14 +34,13 @@
                         <a class="nav-link" href="{{ route('event.index') }}">Events <span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{{ route('category.index') }}">Categories <span class="sr-only"></span></a>
-                    </li>
-                    <li class="nav-item ">
                         <a class="nav-link" href="{{ route('ticket.index') }}">Tickets <span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{{ route('upsale.index') }}">Upsells <span class="sr-only"></span></a>
+                        <a class="nav-link" href="{{ route('extra.index') }}">Extras <span class="sr-only"></span></a>
                     </li>
+
+
 
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -52,14 +51,14 @@
                             <a class="dropdown-item" href="{{ route('event.index') }}">
                                 {{ __('Events') }}
                             </a>
-                            <a class="dropdown-item" href="{{ route('category.index') }}">
-                                {{ __('Categories') }}
-                            </a>
                             <a class="dropdown-item" href="{{ route('ticket.index') }}">
                                 {{ __('Tickets') }}
                             </a>
-                            <a class="dropdown-item" href="{{ route('upsale.index') }}">
-                                {{ __('Upsells') }}
+                            <a class="dropdown-item" href="{{ route('category.index') }}">
+                                {{ __('Categories') }}
+                            </a>
+                            <a class="dropdown-item" href="{{ route('extra.index') }}">
+                                {{ __('Extras') }}
                             </a>
                         </div>
                     </li>

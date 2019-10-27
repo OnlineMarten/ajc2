@@ -27,6 +27,7 @@
                                 <th>Title</th>
                                 <th>Description</th>
                                 <th>Admin notes</th>
+                                <th>connected extra's</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -43,6 +44,9 @@
                                 </td>
                                 <td>
                                     {{ category.admin_notes }}
+                                </td>
+                                <td>
+                                    {{ category.extras_count }}
                                 </td>
                                 <td>
 
@@ -74,7 +78,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h4 class="modal-title">Add New Category</h4>
+                    <h4 class="modal-title"><span v-if="add_update=='add'">Add New Category</span><span v-else>Edit Category</span></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
 
@@ -118,6 +122,20 @@
                             v-model="category.admin_notes"></textarea>
                     </div>
 
+                    <div class="form-group row">
+                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select extras:</label>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item  ml-3" v-for="extra in extras" :key="extra.id">
+
+                                    <input class="form-check-input" type="checkbox" :value="extra.id"
+                                                                        v-bind:id="extra.title" :name="extra.title" v-model="checkedExtras">
+                                    <label class="form-check-label" for="defaultCheck1">{{ extra.title }} </label>
+
+                                </li>
+                            </ul>
+                        <br>
+                    </div>
+
                     </div>
                     <!--modal body-->
 
@@ -153,18 +171,29 @@ export default {
       categories: [],
       message: "",
       add_update: "",
-      show: false
+      show: false,
+
+      //extras data
+        extra: {
+        title: "",
+        admin_notes: ""
+      },
+      extras:[],
+      checkedExtras:[],
     };
   },
 
   mounted() {
     this.readCategories();
+
   },
 
   methods: {
     initAddCategory() {
       this.errors = "";
       this.add_update = "add";
+       this.readExtras();
+       this.checkedExtras=[];
       $("#add_category_model").modal("show");
     },
 
@@ -178,6 +207,8 @@ export default {
     },
 
     createCategory() {
+
+     this.category.checkedExtras = this.checkedExtras;//place selection in category data so it will be transferred with axios
       axios
         .post("category", this.$data.category)
 
@@ -207,6 +238,7 @@ export default {
     },
 
     readCategories() {
+
       axios.get("category").then(response => {
         this.categories = response.data.categories;
       });
@@ -217,11 +249,19 @@ export default {
     initUpdate(index) {
       this.errors = "";
       this.add_update = "update";
+       this.readExtras();
       $("#add_category_model").modal("show");
       this.category = this.categories[index];
+       axios.get("categorygetextras/"+ this.categories[index].id)
+
+        .then(response => {
+        this.checkedExtras = response.data.checkedExtras;
+
+      });
     },
 
     updateCategory() {
+      this.category.checkedExtras = this.checkedExtras;//place selection in category data so it will be transferred with axios
       axios
         .put("category/" + this.category.id, this.$data.category)
 
@@ -256,6 +296,13 @@ export default {
             // Error
           });
       }
+    },
+    //extras
+    readExtras() {
+        axios.get("extra").then(response => {
+        this.extras = response.data.extras;
+
+      });
     }
   }
 };

@@ -67,7 +67,7 @@ class TicketController extends Controller
         logger()->channel('info')->info('ticket "'.request("title").'" created by '.auth()->user()->name);
 
         return response()->json([
-            'message'       => 'New Ticket "'.request("title"). '" created'
+            'message'       => 'New Ticket "'.request('title') . '" created'
         ], 200);
     }
 
