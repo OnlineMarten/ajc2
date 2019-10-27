@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEventTicketTable extends Migration
+class CreateCategoryEventTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateEventTicketTable extends Migration
      */
     public function up()
     {
-        Schema::create('event_ticket', function (Blueprint $table) {
+        Schema::create('category_event', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('category_id')->index;
             $table->unsignedBigInteger('event_id')->index;
-            $table->unsignedBigInteger('ticket_id')->index;
-
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->foreign('event_id')->references('id')->on('events');
-            $table->foreign('ticket_id')->references('id')->on('tickets');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ class CreateEventTicketTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('event_ticket');
+        Schema::dropIfExists('category_event');
     }
 }

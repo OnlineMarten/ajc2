@@ -21,7 +21,8 @@ class CategoryController extends Controller
 
 
         $categories = Category::
-        orderBy("order")
+        withCount('extras')
+        ->orderBy("order")
         ->orderBy("title")
         ->get();
 
@@ -57,6 +58,10 @@ class CategoryController extends Controller
         $this->validate($request, [
             'order'         => 'required|numeric|min:1',
             'title'          => 'required|max:255',
+            'checkedExtras' => 'required|array|min:1',
+        ],
+        [
+            'checkedExtras.required' => 'Category can not be empty. Please select minimal one extra'
         ]);
 
         $category = Category::create([
@@ -65,6 +70,8 @@ class CategoryController extends Controller
             'description'   => request('description'),
             'admin_notes'   => request('admin_notes'),
         ]);
+
+        $category->extras()->sync($request->checkedExtras);//attach extras to category
 
         logger()->channel('info')->info('category "'.request("title").'" created by '.auth()->user()->name);
 
@@ -107,6 +114,10 @@ class CategoryController extends Controller
         $this->validate($request, [
             'order'         => 'required|min:1',
             'title'          => 'required|max:255',
+            'checkedExtras' => 'required|array|min:1',
+        ],
+        [
+            'checkedExtras.required' => 'Category can not be empty. Please select minimal one extra'
         ]);
 
         $category = Category::findOrFail($id);
@@ -122,6 +133,7 @@ class CategoryController extends Controller
             ], 200);
 
         }
+        $category->extras()->sync($request->checkedExtras);//attach extras to category
 
         logger()->channel('info')->info('category "'.$category->title.'" updated by '.auth()->user()->name);
 
@@ -152,5 +164,18 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'Delete failed!'
         ], 422);
+    }
+
+
+    public function allExtrasConnectedToCategory($category_id)
+    {
+        //get all categories  connected to a specific extra
+
+        $category = Category::findOrFail($category_id);
+        $extras = $category->extras->pluck('id');
+
+        return response()->json([
+            'checkedExtras' => $extras,
+        ], 200);
     }
 }

@@ -10,6 +10,6 @@ class Ticket extends Model
 
     public function events()
     {
-        return $this->belongsToMany('App\Event')->withTimestamps();
+        return $this->belongsToMany('App\Event')->orderBy('event_date')->withTimestamps();
     }
 }

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Event;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
 
 class EventController extends Controller
 {
@@ -80,17 +81,21 @@ class EventController extends Controller
 
 
             //get all dates
-            $event_dates = explode (",", $request->event_date);
+            $event_dates = $request->event_date;
 
             //and loop through them to create identical events
             foreach ($event_dates as $event_date) {
+
+                //first we need to correct the ISO8601 date by changing the timezone from utc (z) to local time, otherwise we end up with the wrong date!
+                $corrected_date = new \DateTime( $event_date, new \DateTimeZone( 'UTC' ) );  // as the original datetime string is in Zulu time, set the datetimezone as UTC first
+                $corrected_date->setTimezone( new \DateTimeZone( 'Europe/Amsterdam' ) ); // this is what actually sets the timezone
 
                 //create new event
                 $event = new Event;
 
                 //fill all aparams except date
+                $event->event_date = $corrected_date;
                 if (!$request->tickets_reserved) $request->tickets_reserved=0;
-                $event->event_date = $event_date;
                 $event->title = $request->title;
                 $event->description = $request->description;
                 $event->start_time = $request->start_time;
@@ -103,19 +108,13 @@ class EventController extends Controller
                 $event->save();
 
                 $event->tickets()->sync($request->checkedTickets);//attach tickets to event
+                $event->categories()->sync($request->checkedCategories);//attach categories to event
 
-                logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" created by '.auth()->user()->name);
+                $event_date = date('d-m-Y', strtotime($corrected_date));//convert to readable for log
+                logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event_date.'" created by '.auth()->user()->name);
             }
 
-        //attach the selected upgrades to the event
-     //   $event->tickets()->sync($request->tickets);
-     //   $event->upgrades()->sync($request->upgrades);
-
-
-
         //session()->flash('alert-success', 'Event added');
-
-
         return response()->json([
             'message'       => 'New Event(s) created'
         ], 200);
@@ -199,11 +198,12 @@ class EventController extends Controller
         }
 
         $event->tickets()->sync($request->checkedTickets);
+        $event->categories()->sync($request->checkedCategories);
 
         logger()->channel('info')->info('event "'.$event->title.'" updated by '.auth()->user()->name);
 
         return response()->json([
-            'message' => 'Event "'. $event->title .'" updated'
+            'message' => 'Event "'. $event->title . $event->event_date . '" updated'
         ], 200);
     }
 
@@ -288,5 +288,29 @@ class EventController extends Controller
                 return response()->json([
                     'events'    => $calendarevents,
                 ], 200);
+    }
+
+    public function allCategoriesConnectedToEvent($event_id)
+    {
+        //get all tickets  connected to a specific event
+
+        $event = Event::findOrFail($event_id);
+        $checkedcategories = $event->categories->pluck('id');
+
+        return response()->json([
+            'checkedcategories' => $checkedcategories,
+        ], 200);
+    }
+
+    public function allTicketsConnectedToEvent($event_id)
+    {
+        //get all tickets  connected to a specific event
+
+        $event = Event::findOrFail($event_id);
+        $checkedtickets = $event->tickets->pluck('id');
+
+        return response()->json([
+            'checkedtickets' => $checkedtickets,
+        ], 200);
     }
 }
