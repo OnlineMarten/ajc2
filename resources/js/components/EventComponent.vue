@@ -18,20 +18,25 @@
                 <!--card header-->
                 <div class="card-body">
                     <button @click="initAddEvent()" class="btn btn-primary btn-xs float-left">
-                            + Add New Event
+                            + Add New Event(s)
                     </button>
+
                     <br><hr>
-                    <table class="table table-striped table-responsive table-sm" v-if="events.length > 0" ref="table">
+                    <input type="checkbox" id="checkbox" v-model="show_details_table">
+                    <label for="checkbox">show detailed table</label>
+
+                    <table class="table table-striped table-bordered table-responsive table-sm" v-if="events.length > 0" ref="table">
                         <thead>
                             <tr>
 
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Event date</th>
+                                <th>Event</th>
+                                <th>Date</th>
                                 <!--<th>Event times</th>-->
-                                <th>min-max</th>
-                                <th>sold</th>
-                                <th>status</th>
+                                <th v-if="show_details_table">min-max tickets/sale</th>
+                                <th>Tickets sold</th>
+                                <th v-if="show_details_table">Ticket group (#tickets)</th>
+                                <th v-if="show_details_table">#categories</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -44,10 +49,6 @@
                                     {{ event.title }}
                                 </td>
                                 <td>
-                                    {{ event.description }}
-                                </td>
-
-                                <td>
                                     {{ new Date(event.event_date) | dateFormat('dd DD MMM YYYY', dateFormatConfig) }}
                                 </td>
                                 <!--
@@ -55,11 +56,22 @@
                                     {{ event.start_time}} - {{ event.end_time}}
                                 </td>
                                 -->
-                                <td>
+                                <td v-if="show_details_table">
                                     {{ event.min_per_sale }}-{{ event.max_per_sale }}
                                 </td>
                                 <td>
                                     {{ event.tickets_sold }} of {{ event.capacity }}
+                                </td>
+                                <td v-if="show_details_table">
+                                    <!-- check if ticket_groups and events are loaded to avoid can not read property warning-->
+                                    <span v-if="ticket_groups.find(ticket_groups => ticket_groups.id === event.ticket_group_id)">
+                                        {{ ticket_groups.find(ticket_groups => ticket_groups.id === event.ticket_group_id).admin_notes }}
+                                        ({{ticket_groups.find(ticket_groups => ticket_groups.id === event.ticket_group_id).tickets_count}} ticket(s))
+                                    </span>
+                                </td>
+                                <td v-if="show_details_table">
+                                    {{event.categories_count }}
+
                                 </td>
                                 <td v-if= "event.sold_out ===0 && event.active ===1">
                                       active
@@ -80,7 +92,7 @@
                     </table>
                      <div v-else>
                         <br><hr>
-                        <p>no events yet</p>
+                        <p v-if="loaded">No events yet</p>
                     </div>
                 </div>
                 <!--card body-->
@@ -145,24 +157,24 @@
                                 <label for="event_date">Event date(s):</label>
 
                                 <DatePicker
-        v-model="event.event_date"
-        mode="multiple"
-        :value="null"
+                                    v-model="event.event_date"
+                                    mode="multiple"
+                                    :value="null"
 
-        is-inline
+                                    is-inline
 
-        :input-props='{
-            placeholder: "Please choose a date",
-            readonly: true,
-        }'
-    />
+                                    :input-props='{
+                                        placeholder: "Please choose a date",
+                                        readonly: true,
+                                    }'
+                                />
                               <!--  <multipleDatepicker v-model="event.event_date" name="event_date" id="event_date"></multipleDatepicker>-->
                             </span>
 
                             <!-- in case of update-->
                             <span v-if="add_update=='update'">
                                 <label for="event_date">Event date:</label>
-                                <input required type="date" name="event_date" id="event_date" class="form-control"
+                               <input required type="date" name="event_date" id="event_date" class="form-control"
                                 v-model="event.event_date">
                             </span>
 
@@ -207,10 +219,10 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="tickets_reserved" class="col-sm-3 col-form-label">Tickets reserved</label>
+                            <label for="ticket_groups_reserved" class="col-sm-3 col-form-label">Tickets reserved</label>
                             <div class="col-sm-8">
-                            <input type="number" class="form-control form-control-sm" name="tickets_reserved" min="0" step="1" v-model="event.tickets_reserved">
-                            <small class="form-text text-muted">Optional, number of tickets kept apart, not available for online sale (no value entered means zero)</small>
+                            <input type="number" class="form-control form-control-sm" name="ticket_groups_reserved" min="0" step="1" v-model="event.ticket_groups_reserved">
+                            <small class="form-text text-muted">Optional, number of ticket_groups kept apart, not available for online sale (no value entered means zero)</small>
                             </div>
                         </div>
 
@@ -224,25 +236,38 @@
                             <small class="form-text text-muted">select yes to start selling immediately.<br>Select no to close for sale and then you have to open it later manually.</small>
                             </div>
                         </div>
-
+<!--
                         <div class="form-group row">
-                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select tickets for sale:</label>
+                            <label for="ticket_group-selection" class="col-sm-3 col-form-label">Select one ticket group for sale:</label>
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item  ml-3" v-for="ticket in tickets" :key="ticket.id">
+                                <li class="list-group-item  ml-3" v-for="ticket_group in ticket_groups" :key="ticket_group.id">
 
-                                    <input class="form-check-input" type="checkbox" :value="ticket.id"
-                                                                        v-bind:id="ticket.title" :name="ticket.title" v-model="checkedTickets">
-                                    <label class="form-check-label" for="defaultCheck1">{{ ticket.title }} </label>
+                                    <input class="form-check-input" type="checkbox" :value="ticket_group.id"
+                                                                        v-bind:id="ticket_group.title" :name="ticket_group.title" v-model="checkedTicketGroups">
+                                    <label class="form-check-label" for="defaultCheck1">{{ ticket_group.admin_notes }} </label>
 
                                 </li>
                             </ul>
                             <br>
                         </div>
 
+-->                        <div class="form-group row">
+                            <label for="ticket_group-selection" class="col-sm-3 col-form-label">Select ticket group for sale:</label>
+                            <div class="col-sm-8">
+                             <span v-for="ticket_group in ticket_groups" :key="ticket_group.id">
+
+                                <input type="radio" :id="ticket_group.id" :value="ticket_group.id" v-model="event.ticket_group_id">
+                                <label class="form-check-label" :for="ticket_group.id">{{ ticket_group.admin_notes }}</label>
+                                  <br/><hr>
+                             </span>
+                            </div>
+                        </div>
+
                         <div class="form-group row">
-                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select categories for sale:</label>
+                            <label for="ticket_group-selection" class="col-sm-3 col-form-label">Select categories for sale:</label>
+                            <div class="col-sm-8">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item  ml-3" v-for="category in categories" :key="category.id">
+                                <li class="list-group-item" v-for="category in categories" :key="category.id">
 
                                     <input class="form-check-input" type="checkbox" :value="category.id"
                                                                         v-bind:id="category.title" :name="category.title" v-model="checkedCategories">
@@ -250,8 +275,9 @@
 
                                 </li>
                             </ul>
-                            <br>
+                            </div>
                         </div>
+
 
 
                         </div>
@@ -287,7 +313,9 @@ export default {
   },
   data() {
     return {
-
+        //checkbox
+        show_details_table:true,
+        loaded:false,
         //event data
         event: {
             title: "",
@@ -298,10 +326,10 @@ export default {
             min_per_sale: "",
             max_per_sale: "",
             capacity: "",
-            tickets_reserved: "",
+            ticket_groups_reserved: "",
             active: "1",
             sold_out: "",
-            checkedTickets: [],
+            ticket_group_id:"",
             checkedCategories: []
 
         },
@@ -312,15 +340,16 @@ export default {
         show: false,
         dateValue: "",
 
-        //ticket data
-        ticket: {
+        //ticket_group data
+        /*
+        ticket_group: {
             title: "",
             description: "",
             admin_notes: "",
             price: "",
             vat: "",
             order: "",
-        },
+        },*/
         //category data
         category: {
         order: "",
@@ -329,9 +358,9 @@ export default {
         admin_notes: ""
       },
 
-        tickets: [],
+        ticket_groups: [],
         categories: [],
-        checkedTickets: [],
+       // checkedTicketGroup: "",
         checkedCategories: [],
 
         //date config
@@ -351,15 +380,18 @@ export default {
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
           ]
-        }
+        },
+        //DatePicker
+        date:"",
     };
 
   },
 
   mounted() {
     this.readEvents();
-    this.readTickets();
+    this.readTicketGroups();
     this.readCategories();
+    this.loaded=true;
   },
 
   methods: {
@@ -368,7 +400,7 @@ export default {
         this.event.event_date = "";
         this.date="";
         this.add_update = "add";
-        this.checkedTickets=[];
+    //    this.checkedTicketGroup="";
         this.checkedCategories=[];
         $("#add_event_model").modal("show");
     },
@@ -383,10 +415,10 @@ export default {
     },
 
     createEvent() {
-        this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
+     //   this.event.checkedTicketGroup = this.checkedTicketGroup;//place selection in event data so it will be transferred with axios
         this.event.checkedCategories = this.checkedCategories;//place selection in event data so it will be transferred with axios
       axios
-        .post("event", this.$data.event )
+        .post("/admin/event", this.$data.event )
 
         .then(response => {
           $("#add_event_model").modal("hide");
@@ -415,13 +447,13 @@ export default {
         this.event.min_per_sale="";
         this.event.max_per_sale = "";
         this.event.capacity = "";
-        this.event.tickets_reserved = "0";
+        this.event.ticket_groups_reserved = "0";
         this.event.active = "1";
         */
     },
 
     readEvents() {
-        axios.get("event").then(response => {
+        axios.get("/admin/event").then(response => {
         this.events = response.data.events;
 
       });
@@ -435,25 +467,25 @@ export default {
       this.add_update = "update";
       $("#add_event_model").modal("show");
       this.event = this.events[index];
-       axios.get("eventgettickets/"+ this.events[index].id)
+     /*  axios.get("eventgetticketgroups/"+ this.events[index].id)
 
         .then(response => {
-        this.checkedTickets = response.data.checkedtickets;
+        this.checkedTicketGroup = response.data.checkedTicketGroup;
 
-      });
-      axios.get("eventgetcategories/"+ this.events[index].id)
+      });*/
+      axios.get("/admin/eventgetcategories/"+ this.events[index].id)
 
         .then(response => {
-        this.checkedCategories = response.data.checkedcategories;
+        this.checkedCategories = response.data.checkedCategories;
 
       });
     },
 
     updateEvent() {
-        this.event.checkedTickets = this.checkedTickets;//place selection in event data so it will be transferred with axios
+       // this.event.checkedTicketGroup = this.checkedTicketGroup;//place selection in event data so it will be transferred with axios
         this.event.checkedCategories = this.checkedCategories;//place selection in event data so it will be transferred with axios
       axios
-        .put("event/" + this.event.id, this.$data.event)
+        .put("/admin/event/" + this.event.id, this.$data.event)
 
         .then(response => {
           $("#add_event_model").modal("hide");
@@ -474,7 +506,7 @@ export default {
       );
       if (conf === true) {
         axios
-          .delete("event/" + this.events[index].id)
+          .delete("/admin/event/" + this.events[index].id)
 
           .then(response => {
             this.events.splice(index, 1);
@@ -488,19 +520,18 @@ export default {
       }
     },
 
-    //ticket functions
-    readTickets() {
-      axios.get("ticket").then(response => {
-        this.tickets = response.data.tickets;
+    //ticket_group functions
+    readTicketGroups() {
+      axios.get("/admin/ticket_group").then(response => {
+        this.ticket_groups = response.data.ticket_groups;
       });
     },
     //category functions
     readCategories() {
-      axios.get("category").then(response => {
+      axios.get("/admin/category").then(response => {
         this.categories = response.data.categories;
       });
     },
-
   }
 };
 </script>

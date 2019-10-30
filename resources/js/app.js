@@ -31,11 +31,14 @@ Vue.component('multipleDatepicker', require('vue-multiple-datepicker').default);
 //Vue.component('date-picker', DatePicker);
 Vue.component('date-picker', require('./components/VCalendarComponent.vue').default);
 
-Vue.component('booking-selection', require('./components/BookingComponent.vue').default);
+Vue.component('booking-selection', require('./components/BookingSelection.vue').default);
+
+Vue.component('booking-component', require('./components/BookingComponent.vue').default);
 
 //Vue.component('VueFilterDateFormat', require('vue-filter-date-format').default);
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('category-component', require('./components/CategoryComponent.vue').default);
+Vue.component('ticketgroup-component', require('./components/TicketGroupComponent.vue').default);
 Vue.component('ticket-component', require('./components/TicketComponent.vue').default);
 
 Vue.component('event-component', require('./components/EventComponent.vue').default);

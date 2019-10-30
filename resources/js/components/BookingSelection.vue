@@ -1,5 +1,7 @@
 <template>
 <div>
+    <div v-if="step===1">
+    <h2>Choose date</h2>
     <DatePicker
         v-model="date"
         mode="single"
@@ -7,9 +9,8 @@
         :attributes='attrs'
         :available-dates='allevents'
         :select-attribute='selectAttribute'
-        is-dark
         is-inline
-
+        @input="onChangeDate"
         :input-props='{
             placeholder: "Please choose a date",
             readonly: true,
@@ -29,8 +30,36 @@
 -->
 
 
-<!--<p>{{events}}</p>-->
+
+
+</div><!--step1-->
+
+<div v-if="step===2">
+    <h2>Your selection</h2>
+     {{ new Date(date) | dateFormat('dd DD MMM YYYY', dateFormatConfig) }}
+    <h2>Choose tickets</h2>
+    <p>ticket selection box</p>
+    <h2>Choose Extra's</h2>
+    <p>extra's selection box</p>
+
+</div><!--step2-->
+
+<div v-if="step===3">
+    <h2>Your selection</h2>
+     {{ new Date(date) | dateFormat('dd DD MMM YYYY', dateFormatConfig) }}
+     <br/><p>ticketselection and extra 's here</p>
+    <h2>Name country, phone here</h2>
+    <button  type="submit" @click.prevent="next()">Go to payment</button>
+
+</div><!--step3-->
+
+<div v-if="step>1"><button type="submit" @click.prevent="prev()">Previous</button></div>
+<div v-if="(step>=1 && step<3 && date!=='')"><button  type="submit" @click.prevent="next()">Next</button></div>
+
+
+
 </div>
+
 </template>
 
 
@@ -56,6 +85,26 @@ export default {
                 fillMode: 'solid',
                 highlight:'gray'
 
+            },
+            step:1,
+
+            //date config
+            dateFormatConfig: {
+            dayOfWeekNames: [
+                'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+                'Friday', 'Saturday'
+            ],
+            dayOfWeekNamesShort: [
+                'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+            ],
+            monthNames: [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ],
+            monthNamesShort: [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ]
             }
 
         }//return
@@ -106,7 +155,7 @@ export default {
         readEvents()
         {
 
-            axios.get("/admin/calendarevents").then(response => {
+            axios.get("admin/calendarevents").then(response => {
             //this.events = response.data.events;
             this.allevents=
                 [
@@ -136,6 +185,16 @@ export default {
                     new Date(2019, 9, 18),
                 ];
             });
+        },
+        prev() {
+            this.step--;
+        },
+        next() {
+            this.step++;
+        },
+        onChangeDate(){
+            console.log('in onchangedate, new date:'+this.date);
+            //get tickets for this date
         }
     },//methods
 }//export default

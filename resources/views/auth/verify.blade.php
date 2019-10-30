@@ -1,4 +1,16 @@
-@extends('layouts.app')
+@extends('layout.main') {{--@extends('layouts.app')--}}
+
+@section('title', '| Verify') <!--title will be appended to title set in ENV file-->
+
+@section('page-specific-scripts-stylesheets')
+    <!-- insert page specific scripts here, will be loaded after general scripts-->
+
+
+<style>
+
+</style>
+@endsection
+
 
 @section('content')
 <div class="container">

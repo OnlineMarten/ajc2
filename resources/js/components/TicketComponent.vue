@@ -208,7 +208,7 @@ export default {
 
     createTicket() {
       axios
-        .post("ticket", this.$data.ticket)
+        .post("/admin/ticket", this.$data.ticket)
 
         .then(response => {
           $("#add_ticket_model").modal("hide");
@@ -236,7 +236,7 @@ export default {
     },
 
     readTickets() {
-      axios.get("ticket").then(response => {
+      axios.get("/admin/ticket").then(response => {
         this.tickets = response.data.tickets;
       });
     },
@@ -252,7 +252,7 @@ export default {
 
     updateTicket() {
       axios
-        .put("ticket/" + this.ticket.id, this.$data.ticket)
+        .put("/admin/ticket/" + this.ticket.id, this.$data.ticket)
 
         .then(response => {
           $("#add_ticket_model").modal("hide");
@@ -273,7 +273,7 @@ export default {
       );
       if (conf === true) {
         axios
-          .delete("ticket/" + this.tickets[index].id)
+          .delete("/admin/ticket/" + this.tickets[index].id)
 
           .then(response => {
             this.tickets.splice(index, 1);

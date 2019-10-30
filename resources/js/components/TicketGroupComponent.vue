@@ -11,54 +11,51 @@
             </div>
 
             <div class="card">
-                <div class="card-header">Categories
+                <div class="card-header">Ticketgroups
 
                 </div>
                 <!--card header-->
 
                 <div class="card-body">
-                    <button @click="initAddCategory()" class="btn btn-primary btn-xs float-left">
-                            + Add New Category
+                    <button @click="initAddTicketgroup()" class="btn btn-primary btn-xs float-left">
+                            + Add New Ticketgroup
                     </button>
-                    <table class="table  table-striped table-responsive table-sm" v-if="categories.length > 0" ref="table">
+                    <table class="table  table-striped table-responsive table-sm" v-if="ticket_groups.length > 0" ref="table">
                         <thead>
                             <tr>
-                                <th>Order</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Admin notes</th>
-                                <th>connected extra's</th>
+                                <th>Group name</th>
+                                <th>Public title</th>
+                                <th>Public description</th>
+                                <th> # ticket's</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(category, index) in categories" :key="category.id">
+                            <tr v-for="(ticket_group, index) in ticket_groups" :key="ticket_group.id">
                                 <td>
-                                    {{ category.order }}
+                                    {{ ticket_group.admin_notes }}
                                 </td>
                                 <td>
-                                    {{ category.title }}
+                                    {{ ticket_group.title }}
                                 </td>
                                 <td>
-                                    {{ category.description }}
+                                    {{ ticket_group.description }}
                                 </td>
+
                                 <td>
-                                    {{ category.admin_notes }}
-                                </td>
-                                <td>
-                                    {{ category.extras_count }}
+                                    {{ ticket_group.tickets_count }}
                                 </td>
                                 <td>
 
                                     <button @click="initUpdate(index)" class="btn btn-success btn-sm"><i class="fas fa-edit"></i>Edit</button>
-                                    <button @click="deleteCategory(index)" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i>Delete</button>
+                                    <button @click="deleteTicketgroup(index)" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i>Delete</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                      <div v-else>
                         <br><hr>
-                        <p>no categories yet</p>
+                        <p>no ticket_groups yet</p>
                     </div>
                 </div>
                 <!--card body-->
@@ -71,14 +68,14 @@
     </div>
     <!--row-->
 
-    <div class="modal fade" tabindex="-1" role="dialog" id="add_category_model">
+    <div class="modal fade" tabindex="-1" role="dialog" id="add_ticket_group_model">
 
         <!--MODAL ADD UPDATE-->
         <div class="modal-dialog" role="document">
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h4 class="modal-title"><span v-if="add_update=='add'">Add New Category</span><span v-else>Edit Category</span></h4>
+                    <h4 class="modal-title"><span v-if="add_update=='add'">Add New Ticketgroup</span><span v-else>Edit Ticketgroup</span></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
 
@@ -95,41 +92,43 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="order">Order:</label>
-                        <input required type="number" step="1" min="1" name="order" id="order" class="form-control"
-                                v-model="category.order">
-                        <small class="form-text text-muted">category display order</small>
+                        <label for="title">Group name (needed for identification, will be displayed internally only):</label>
+
+                        <input type="text" name="admin_notes" id="admin_notes" class="form-control"
+                            v-model="ticket_group.admin_notes">
                     </div>
 
                     <div class="form-group">
-                        <label for="name">Title:</label>
+                        <label for="name">Public group title (Optional):</label>
                         <input required type="text" name="title" id="title" class="form-control"
-                            v-model="category.title">
-
+                            v-model="ticket_group.title">
+                        <small class="form-text text-muted">The title is optional and will be displayed above the tickets on the website</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="title">Description (Optional):</label>
-
+                        <label for="title">Public description (Optional):</label>
+                        <small class="form-text text-muted">The description is optional and will be displayed below the title on the website</small>
                         <textarea name="description" id="description" cols="30" rows="5" class="form-control"
-                            v-model="category.description"></textarea>
+                            v-model="ticket_group.description"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="title">Admin notes (Optional, internal use only):</label>
-
-                        <textarea name="admin_notes" id="admin_notes" cols="30" rows="5" class="form-control"
-                            v-model="category.admin_notes"></textarea>
+                        <label for="order">Display Order (optional)</label>
+                        <input required type="number" step="1" min="1" name="order" id="order" class="form-control"
+                                v-model="ticket_group.order">
+                        <small class="form-text text-muted">group display order, only used on this screen</small>
                     </div>
+
+
 
                     <div class="form-group row">
-                            <label for="ticket-selection" class="col-sm-3 col-form-label">Select extras:</label>
+                            <label for="ticket-selection" class="col-sm-3 col-form-label">Tickets connected to this group:</label>
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item  ml-3" v-for="extra in extras" :key="extra.id">
+                                <li class="list-group-item  ml-3" v-for="ticket in tickets" :key="ticket.id">
 
-                                    <input class="form-check-input" type="checkbox" :value="extra.id"
-                                                                        v-bind:id="extra.title" :name="extra.title" v-model="checkedExtras">
-                                    <label class="form-check-label" for="defaultCheck1">{{ extra.title }} </label>
+                                    <input class="form-check-input" type="checkbox" :value="ticket.id"
+                                                                        v-bind:id="ticket.title" :name="ticket.title" v-model="checkedTickets">
+                                    <label class="form-check-label" for="defaultCheck1">{{ ticket.title }} </label>
 
                                 </li>
                             </ul>
@@ -143,12 +142,12 @@
                         <!-- in case of add-->
                         <span v-if="add_update=='add'">
                             <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" @click="createCategory" class="btn btn-primary">Create</button>
+                            <button type="button" @click="createTicketgroup" class="btn btn-primary">Create</button>
                         </span>
                         <!-- in case of update-->
                         <span v-if="add_update=='update'">
                             <button type="button" @click="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" @click="updateCategory" class="btn btn-primary">Update</button>
+                            <button type="button" @click="updateTicketgroup" class="btn btn-primary">Update</button>
                         </span>
                     </div>
                 </div><!-- /.modal-content -->
@@ -161,40 +160,40 @@
 export default {
   data() {
     return {
-      category: {
+      ticket_group: {
         order: "",
         title: "",
         description: "",
         admin_notes: ""
       },
       errors: "",
-      categories: [],
+      ticket_groups: [],
       message: "",
       add_update: "",
       show: false,
 
-      //extras data
-        extra: {
+      //tickets data
+        ticket: {
         title: "",
         admin_notes: ""
       },
-      extras:[],
-      checkedExtras:[],
+      tickets:[],
+      checkedTickets:[],
     };
   },
 
   mounted() {
-    this.readCategories();
+    this.readTicketgroups();
 
   },
 
   methods: {
-    initAddCategory() {
+    initAddTicketgroup() {
       this.errors = "";
       this.add_update = "add";
-       this.readExtras();
-       this.checkedExtras=[];
-      $("#add_category_model").modal("show");
+       this.readTickets();
+       this.checkedTickets=[];
+      $("#add_ticket_group_model").modal("show");
     },
 
     showErrors(error) {
@@ -206,14 +205,14 @@ export default {
       this.errors += "</ul>";
     },
 
-    createCategory() {
+    createTicketgroup() {
 
-     this.category.checkedExtras = this.checkedExtras;//place selection in category data so it will be transferred with axios
+     this.ticket_group.checkedTickets = this.checkedTickets;//place selection in ticket_group data so it will be transferred with axios
       axios
-        .post("/admin/category", this.$data.category)
+        .post("/admin/ticket_group", this.$data.ticket_group)
 
         .then(response => {
-          $("#add_category_model").modal("hide");
+          $("#add_ticket_group_model").modal("hide");
           //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
           this.showMessage(response.data.message);
           this.reset();
@@ -230,17 +229,17 @@ export default {
     },
 
     reset() {
-      this.category.order = "";
-      this.category.title = "";
-      this.category.description = "";
-      this.category.admin_notes = "";
-      this.readCategories();
+      this.ticket_group.order = "";
+      this.ticket_group.title = "";
+      this.ticket_group.description = "";
+      this.ticket_group.admin_notes = "";
+      this.readTicketgroups();
     },
 
-    readCategories() {
+    readTicketgroups() {
 
-      axios.get("/admin/category").then(response => {
-        this.categories = response.data.categories;
+      axios.get("/admin/ticket_group").then(response => {
+        this.ticket_groups = response.data.ticket_groups;
       });
     },
 
@@ -249,24 +248,24 @@ export default {
     initUpdate(index) {
       this.errors = "";
       this.add_update = "update";
-       this.readExtras();
-      $("#add_category_model").modal("show");
-      this.category = this.categories[index];
-       axios.get("/admin/categorygetextras/"+ this.categories[index].id)
+       this.readTickets();
+      $("#add_ticket_group_model").modal("show");
+      this.ticket_group = this.ticket_groups[index];
+       axios.get("/admin/ticketgroupgettickets/"+ this.ticket_groups[index].id)
 
         .then(response => {
-        this.checkedExtras = response.data.checkedExtras;
+        this.checkedTickets = response.data.checkedTickets;
 
       });
     },
 
-    updateCategory() {
-      this.category.checkedExtras = this.checkedExtras;//place selection in category data so it will be transferred with axios
+    updateTicketgroup() {
+      this.ticket_group.checkedTickets = this.checkedTickets;//place selection in ticket_group data so it will be transferred with axios
       axios
-        .put("/admin/category/" + this.category.id, this.$data.category)
+        .put("/admin/ticket_group/" + this.ticket_group.id, this.$data.ticket_group)
 
         .then(response => {
-          $("#add_category_model").modal("hide");
+          $("#add_ticket_group_model").modal("hide");
           this.showMessage(response.data.message);
           this.reset();
         })
@@ -276,18 +275,18 @@ export default {
         });
     },
 
-    deleteCategory(index) {
+    deleteTicketgroup(index) {
       let conf = confirm(
-        'Do you ready want to delete category "' +
-          this.categories[index].title +
+        'Do you ready want to delete ticket_group "' +
+          this.ticket_groups[index].title +
           '"?'
       );
       if (conf === true) {
         axios
-          .delete("/admin/category/" + this.categories[index].id)
+          .delete("/admin/ticket_group/" + this.ticket_groups[index].id)
 
           .then(response => {
-            this.categories.splice(index, 1);
+            this.ticket_groups.splice(index, 1);
             this.showMessage(response.data.message);
           })
 
@@ -297,10 +296,10 @@ export default {
           });
       }
     },
-    //extras
-    readExtras() {
-        axios.get("/admin/extra").then(response => {
-        this.extras = response.data.extras;
+    //tickets
+    readTickets() {
+        axios.get("/admin/ticket").then(response => {
+        this.tickets = response.data.tickets;
 
       });
     }

@@ -16,7 +16,7 @@
 
 
 
-<calendar-component></calendar-component>
+<booking-component></booking-component>
 
 
 <!--
@@ -25,8 +25,3 @@
 
 
 @endsection
-
-
-
-
-

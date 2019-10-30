@@ -14,8 +14,10 @@ class Extra extends Model
         return $this->belongsToMany('App\Category')->orderBy('order')->withTimestamps();
     }
 
+    /*
     public function events()
     {
-        return $this->belongsToMany('App\Event')->orderBy('event_date')->withTimestamps();
+        return $this->hasManyThrough
     }
+    */
 }

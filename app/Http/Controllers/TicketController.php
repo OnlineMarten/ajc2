@@ -166,6 +166,6 @@ class TicketController extends Controller
 
     public function countDependencies($id){
 
-        return Ticket::find($id)->events->Count();
+        return Ticket::find($id)->ticketgroups->Count();
     }
 }

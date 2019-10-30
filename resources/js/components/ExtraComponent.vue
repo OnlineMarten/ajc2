@@ -255,7 +255,7 @@ export default {
 
     createExtra() {
       axios
-        .post("extra", this.$data.extra )
+        .post("/admin/extra", this.$data.extra )
 
         .then(response => {
           $("#add_extra_model").modal("hide");
@@ -279,7 +279,7 @@ export default {
     },
 
     readExtras() {
-        axios.get("extra").then(response => {
+        axios.get("/admin/extra").then(response => {
         this.extras = response.data.extras;
 
       });
@@ -297,7 +297,7 @@ export default {
 
     updateExtra() {
       axios
-        .put("extra/" + this.extra.id, this.$data.extra)
+        .put("/admin/extra/" + this.extra.id, this.$data.extra)
 
         .then(response => {
           $("#add_extra_model").modal("hide");
@@ -318,7 +318,7 @@ export default {
       );
       if (conf === true) {
         axios
-          .delete("extra/" + this.extras[index].id)
+          .delete("/admin/extra/" + this.extras[index].id)
 
           .then(response => {
             this.extras.splice(index, 1);

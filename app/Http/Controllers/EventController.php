@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Event;
+use App\TicketGroup;
+use App\Extra;
 
 use Illuminate\Http\Request;
 
@@ -22,7 +24,8 @@ class EventController extends Controller
 
 
             $events = Event::
-            orderBy("event_date")
+            withCount('categories')
+            ->orderBy("event_date")
             ->get();
 
                 return response()->json([
@@ -61,10 +64,10 @@ class EventController extends Controller
                 'start_time' => 'required',
                 'end_time' => 'required',
                 'capacity' => 'required|numeric|min:1',
-                'checkedTickets' => 'required|array|min:1',
+                'ticket_group_id' => 'required',
             ],
             [
-                'checkedTickets.required' => 'Minimal one ticket is needed'
+                'ticket_group_id.required' => 'Please select a ticket group'
             ]);
         }
         else {
@@ -75,7 +78,10 @@ class EventController extends Controller
                 'start_time' => 'required',
                 'end_time' => 'required',
                 'capacity' => 'required|numeric|min:1',
-                'checkedTickets' => 'required|array|min:1'
+                'ticket_group_id' => 'required',
+            ],
+            [
+                'ticket_group_id.required' => 'Please select a ticket group'
             ]);
         }
 
@@ -101,16 +107,17 @@ class EventController extends Controller
                 $event->start_time = $request->start_time;
                 $event->end_time = $request->end_time;
                 $event->capacity = $request->capacity;
+                $event->ticket_group_id = $request->ticket_group_id;
                 if($request->min_per_sale) {$event->min_per_sale = $request->min_per_sale;}else $event->min_per_sale = 1;
                 if($request->max_per_sale) {$event->max_per_sale = $request->max_per_sale;}else $event->max_per_sale =$event->capacity;
                 if($request->tickets_reserved) {$event->tickets_reserved = $request->tickets_reserved;}else $event->tickets_reserved = 0;
                 $event->active = $request->active;
                 $event->save();
 
-                $event->tickets()->sync($request->checkedTickets);//attach tickets to event
+             //   $event->ticketgroups()->sync($request->checkedTicketGroup);//attach tickets to event
                 $event->categories()->sync($request->checkedCategories);//attach categories to event
 
-                $event_date = date('d-m-Y', strtotime($corrected_date));//convert to readable for log
+               // $event_date = date('d-m-Y', strtotime($corrected_date));//convert to readable for log
                 logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event_date.'" created by '.auth()->user()->name);
             }
 
@@ -126,10 +133,48 @@ class EventController extends Controller
      * @param  \App\Event  $event
      * @return \Illuminate\Http\Response
      */
-    public function show(Event $event)
+    public function show($id)
     {
-        //
+        //EVENT
+        $event = Event::find($id);//get event
+
+        //TICKETGROUP
+        $ticketgroup = $event->ticketgroup()->first();
+
+        //TICKETS
+        $tickets = TicketGroup::find($event->ticket_group_id)->tickets()->get();//get event tickets
+
+
+        //CATEGORIES
+        $categories = $event->categories()->get();//get event categories
+
+        //EXTRAS
+        foreach ($categories as $category){
+                $category['extras'] = $category->extras()->get();//attach all extras per category to the category
+        }
+
+        return response()->json([ 'event' => [
+
+                'event'    => $event,
+                'ticketgroup' =>$ticketgroup,
+                'tickets'    => $tickets,
+                'categories'  => $categories,
+        ]
+            ], 200);
     }
+
+/*dit werkt, maar lever 1 table op, wat betekent maar 1 row per table
+        $event = Event::join('ticket_groups','ticket_groups.id', '=', 'ticket_group_id')
+            ->join('ticket_ticket_group','ticket_ticket_group.ticket_id', '=', 'ticket_ticket_group.ticket_group_id')
+            ->join('tickets','tickets.id', '=','ticket_ticket_group.ticket_id' )
+            ->join('category_event', 'category_event.event_id', '=', 'events.id')
+            ->join('category_extra' , 'category_extra.category_id', '=', 'category_event.category_id')
+            ->join('extras', 'extras.id', '=', 'category_extra.extra_id')
+            ->where('events.id','=', $id)
+            ->select('events.*', 'ticket_groups.*','tickets.*', 'extras.*')
+            ->first();
+*/
+
 
     /**
      * Show the form for editing the specified resource.
@@ -159,10 +204,10 @@ class EventController extends Controller
                 'start_time' => 'required',
                 'end_time' => 'required',
                 'capacity' => 'required|numeric|min:1',
-                'checkedTickets' => 'required|array|min:1',
+                'ticket_group_id' => 'required',
             ],
             [
-                'checkedTickets.required' => 'Minimal one ticket is needed'
+                'ticket_group_id.required' => 'Please select a ticket group'
             ]);
         }
         else {
@@ -173,7 +218,10 @@ class EventController extends Controller
                 'start_time' => 'required',
                 'end_time' => 'required',
                 'capacity' => 'required|numeric|min:1',
-                'checkedTickets' => 'required|array|min:1'
+                'ticket_group_id' => 'required',
+            ],
+            [
+                'ticket_group_id.required' => 'Please a ticket group'
             ]);
         }
 
@@ -187,6 +235,7 @@ class EventController extends Controller
         $event->min_per_sale = request('min_per_sale');
         $event->max_per_sale = request('max_per_sale');
         $event->capacity = request('capacity');
+        $event->ticket_group_id = request('ticket_group_id');
         $event->tickets_reserved = request('tickets_reserved');
         $event->active = request('active');
 
@@ -197,7 +246,7 @@ class EventController extends Controller
 
         }
 
-        $event->tickets()->sync($request->checkedTickets);
+   //     $event->ticketgroups()->sync($request->checkedTicketGroup);
         $event->categories()->sync($request->checkedCategories);
 
         logger()->channel('info')->info('event "'.$event->title.'" updated by '.auth()->user()->name);
@@ -224,8 +273,8 @@ class EventController extends Controller
         }
         else{
          //   $event->upgrades()->detach();//remove all connected upgrades (and delete from pivot table)
-
-            $event->tickets()->detach();//remove all connected tickets (and delete from pivot table)
+            $event->categories()->detach();//remove all connected tickets (and delete from pivot table)
+          //  $event->ticketgroups()->detach();//remove all connected tickets (and delete from pivot table)
             $event->delete();
             logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" deleted by '.auth()->user()->name);
             session()->flash('alert-success', 'Event deleted');
@@ -295,10 +344,10 @@ class EventController extends Controller
         //get all tickets  connected to a specific event
 
         $event = Event::findOrFail($event_id);
-        $checkedcategories = $event->categories->pluck('id');
+        $checkedCategories = $event->categories->pluck('id');
 
         return response()->json([
-            'checkedcategories' => $checkedcategories,
+            'checkedCategories' => $checkedCategories,
         ], 200);
     }
 
@@ -307,10 +356,15 @@ class EventController extends Controller
         //get all tickets  connected to a specific event
 
         $event = Event::findOrFail($event_id);
-        $checkedtickets = $event->tickets->pluck('id');
+        $tickets = $event->tickets();
+        //$checkedTicketGroup = $event->ticketgroups->pluck('id');
+
 
         return response()->json([
-            'checkedtickets' => $checkedtickets,
+            'tickets' => $tickets,
         ], 200);
     }
+
+
+
 }

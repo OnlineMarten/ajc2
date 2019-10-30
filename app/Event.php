@@ -6,15 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-    public function tickets()
+
+    public function ticketgroup()
     {
-        //return all tickets connected to a cruise, sorted by order
-        return $this->belongsToMany('App\Ticket')->orderBy('order')->withTimestamps();
+        //return the tickegtgroup connected to the event
+        return $this->belongsTo('App\TicketGroup','ticket_group_id');//foreign key added because laravel proably expects it to be ticketgroup_id
     }
+
 
     public function categories()
     {
-        //return all tickets connected to a cruise, sorted by order
-        return $this->belongsToMany('App\Category')->orderBy('order')->withTimestamps();
+        //return all categories connected to an event, sorted by order
+        return $this->belongsToMany('App\Category');
     }
+/*
+    public function tickets()
+    {
+        //return all tickets connected to an event sorted by order
+        return $this->hasManyThrough('App\Ticket', 'App\TicketGroup');
+    }
+*/
 }

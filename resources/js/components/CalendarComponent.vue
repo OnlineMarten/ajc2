@@ -51,13 +51,14 @@ export default {
   methods: {
   readEvents() {
       //this.events = [  { title: 'event 1', date: '2019-11-01' }, { title: 'event 2', date: '2019-11-02' }  ];
-        axios.get("admin/calendarevents").then(response => {
+        axios.get("calendarevents").then(response => {
         this.events = response.data.events;
       });
     },
     handleEventClick(arg) {
         if (arg.event.classNames=="open")
       alert(arg.event.id +' '+ arg.event.classNames);
+      window.location.href = "booking/"+arg.event.id;
     },
   }
 }

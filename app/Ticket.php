@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
-    protected $guarded = [ 'id'];
+    protected $guarded = ['id'];
 
-    public function events()
+    public function ticketgroups()
     {
-        return $this->belongsToMany('App\Event')->orderBy('event_date')->withTimestamps();
+        return $this->belongsToMany('App\TicketGroup')->orderBy('order')->withTimestamps();
     }
 }
