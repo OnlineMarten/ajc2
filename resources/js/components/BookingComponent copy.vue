@@ -1,5 +1,6 @@
 <template>
 <div>
+    <h2>Booking Component!!</h2>
     <div v-if="event">
 
     <!--basket contents-->
@@ -188,6 +189,7 @@ export default {
             total_amount:"0",
         },
 
+
     }//return
   },//data
 
@@ -195,8 +197,7 @@ export default {
     mounted() {
         console.log('mounted');
         console.log(axios.defaults.baseURL);
-        this.event_id = _.last( window.location.pathname.split( '/' ) );
-        console.log(this.event_id);
+     //   this.event_id = _.last( window.location.pathname.split( '/' ) );
         this.getEvent();
 
     },//mounted
@@ -205,12 +206,15 @@ export default {
 
         getEvent()
         {
+            console.log(this.event_id);
+            /*
             axios.get("/getevent/"+this.event_id).then(response => {
             this.event = response.data.event;
             this.selection.categories = response.data.event.categories;
             this.selection.event = response.data.event.event;
 
             });
+            */
         },
 
         prev() {

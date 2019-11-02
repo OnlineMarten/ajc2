@@ -55,7 +55,6 @@ class ExtraController extends Controller
 
         ]);
 
-
         $extra = Extra::create([
             'order'                 => request('order'),
             'title'                 => request('title'),
@@ -112,6 +111,10 @@ class ExtraController extends Controller
             'title'          => 'required|max:255',
         ]);
 
+ /*       if ($request->max_setting=="ticket") $max = "ticket";
+        if ($request->max_setting=="sale") $max = 1;
+        if ($request->max_setting=="free") $max = $request->max_number;
+*/
         $extra = Extra::findOrFail($id);
             $extra->order               = request('order');
             $extra->title               = request('title');

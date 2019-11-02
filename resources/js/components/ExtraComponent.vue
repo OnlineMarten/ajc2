@@ -39,7 +39,7 @@ $table->jsonb('properties')->nullable()->default(NULL);
                                 <th>Title</th>
                                 <th>Description</th>
                                 <th>Price</th>
-                                <th>Max per sale</th>
+                                <th>Max amount</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -58,7 +58,7 @@ $table->jsonb('properties')->nullable()->default(NULL);
                                     {{ extra.price }}
                                 </td>
                                 <td>
-                                    {{ extra.max }}
+                                     <span v-if="extra.max ==='ticket'">1 per ticket</span><span v-else>{{ extra.max }}</span>
                                 </td>
 
                                 <td>
@@ -159,11 +159,19 @@ $table->jsonb('properties')->nullable()->default(NULL);
 
 
                         <div class="form-group row">
-                            <label for="max_per_sale" class="col-sm-3 col-form-label">Max amount per sale</label>
+                            <label for="max_per_sale" class="col-sm-3 col-form-label">Max amount</label>
                             <div class="col-sm-8">
-                            <input type="text" class="form-control form-control-sm" name="max_per_sale" v-model="extra.max">
-                            <small class="form-text text-muted">Optional, no value entered means free</small>
+                            <select class="form-control form-control-sm" name="active" v-model="extra.max">
+                                <option value="ticket" >connect to tickets (= 1 per ticket)</option>
+                                <option value="free">choose maximum amount</option>
+                            </select>
                             </div>
+                            <div class="col-sm-8" v-if="extra.max === 'free'">
+                                <label for="max_per_sale">Choose maximum amount:</label>
+                            <input type="number" min="2" max="10" step="1" value="1" class="form-control form-control-sm" name="max_per_sale" v-model="max_amount">
+                            </div>
+
+
                         </div>
 
                         <div class="form-group row">
@@ -215,8 +223,9 @@ export default {
             title: "",
             description: "",
             admin_notes: "",
-            max: "",
-            show_on_door_list: "1"
+            max: "ticket",
+            show_on_door_list: "1",
+            max:"1",
 
         },
         errors: "",
@@ -225,6 +234,7 @@ export default {
         add_update: "",
         show: false,
         dateValue: "",
+        max_amount:"1",
 
 
     };
@@ -238,8 +248,8 @@ export default {
   methods: {
     initAddExtra() {
       this.errors = "";
-      this.extra.extra_date = "";
       this.date="";
+      this.extra.max="ticket";
       this.add_update = "add";
       $("#add_extra_model").modal("show");
     },
@@ -254,6 +264,8 @@ export default {
     },
 
     createExtra() {
+      if (this.extra.max == "free") this.extra.max = this.max_amount;
+
       axios
         .post("/admin/extra", this.$data.extra )
 
@@ -293,9 +305,15 @@ export default {
       this.add_update = "update";
       $("#add_extra_model").modal("show");
       this.extra = this.extras[index];
+      if (this.extra.max != "ticket") {
+          this.max_amount = this.extra.max;
+          this.extra.max = "free";
+      }
     },
 
     updateExtra() {
+        if (this.extra.max == "free") this.extra.max = this.max_amount;
+
       axios
         .put("/admin/extra/" + this.extra.id, this.$data.extra)
 

@@ -22,8 +22,35 @@ window.Vue = require('vue');
 //import VueMiniCalendar from 'vue-mini-calendar'
 //Vue.component('VueMiniCalendar', require('vue-mini-calendar').default);
 
+
+Vue.filter('toCurrency', function (value) {
+    value = '€ ' + parseFloat(value).toFixed(2);
+    return value.replace(".00", "");//replace in case format is en
+});
+
+
+//const VueFilterDateFormat = require('vue-filter-date-format');
 import VueFilterDateFormat from 'vue-filter-date-format';
-Vue.use(VueFilterDateFormat);
+
+Vue.use(VueFilterDateFormat, {
+
+        dayOfWeekNames: [
+            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+            'Friday', 'Saturday'
+        ],
+        dayOfWeekNamesShort: [
+            'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+        ],
+        monthNames: [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ],
+        monthNamesShort: [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ]
+});
+
 Vue.component('multipleDatepicker', require('vue-multiple-datepicker').default);
 
 
@@ -55,3 +82,4 @@ Vue.component('calendar-component', require('./components/CalendarComponent.vue'
 const app = new Vue({
     el: '#app',
 });
+

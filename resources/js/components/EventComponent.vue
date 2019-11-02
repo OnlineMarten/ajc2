@@ -49,7 +49,7 @@
                                     {{ event.title }}
                                 </td>
                                 <td>
-                                    {{ new Date(event.event_date) | dateFormat('dd DD MMM YYYY', dateFormatConfig) }}
+                                    {{ new Date(event.event_date) | dateFormat('dd DD MMM YYYY') }}
                                 </td>
                                 <!--
                                 <td>
@@ -104,6 +104,9 @@
         <!--col-->
     </div>
     <!--row-->
+
+
+
 
     <div class="modal fade" tabindex="-1" role="dialog" id="add_event_model">
 
@@ -306,10 +309,10 @@
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 
 
+
 export default {
     components: {
-
-    DatePicker
+    DatePicker,
   },
   data() {
     return {
@@ -363,24 +366,7 @@ export default {
        // checkedTicketGroup: "",
         checkedCategories: [],
 
-        //date config
-        dateFormatConfig: {
-          dayOfWeekNames: [
-            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-            'Friday', 'Saturday'
-          ],
-          dayOfWeekNamesShort: [
-            'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
-          ],
-          monthNames: [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-          ],
-          monthNamesShort: [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-          ]
-        },
+
         //DatePicker
         date:"",
     };
