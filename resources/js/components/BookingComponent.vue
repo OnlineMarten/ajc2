@@ -44,7 +44,7 @@
     </div>
     <!--end basket contents-->
 
-    <div v-if="step===1 || nosteps">
+    <div v-if="(step===1 || nosteps) && !show_payment_page">
 
     <!--event description-->
     <!--
@@ -98,7 +98,7 @@
 
 </div><!--step1-->
 
-<div v-if="step===2 || nosteps">
+<div v-if="(step===2 || nosteps) && !show_payment_page">
 
     <!--extras selection-->
     <div v-if="selection.nrtickets>0 && selection.ticket.length!==0">
@@ -138,19 +138,19 @@
 
 </div><!--step2-->
 
-<div v-if="step===3 || nosteps">
+<div v-if="show_payment_page">
 
     <p>name, email, contact, paymentmethod</p>
 
 
-</div><!--step3-->
+</div><!--show payment page-->
 
 <div class="col-sm-8" style="padding:0px">
-        <button style="" v-if="step>1 && !nosteps" class="btn btn-outline-primary" type="submit" @click.prevent="prev()">Previous</button>
-        <button style="" v-if="step===1 &&!nosteps" class="btn btn-outline-primary" type="submit" @click.prevent="cancel()">Cancel</button>
+        <button style="" v-if="step>=1 || nosteps || show_payment_page" class="btn btn-outline-primary" type="submit" @click.prevent="prev()">Previous</button>
+        <button style="" v-if="step>1 && !nosteps" class="btn btn-outline-primary" type="submit" @click.prevent="cancel()">Cancel</button>
 
         <button style="float:right" v-if="step>=1 && step<3 && !nosteps && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-primary" type="submit" @click.prevent="next()">Next</button>
-        <button style="float:right" v-if="step===3 && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-outline-primary" type="submit" @click.prevent="" >Go to payment</button>
+        <button style="float:right" v-if="(step===3 || nosteps) && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-outline-primary" type="submit" @click.prevent="go_to_payment_page()" >Next (payment)</button>
 </div>
 
     </div><!-- if-event-->
@@ -170,9 +170,10 @@ export default {
 
   data(){
     return {
-        show_titles:true,
+        show_titles:false,
         show_descriptions:false,
-        nosteps:false,
+        nosteps:true,
+        show_payment_page:false,
         event_id:"",
         event:"",
         tickets:"",
@@ -214,13 +215,17 @@ export default {
         },
 
         prev() {
-            this.step--;
+            if (!this.nosteps) this.step--;
+            this.show_payment_page = false;
         },
         next() {
             this.step++;
         },
         cancel(){
             window.history.back();
+        },
+       go_to_payment_page(){
+            this.show_payment_page = true;
         },
         toCurrency (val) {
 

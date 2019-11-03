@@ -12808,9 +12808,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      show_titles: true,
+      show_titles: false,
       show_descriptions: false,
-      nosteps: false,
+      nosteps: true,
+      show_payment_page: false,
       event_id: "",
       event: "",
       tickets: "",
@@ -12847,13 +12848,17 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     prev: function prev() {
-      this.step--;
+      if (!this.nosteps) this.step--;
+      this.show_payment_page = false;
     },
     next: function next() {
       this.step++;
     },
     cancel: function cancel() {
       window.history.back();
+    },
+    go_to_payment_page: function go_to_payment_page() {
+      this.show_payment_page = true;
     },
     toCurrency: function toCurrency(val) {
       return (val / 100).toFixed(2);
@@ -73634,7 +73639,7 @@ var render = function() {
             ]
           ),
           _vm._v(" "),
-          _vm.step === 1 || _vm.nosteps
+          (_vm.step === 1 || _vm.nosteps) && !_vm.show_payment_page
             ? _c("div", [
                 _c(
                   "div",
@@ -73803,7 +73808,7 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          _vm.step === 2 || _vm.nosteps
+          (_vm.step === 2 || _vm.nosteps) && !_vm.show_payment_page
             ? _c("div", [
                 _vm.selection.nrtickets > 0 && _vm.selection.ticket.length !== 0
                   ? _c(
@@ -74066,7 +74071,7 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          _vm.step === 3 || _vm.nosteps
+          _vm.show_payment_page
             ? _c("div", [
                 _c("p", [_vm._v("name, email, contact, paymentmethod")])
               ])
@@ -74076,7 +74081,7 @@ var render = function() {
             "div",
             { staticClass: "col-sm-8", staticStyle: { padding: "0px" } },
             [
-              _vm.step > 1 && !_vm.nosteps
+              _vm.step >= 1 || _vm.nosteps || _vm.show_payment_page
                 ? _c(
                     "button",
                     {
@@ -74093,7 +74098,7 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              _vm.step === 1 && !_vm.nosteps
+              _vm.step > 1 && !_vm.nosteps
                 ? _c(
                     "button",
                     {
@@ -74132,7 +74137,7 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              _vm.step === 3 &&
+              (_vm.step === 3 || _vm.nosteps) &&
               _vm.selection.nrtickets > 0 &&
               _vm.selection.ticket.length !== 0
                 ? _c(
@@ -74144,10 +74149,11 @@ var render = function() {
                       on: {
                         click: function($event) {
                           $event.preventDefault()
+                          return _vm.go_to_payment_page()
                         }
                       }
                     },
-                    [_vm._v("Go to payment")]
+                    [_vm._v("Next (payment)")]
                   )
                 : _vm._e()
             ]
