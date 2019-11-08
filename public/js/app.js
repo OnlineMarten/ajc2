@@ -12804,6 +12804,42 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //import axioscalls from '@./resources/services/axioscalls'
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -12818,14 +12854,19 @@ __webpack_require__.r(__webpack_exports__);
       step: 1,
       counter: "0",
       selection: {
-        nrtickets: "0",
+        nrtickets: "2",
         ticket: [],
         categories: {
           extras: []
         },
         event: [],
         total_amount: "0"
-      }
+      },
+      show_error: false,
+      paymentmethods_not_yet_loaded: true,
+      //to avoid dropin being loaded more than once
+      error: "",
+      dropin: ""
     }; //return
   },
   //data
@@ -12835,6 +12876,11 @@ __webpack_require__.r(__webpack_exports__);
     this.event_id = _.last(window.location.pathname.split('/'));
     console.log(this.event_id);
     this.getEvent();
+
+    if (this.paymentmethods_not_yet_loaded) {
+      this.getPaymentMethods();
+      this.paymentmethods_not_yet_loaded = false;
+    }
   },
   //mounted
   methods: {
@@ -12842,10 +12888,141 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios.get("/getevent/" + this.event_id).then(function (response) {
-        _this.event = response.data.event;
+        _this.event = response.data.event; //do we need to check if still available?
+
         _this.selection.categories = response.data.event.categories;
         _this.selection.event = response.data.event.event;
       });
+    },
+    //adyen
+    getPaymentMethods: function getPaymentMethods() {
+      var _this2 = this;
+
+      //countryCode sets payment options (NL for iDeal)
+      //lang-country  sets language on form
+      var countrycode = "NL";
+      var language_country = "en-US";
+      var originkey;
+      var environment_setting;
+
+      if (true) {
+        originkey = "pub.v2.8015447756283354.aHR0cDovL2xvY2FsaG9zdA.OTXeWEOe4qVIYG80zT1XrNQvWJ6pyako4RSxg9ndbP0";
+        environment_setting = "test";
+      }
+
+      if (false) {}
+
+      var total_amount = 25000;
+      if (this.totalAmount > 0) total_amount = this.totalAmount;
+      axios.get("/paymentmethods", {
+        params: {
+          amount: total_amount,
+          countryCode: countrycode
+        }
+      }).then(function (response) {
+        // 1. Create an instance of AdyenCheckout
+        var configuration = {
+          locale: language_country,
+          environment: environment_setting,
+          originKey: originkey,
+          paymentMethodsResponse: response.data
+        };
+        var checkout = new AdyenCheckout(configuration); // 2. Create and mount the Component
+
+        _this2.dropin = checkout.create("dropin", {
+          showPayButton: false,
+          paymentMethodsConfiguration: {
+            ideal: {
+              // Optional configuration for iDEAL
+              configuration: {
+                showImage: false,
+                // Optional. Set to **false** to remove the bank logos from the iDEAL form.
+                issuer: "0031" // // Optional. Set this to an **id** of an iDEAL issuer to preselect it.
+
+              },
+              name: 'ideal'
+            },
+            card: {
+              // Example optional configuration for Cards
+              hasHolderName: true,
+              holderNameRequired: true,
+              enableStoreDetails: true,
+              name: 'creditcard'
+            }
+          },
+          //end paymentmethodsconfiguration
+          onSubmit: function onSubmit(state, dropin) {
+            //makePayment(state.data)
+            // Your function calling your server to make the /payments request
+            console.log(state.data);
+            _this2.show_error = false;
+
+            _this2.makePayment(state.data);
+          },
+          //submit
+          onSelect: function onSelect(component) {
+            //   this.pay_button_text=component.props.name;//werkt niet scope probleem?
+            console.log(component.props.name);
+          }
+        }) //end create
+        .mount('#dropin-container');
+      });
+    },
+    makePayment: function makePayment(data) {
+      var _this3 = this;
+
+      console.log(data);
+      axios.post("/makepayment", {
+        paymentDetails: data.paymentMethod
+      }).then(function (response) {
+        console.log(response);
+
+        if (response.data.hasOwnProperty('action')) {
+          _this3.additionalDetails(response.data['action']);
+        } else {
+          //go to result page and implement this switch there.
+          // window.location = "http://your-company.com/checkout?shopperOrder=12xy"
+          switch (response.data.resultCode) {
+            case "Authorised":
+              // code block
+              console.log('Authorised');
+              console.log(response.data);
+              window.location = "http://localhost/projects/ajc2/public" + "/checkout/" + response.data; //get the root folder from the .env file
+
+              break;
+
+            case "Cancelled":
+              // code block
+              console.log('Cancelled');
+              break;
+
+            case "Refused":
+              console.log('Refused');
+              _this3.error = "The payment has been refused. Please check your card details or try another card";
+              _this3.show_error = true; //this.dropin.setStatus('error', { message: 'Something went wrong.'});
+
+              console.log(response);
+              break;
+
+            default:
+              console.log('something else');
+          }
+        } //else
+
+      });
+    },
+    additionalDetails: function additionalDetails(result) {
+      console.log('further action required');
+
+      if (result.type == "redirect") {
+        window.location = result.url;
+      } //else do something else here
+
+    },
+    //end adyen
+    test: function test() {
+      this.pay_button_text = "ideal";
+      console.log("button test =" + this.teststring);
     },
     prev: function prev() {
       if (!this.nosteps) this.step--;
@@ -12859,6 +13036,11 @@ __webpack_require__.r(__webpack_exports__);
     },
     go_to_payment_page: function go_to_payment_page() {
       this.show_payment_page = true;
+
+      if (this.paymentmethods_not_yet_loaded) {
+        this.getPaymentMethods();
+        this.paymentmethods_not_yet_loaded = false;
+      }
     },
     toCurrency: function toCurrency(val) {
       return (val / 100).toFixed(2);
@@ -12873,8 +13055,9 @@ __webpack_require__.r(__webpack_exports__);
   },
   //methods
   computed: {
+    //calculate total amount in basket
     totalAmount: function totalAmount() {
-      this.selection.total_amount = this.selection.nrtickets * (this.selection.ticket.price / 100);
+      this.selection.total_amount = this.selection.nrtickets * this.selection.ticket.price;
 
       for (var i = 0; i < this.selection.categories.length; i++) {
         console.log("in categories loop");
@@ -12883,13 +13066,13 @@ __webpack_require__.r(__webpack_exports__);
           if (this.selection.categories[i].extras[n].selected === true) {
             console.log(this.selection.categories[i].extras[n].title + ' : multiply by nrtickets'); // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
 
-            this.selection.total_amount += this.selection.categories[i].extras[n].price / 100 * this.selection.nrtickets;
+            this.selection.total_amount += this.selection.categories[i].extras[n].price * this.selection.nrtickets;
           } else {
             if (this.selection.categories[i].extras[n].selected) {
               //check if selected exists, it does not exist automatically
               console.log(this.selection.categories[i].extras[n].title + ' : multiply by selected amount'); // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
 
-              this.selection.total_amount += this.selection.categories[i].extras[n].price / 100 * this.selection.categories[i].extras[n].selected;
+              this.selection.total_amount += this.selection.categories[i].extras[n].price * this.selection.categories[i].extras[n].selected;
             }
           }
         } //extras
@@ -13123,7 +13306,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       calendarPlugins: [_fullcalendar_daygrid__WEBPACK_IMPORTED_MODULE_1__["default"]],
-      events: []
+      events: [],
+      event: []
     };
   },
   mounted: function mounted() {
@@ -13139,7 +13323,25 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     handleEventClick: function handleEventClick(arg) {
-      if (arg.event.classNames == "open") window.location.href = "booking/" + arg.event.id;
+      var _this2 = this;
+
+      //     if (arg.event.classNames=="closed") alert('closed!');
+      if (arg.event.classNames == "open") {
+        //check if event is still open, perhaps the browser was unused for a long time
+        axios.get("checkEventAvailable/" + arg.event.id).then(function (response) {
+          console.log(response.data.available);
+
+          if (response.data.available) {
+            console.log('open, go to url');
+            window.location.href = "booking/" + arg.event.id;
+          } //not open, then refresh calendar
+          else {
+              console.log('closed, refresh events');
+
+              _this2.readEvents();
+            }
+        });
+      }
     }
   }
 });
@@ -73629,7 +73831,7 @@ var render = function() {
                       _c("p", { staticClass: "text-right" }, [
                         _vm._v(
                           "Total price: " +
-                            _vm._s(_vm._f("toCurrency")(_vm.totalAmount))
+                            _vm._s(_vm._f("toCurrency")(_vm.totalAmount / 100))
                         )
                       ])
                     ],
@@ -73808,7 +74010,7 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          (_vm.step === 2 || _vm.nosteps) && !_vm.show_payment_page
+          _vm.step === 2 || _vm.nosteps
             ? _c("div", [
                 _vm.selection.nrtickets > 0 && _vm.selection.ticket.length !== 0
                   ? _c(
@@ -74071,11 +74273,181 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          _vm.show_payment_page
-            ? _c("div", [
-                _c("p", [_vm._v("name, email, contact, paymentmethod")])
+          _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value:
+                    _vm.selection.nrtickets > 0 &&
+                    _vm.selection.ticket.length !== 0,
+                  expression:
+                    "selection.nrtickets>0 && selection.ticket.length!==0"
+                }
+              ],
+              staticClass: "col-sm-8",
+              staticStyle: {
+                border: "1px solid orange",
+                "margin-bottom": "10px"
+              }
+            },
+            [
+              _c("p", [_vm._v("name, email, contact, paymentmethod")]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v("Name:")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-8" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.event.title,
+                        expression: "event.title"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      required: "",
+                      type: "text",
+                      name: "name",
+                      id: "name"
+                    },
+                    domProps: { value: _vm.event.title },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.event, "title", $event.target.value)
+                      }
+                    }
+                  })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v("Contact:")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-8" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.event.title,
+                        expression: "event.title"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      required: "",
+                      type: "text",
+                      name: "contact",
+                      id: "contact"
+                    },
+                    domProps: { value: _vm.event.title },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.event, "title", $event.target.value)
+                      }
+                    }
+                  })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v("Email:")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-8" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.event.title,
+                        expression: "event.title"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      required: "",
+                      type: "email",
+                      name: "email",
+                      id: "email"
+                    },
+                    domProps: { value: _vm.event.title },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.event, "title", $event.target.value)
+                      }
+                    }
+                  })
+                ])
               ])
-            : _vm._e(),
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value:
+                    _vm.selection.nrtickets > 0 &&
+                    _vm.selection.ticket.length !== 0,
+                  expression:
+                    "selection.nrtickets>0 && selection.ticket.length!==0"
+                }
+              ],
+              staticClass: "col-sm-8",
+              staticStyle: {
+                border: "1px solid orange",
+                "margin-bottom": "10px"
+              }
+            },
+            [
+              _vm.show_error
+                ? _c("span", [_vm._v("error? " + _vm._s(_vm.error))])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm._m(0)
+            ]
+          ),
+          _vm._v(" "),
+          _c("hr"),
           _vm._v(" "),
           _c(
             "div",
@@ -74137,32 +74509,52 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              (_vm.step === 3 || _vm.nosteps) &&
-              _vm.selection.nrtickets > 0 &&
-              _vm.selection.ticket.length !== 0
-                ? _c(
-                    "button",
+              _c(
+                "button",
+                {
+                  directives: [
                     {
-                      staticClass: "btn btn-outline-primary",
-                      staticStyle: { float: "right" },
-                      attrs: { type: "submit" },
-                      on: {
-                        click: function($event) {
-                          $event.preventDefault()
-                          return _vm.go_to_payment_page()
-                        }
-                      }
-                    },
-                    [_vm._v("Next (payment)")]
-                  )
-                : _vm._e()
+                      name: "show",
+                      rawName: "v-show",
+                      value:
+                        (_vm.step === 3 || _vm.nosteps) &&
+                        _vm.selection.nrtickets > 0 &&
+                        _vm.selection.ticket.length !== 0 &&
+                        !_vm.show_payment_page,
+                      expression:
+                        "(step===3 || nosteps) && selection.nrtickets>0 && selection.ticket.length!==0 && !show_payment_page"
+                    }
+                  ],
+                  staticClass: "btn btn-outline-primary",
+                  staticStyle: { float: "right" },
+                  attrs: { type: "submit" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.dropin.submit()
+                    }
+                  }
+                },
+                [_vm._v("Pay")]
+              )
             ]
           )
         ])
       : _vm._e()
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "checkout-container" }, [
+      _c("div", { staticClass: "payment-method" }, [
+        _c("div", { attrs: { id: "dropin-container" } })
+      ])
+    ])
+  }
+]
 render._withStripped = true
 
 

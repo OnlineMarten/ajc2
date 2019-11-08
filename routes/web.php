@@ -15,15 +15,26 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/checkout', function () {
+    return view('checkout');
+});
+
 Route::get('/calendarevents', 'EventController@calendarEvents')->name('calendarEvents');
 
 Route::get('/booking/{event_id}', function () {
     return view('booking');
 });
+
+/*adyen*/
+Route::get('/paymentmethods', 'AdyenController@paymentMethods');
+Route::post('/makepayment', 'AdyenController@makePayment');
+
+
 Auth::routes();
 
 Route::get('/admin', 'AdminController@index')->name('dashboard');
 Route::get('getevent/{event_id}', 'EventController@show')->name('getevent');//axios get event details
+Route::get('checkEventAvailable/{event_id}', 'EventController@checkEventAvailable')->name('checkevent');//axios get event available for sale
 //Route::get('eventgettickets/{event_id}', 'EventController@allTicketsConnectedToEvent')->name('eventgettickets');
 Route::get('ticketgroupgettickets/{ticket_group_id}', 'TicketGroupController@allTicketsConnectedToTicketGroup')->name('ticketgroupgettickets');
 

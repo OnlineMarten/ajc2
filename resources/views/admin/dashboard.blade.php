@@ -28,7 +28,7 @@
 <hr>
 <booking-selection></booking-selection>
 
-
+<?php echo "de merchant account =".config('services.adyen.merchantaccount');?>
 
 @endsection
 

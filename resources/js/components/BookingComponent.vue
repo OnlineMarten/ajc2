@@ -37,7 +37,7 @@
                 </div>
             </span>
             <hr>
-            <p class="text-right">Total price: {{totalAmount | toCurrency}}</p>
+            <p class="text-right">Total price: {{totalAmount/100 | toCurrency}}</p>
         </div><!--col-sm-8-->
 
 
@@ -98,7 +98,7 @@
 
 </div><!--step1-->
 
-<div v-if="(step===2 || nosteps) && !show_payment_page">
+<div v-if="(step===2 || nosteps)">
 
     <!--extras selection-->
     <div v-if="selection.nrtickets>0 && selection.ticket.length!==0">
@@ -138,19 +138,55 @@
 
 </div><!--step2-->
 
-<div v-if="show_payment_page">
+<!--<div v-show="show_payment_page">-->
+    <div v-show="selection.nrtickets>0 && selection.ticket.length!==0" class="col-sm-8" style="border:1px solid orange;margin-bottom:10px">
+        <p>name, email, contact, paymentmethod</p>
 
-    <p>name, email, contact, paymentmethod</p>
+        <div class="form-group row">
+            <label for="name" class="col-sm-3 col-form-label">Name:</label>
+            <div class="col-sm-8">
+            <input required type="text" name="name" id="name" class="form-control"
+                v-model="event.title">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="name" class="col-sm-3 col-form-label">Contact:</label>
+            <div class="col-sm-8">
+            <input required type="text" name="contact" id="contact" class="form-control"
+                v-model="event.title">
+            </div>
+        </div>
+         <div class="form-group row">
+            <label for="name" class="col-sm-3 col-form-label">Email:</label>
+            <div class="col-sm-8">
+            <input required type="email" name="email" id="email" class="form-control"
+                v-model="event.title">
+            </div>
+        </div>
 
+    </div>
 
-</div><!--show payment page-->
+    <div v-show="selection.nrtickets>0 && selection.ticket.length!==0" class="col-sm-8" style="border:1px solid orange;margin-bottom:10px">
 
+        <span v-if="show_error">error? {{error}}</span>
+    <!--adyen drop in-->
+    <div class="checkout-container">
+        <div class="payment-method">
+            <div id="dropin-container">
+            <!-- Drop-in will be rendered here -->
+            </div>
+        </div>
+    </div>
+    <!--end adyen drop in-->
+    </div>
+<!--show payment page-->
+<hr>
 <div class="col-sm-8" style="padding:0px">
         <button style="" v-if="step>=1 || nosteps || show_payment_page" class="btn btn-outline-primary" type="submit" @click.prevent="prev()">Previous</button>
         <button style="" v-if="step>1 && !nosteps" class="btn btn-outline-primary" type="submit" @click.prevent="cancel()">Cancel</button>
 
         <button style="float:right" v-if="step>=1 && step<3 && !nosteps && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-primary" type="submit" @click.prevent="next()">Next</button>
-        <button style="float:right" v-if="(step===3 || nosteps) && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-outline-primary" type="submit" @click.prevent="go_to_payment_page()" >Next (payment)</button>
+        <button style="float:right" v-show="(step===3 || nosteps) && selection.nrtickets>0 && selection.ticket.length!==0 && !show_payment_page" class="btn btn-outline-primary" type="submit" @click.prevent="dropin.submit()" >Pay</button>
 </div>
 
     </div><!-- if-event-->
@@ -166,8 +202,6 @@
 //import axioscalls from '@./resources/services/axioscalls'
 export default {
 
-
-
   data(){
     return {
         show_titles:false,
@@ -180,7 +214,7 @@ export default {
         step:1,
         counter:"0",
         selection:{
-            nrtickets:"0",
+            nrtickets:"2",
             ticket:[],
             categories:{
                 extras:[],
@@ -188,7 +222,10 @@ export default {
             event:[],
             total_amount:"0",
         },
-
+        show_error:false,
+        paymentmethods_not_yet_loaded:true,//to avoid dropin being loaded more than once
+        error:"",
+        dropin:"",
     }//return
   },//data
 
@@ -199,6 +236,11 @@ export default {
         this.event_id = _.last( window.location.pathname.split( '/' ) );
         console.log(this.event_id);
         this.getEvent();
+        if(this.paymentmethods_not_yet_loaded){
+            this.getPaymentMethods();
+            this.paymentmethods_not_yet_loaded =false;
+        }
+
 
     },//mounted
 
@@ -208,11 +250,150 @@ export default {
         {
             axios.get("/getevent/"+this.event_id).then(response => {
             this.event = response.data.event;
+            //do we need to check if still available?
             this.selection.categories = response.data.event.categories;
             this.selection.event = response.data.event.event;
 
             });
         },
+        //adyen
+        getPaymentMethods()
+        {
+            //countryCode sets payment options (NL for iDeal)
+            //lang-country  sets language on form
+            let countrycode = "NL";
+            let language_country = "en-US";
+            let originkey;
+            let environment_setting;
+
+            if (process.env.MIX_APP_ENV =="local"){
+                originkey = process.env.MIX_ADYEN_ORIGINKEY_TEST;
+                environment_setting = "test";
+            }
+            if (process.env.MIX_APP_ENV =="production"){
+                originkey = process.env.MIX_ADYEN_ORIGINKEY_AJC;
+                environment_setting = "live";
+            }
+
+            let total_amount = 25000; if (this.totalAmount>0) total_amount = this.totalAmount;
+            axios.get("/paymentmethods",{params: {amount: total_amount, countryCode: countrycode}}).then(response => {
+
+            // 1. Create an instance of AdyenCheckout
+            const configuration = {
+                locale: language_country,
+                environment: environment_setting,
+                originKey: originkey,
+                paymentMethodsResponse:response.data
+            };
+            const checkout = new AdyenCheckout(configuration);
+
+            // 2. Create and mount the Component
+            this.dropin = checkout
+
+            .create("dropin", {
+                showPayButton:false,
+                paymentMethodsConfiguration: {
+
+                ideal: { // Optional configuration for iDEAL
+                    configuration: {
+                    showImage: false, // Optional. Set to **false** to remove the bank logos from the iDEAL form.
+                    issuer: "0031" // // Optional. Set this to an **id** of an iDEAL issuer to preselect it.
+
+                    },
+                    name: 'ideal'
+                },
+
+                card: { // Example optional configuration for Cards
+                    hasHolderName: true,
+                    holderNameRequired: true,
+                    enableStoreDetails: true,
+                    name: 'creditcard'
+                }
+                },//end paymentmethodsconfiguration
+
+                onSubmit: (state, dropin) => {
+                //makePayment(state.data)
+                    // Your function calling your server to make the /payments request
+                    console.log(state.data);
+                    this.show_error = false;
+                    this.makePayment(state.data);
+                },//submit
+
+                onSelect(component){
+                 //   this.pay_button_text=component.props.name;//werkt niet scope probleem?
+                    console.log(component.props.name);
+
+                }
+
+            })//end create
+
+            .mount('#dropin-container');
+
+
+            });
+        },
+
+        makePayment(data){
+            console.log(data);
+            axios.post("/makepayment",{paymentDetails: data.paymentMethod }).then(response => {
+                console.log(response);
+                if( response.data.hasOwnProperty('action')) {
+
+                  this.additionalDetails(response.data['action']);
+
+                }
+
+                else{
+                  //go to result page and implement this switch there.
+                 // window.location = "http://your-company.com/checkout?shopperOrder=12xy"
+                  switch (response.data.resultCode) {
+                    case "Authorised":
+                      // code block
+                      console.log('Authorised');
+                      console.log(response.data);
+                      window.location = process.env.MIX_APP_URL+"/checkout/"+response.data;//get the root folder from the .env file
+                      break;
+                    case "Cancelled":
+                      // code block
+                      console.log('Cancelled');
+                      break;
+                    case "Refused":
+                      console.log('Refused');
+                      this.error = "The payment has been refused. Please check your card details or try another card"
+                      this.show_error = true;
+                      //this.dropin.setStatus('error', { message: 'Something went wrong.'});
+
+                     console.log(response);
+                      break;
+                    default:
+                      console.log('something else');
+                  }
+                }//else
+            })
+
+        },
+        additionalDetails(result){
+
+            console.log('further action required');
+
+            if(result.type == "redirect"){
+                window.location = result.url
+            }
+            //else do something else here
+
+        },
+        //end adyen
+
+
+        test(){
+
+
+                      this.pay_button_text = "ideal";
+                        console.log("button test ="+this.teststring);
+
+
+
+                },
 
         prev() {
             if (!this.nosteps) this.step--;
@@ -224,8 +405,13 @@ export default {
         cancel(){
             window.history.back();
         },
-       go_to_payment_page(){
+        go_to_payment_page(){
             this.show_payment_page = true;
+
+            if(this.paymentmethods_not_yet_loaded){
+                this.getPaymentMethods();
+                this.paymentmethods_not_yet_loaded =false;
+            }
         },
         toCurrency (val) {
 
@@ -241,8 +427,10 @@ export default {
 
     },//methods
     computed:{
+
+        //calculate total amount in basket
         totalAmount: function () {
-            this.selection.total_amount =  this.selection.nrtickets*(this.selection.ticket.price/100);
+            this.selection.total_amount =  this.selection.nrtickets*(this.selection.ticket.price);
 
             for (var i = 0; i < this.selection.categories.length; i++  ) {
                 console.log("in categories loop");
@@ -251,13 +439,13 @@ export default {
                    if(this.selection.categories[i].extras[n].selected===true){
                         console.log(this.selection.categories[i].extras[n].title + ' : multiply by nrtickets');
                        // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
-                        this.selection.total_amount += this.selection.categories[i].extras[n].price/100*this.selection.nrtickets;
+                        this.selection.total_amount += this.selection.categories[i].extras[n].price*this.selection.nrtickets;
                    }
                    else{
                        if (this.selection.categories[i].extras[n].selected){//check if selected exists, it does not exist automatically
                             console.log(this.selection.categories[i].extras[n].title +  ' : multiply by selected amount');
                            // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
-                            this.selection.total_amount += this.selection.categories[i].extras[n].price/100*this.selection.categories[i].extras[n].selected;
+                            this.selection.total_amount += this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected;
                        }
                    }
 

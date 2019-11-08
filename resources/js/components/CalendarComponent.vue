@@ -42,6 +42,7 @@ export default {
     return {
       calendarPlugins: [ dayGridPlugin ],
       events: [],
+      event:[],
     }
   },
   mounted() {
@@ -50,14 +51,31 @@ export default {
   },
   methods: {
   readEvents() {
-      //this.events = [  { title: 'event 1', date: '2019-11-01' }, { title: 'event 2', date: '2019-11-02' }  ];
-        axios.get("calendarevents").then(response => {
+    //this.events = [  { title: 'event 1', date: '2019-11-01' }, { title: 'event 2', date: '2019-11-02' }  ];
+    axios.get("calendarevents").then(response => {
         this.events = response.data.events;
-      });
-    },
+    });
+  },
+
     handleEventClick(arg) {
-        if (arg.event.classNames=="open")
-      window.location.href = "booking/"+arg.event.id;
+   //     if (arg.event.classNames=="closed") alert('closed!');
+        if (arg.event.classNames=="open"){
+
+            //check if event is still open, perhaps the browser was unused for a long time
+            axios.get("checkEventAvailable/"+arg.event.id).then(response => {
+                console.log(response.data.available)
+                if ( response.data.available){
+                    console.log('open, go to url');
+                    window.location.href = "booking/"+arg.event.id;
+                }
+                //not open, then refresh calendar
+                else{
+                    console.log('closed, refresh events');
+                    this.readEvents();
+                }
+            });
+
+        }
     },
   }
 }

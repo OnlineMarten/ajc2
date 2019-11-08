@@ -299,28 +299,47 @@ class EventController extends Controller
         foreach ($events as $event) {
             if ($event->active) {
 
-                $e['date'] = $event->event_date;
-                $e['id'] = $event->id;
-                //green
-                if ($event->tickets_sold < 8 ) {
-                    $e['title'] = ucwords($event->title)."\nBook Now";
-                    $e['backgroundColor'] ="#70CA2E";
-                    $e['classNames'] =[ 'open' ];
-                }
-                //yellow
-                if ($event->tickets_sold >= 8 ) {
-                    $e['title'] = ucwords($event->title)."\nBook Now";
-                    $e['backgroundColor'] ="#F19B12";
-                    $e['classNames'] =[ 'open' ];
 
-                }
-                //red
-                if ($event->sold_out) {
+
+                $hours=date('H', strtotime($event->start_time));
+                $minutes=date('i', strtotime($event->start_time));
+                $date= strtotime($event->event_date);
+                $minutes_close_sale_before_start = config('custom.minutes_close_sale_before_start');//stop verkoop aantal minuten vooraf  aanvang
+
+                $deadline = date('Y-m-d H:i:s', $date+$hours*60*60+$minutes*60-$minutes_close_sale_before_start*60);//create date including start time cruise, calculate end time sales.
+
+                //echo "hours:".$hours; echo "minutes:".$minutes; echo "deadline is:".$deadline;
+
+                $e['date'] = $event->event_date;
+
+                if (strtotime($deadline)< time()) {//cruise al geweest of na de deadline, geen verkoop meer mogelijk
                     $e['title'] = ucwords($event->title)."\nSold Out";
                     $e['backgroundColor'] ="#FA0C00";
                     $e['classNames'] =[ 'closed' ];
-
                 }
+                else{
+                    $e['id'] = $event->id;
+                    //green
+                    if ($event->tickets_sold < 8 ) {
+                        $e['title'] = ucwords($event->title)."\nBook Now";
+                        $e['backgroundColor'] ="#70CA2E";
+                        $e['classNames'] =[ 'open' ];
+                    }
+                    //yellow
+                    if ($event->tickets_sold >= 8 ) {
+                        $e['title'] = ucwords($event->title)."\nBook Now";
+                        $e['backgroundColor'] ="#F19B12";
+                        $e['classNames'] =[ 'open' ];
+
+                    }
+                    //red
+                    if ($event->sold_out) {
+                        $e['title'] = ucwords($event->title)."\nSold Out";
+                        $e['backgroundColor'] ="#FA0C00";
+                        $e['classNames'] =[ 'closed' ];
+
+                    }
+                }//end else
 
 
                 array_push($calendarevents,$e);
@@ -365,6 +384,20 @@ class EventController extends Controller
         ], 200);
     }
 
+    public function checkEventAvailable($id){
+        //EVENT
+        $event = Event::find($id);//get event
+        if ($event->active && !$event->sold_out){
+            return response()->json([
+                'available' => true,
+            ], 200);
+        }
+        else{
+            return response()->json([
+                'available' => false,
+            ], 200);
+        }
+    }
 
 
 }
