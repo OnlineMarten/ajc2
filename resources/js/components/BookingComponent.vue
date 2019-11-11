@@ -1,119 +1,145 @@
 <template>
 <div>
     <div v-if="event">
+        <div class="row mt-1">
 
-    <!--basket contents-->
-    <div class="form-group col-sm-8" style="background:gray;color:white;min-height:200px;margin-bottom:10px">
-            <h4>Your selection</h4>
-            <div  v-if="event">
-               <h4>Event: {{ event.event.title}}</h4>
-            <p>   {{ new Date(event.event.event_date) | dateFormat('dd DD MMM YYYY') }} ,
-                   {{ event.event.start_time }} -  {{ event.event.end_time }}</p>
-            <p v-if="selection.nrtickets>0 && selection.ticket.length!==0">{{selection.nrtickets}} x {{event.event.title}}
-                <span>
-                    {{selection.ticket.title}}  {{selection.ticket.price/100  | toCurrency}} total: {{selection.nrtickets * (selection.ticket.price/100)  | toCurrency}}
-                </span>
-            </p>
-        </div>
 
-        <div v-if="selection.nrtickets>0 && selection.ticket.length!==0">
+<!-- basket-->
+<div class="col-sm-5 order-sm-2 mb-4" >
+        <div class="col-md-12 ">
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Order details</span>
+            <span class="badge badge-secondary badge-pill">3</span>
+          </h4>
+          <ul class="list-group mb-3">
+
+            <li class="list-group-item d-flex justify-content-between lh-condensed">
+
+              <div>
+                <h6 class="my-0"> {{ new Date(event.event.event_date) | dateFormat('dd DD MMM YYYY') }}<br>
+                {{selection.nrtickets}} tickets</h6>
+                <small v-if="selection.nrtickets>0 && selection.ticket!==0" class="text-muted">({{selection.ticket.title}}  {{selection.ticket.price  | toCurrency}})</small>
+              </div>
+
+              <span v-if="selection.nrtickets>0 && selection.ticket!==0" class="text-muted">{{selection.nrtickets * (selection.ticket.price)  | toCurrency}}</span>
+
+            </li>
+
             <span v-for="category in selection.categories" :key="category.title">
-                <div v-for="(extra) in category.extras" :key="extra.id">
-                    <div v-if="extra.max === 'ticket' && extra.selected">
+                <span v-for="(extra) in category.extras" :key="extra.id">
+
+                    <span v-if="extra.max === 'ticket' && extra.selected">
                         <span v-if="selection.nrtickets>0 ">
-                            {{selection.nrtickets }} x {{ extra.title }}
-                            {{extra.price/100 | toCurrency}}. Total: {{selection.nrtickets * (extra.price/100) | toCurrency}}
+
+                            <li class="list-group-item d-flex justify-content-between lh-condensed">
+
+                            <div>
+                                <h6 class="my-0">{{ extra.title }}</h6>
+                                <small class="text-muted">({{selection.nrtickets }} x {{extra.price | toCurrency}})</small>
+                            </div>
+
+                            <span class="text-muted">{{selection.nrtickets * (extra.price) | toCurrency}}</span>
+
+                            </li>
+
                         </span>
-                    </div>
-                    <div v-else>
-                        <div v-if="extra.selected>0">
+                    </span>
+
+                    <span v-else>
+                        <span v-if="extra.selected>0">
                             <span v-if="selection.nrtickets>0 ">
-                                {{ extra.selected }} x {{ extra.title }}
-                                {{extra.price/100  | toCurrency}}. Total: {{extra.selected * (extra.price/100) | toCurrency}}
+
+                                <li class="list-group-item d-flex justify-content-between lh-condensed">
+
+                                <div>
+                                <h6 class="my-0"> {{ extra.title }}</h6>
+                                    <small class="text-muted">{{ extra.selected }} x {{extra.price  | toCurrency}}</small>
+                                </div>
+
+                                 <span class="text-muted">{{extra.selected * (extra.price) | toCurrency}}</span>
+
+                                </li>
 
                             </span>
-                        </div>
-                    </div>
-                </div>
-            </span>
-            <hr>
-            <p class="text-right">Total price: {{totalAmount/100 | toCurrency}}</p>
-        </div><!--col-sm-8-->
+                        </span>
+                    </span>
 
-
-    </div>
-    <!--end basket contents-->
-
-    <div v-if="(step===1 || nosteps) && !show_payment_page">
-
-    <!--event description-->
-    <!--
-    <div class="col-sm-8"  v-if="show_titles" style="border:1px solid blue;margin-bottom:10px">
-        <div class="col-sm-8" v-if="event.event.description">
-            <h4 v-if="show_titles">{{event.event.title}}</h4>
-            <p v-if="show_descriptions">{{event.event.description}}</p>
-        </div>
-    </div>
-    -->
-    <!--end event description-->
-
-
-    <!--ticketselection-->
-    <div class="col-sm-8" style="border:1px solid green;margin-bottom:10px">
-
-        <!--ticket group title and description-->
-        <div class="form-group" v-if="event.ticketgroup.description && show_titles">
-            <h4>{{event.ticketgroup.title}}</h4>
-            <hr>
-        </div>
-
-        <br>
-
-
-
-        <!-- # tickets -->
-        <div class="form-group">
-            <select v-model="selection.nrtickets">
-                <option  :value="0" >0</option>
-                <option v-for="counter in getNumbers(event.event.min_per_sale,event.event.max_per_sale)" :value="counter" :key="counter">{{counter}}</option>
-            </select> Tickets
-        </div>
-
-        <!-- ticket type -->
-        <div class="form-group">
-                <label  v-if="show_descriptions" for="ticket_selection" class="col-sm-8 col-form-label">{{event.ticketgroup.description}}</label>
-                <br>
-                <span v-for="(ticket, index) in event.tickets" :key="ticket.id">
-                    <input type="radio" :id="index" :value="ticket" v-model="selection.ticket">
-                    <!--let op: we gebruiken de array index en niet de ticket id!!!-->
-                    <label :for="ticket.id" class="form-check-label">{{ ticket.title }}</label>
-                        <div class="col-sm-8 ml-3" v-if="ticket.description && show_descriptions">Info: {{ticket.description}}</div>
-                    <br/>
                 </span>
-                <p class="text-right" v-if="selection.nrtickets>0 && selection.ticket.length!==0">Total: {{selection.nrtickets * (selection.ticket.price/100)  | toCurrency}}</p>
-        </div><!--form group-->
+            </span>
+<!--
+            <li class="list-group-item d-flex justify-content-between bg-light">
+              <div class="text-success">
+                <h6 class="my-0">Promo code</h6>
+                <small>10% discount</small>
+              </div>
+              <span class="text-success">-$5</span>
+            </li>
+-->
+            <li v-if="selection.nrtickets>0 && selection.ticket!==0" class="list-group-item d-flex justify-content-between">
+              <span>Total (EURO)</span>
+              <strong>{{totalAmount | toCurrency}}</strong>
+            </li>
+          </ul>
+
+          <form class="card p-2">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Promo code">
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-secondary">Redeem</button>
+              </div>
+            </div>
+          </form>
+        </div>
+</div>
+ <!--end basket-->
+
+<div class="col-sm-7 order-sm-1 shadow-sm p-3 mb-5 bg-white rounded">
+
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <hr>
+
+            <!--ticketselection-->
+
+            <!--ticket group title and description-->
+            <div class="form-group" v-if="event.ticketgroup.description && show_titles">
+                <h4>{{event.ticketgroup.title}}</h4>
+            </div>
+
+            <!-- # tickets -->
+            <div class="form-group">
+                <select v-model="selection.nrtickets">
+                    <option  :value="0" >0</option>
+                    <option v-for="counter in getNumbers(event.event.min_per_sale,event.event.max_per_sale)" :value="counter" :key="counter">{{counter}}</option>
+                </select>
+                <select v-model="selection.ticket">
+                       <option :value="0" disabled>Select ticket type</option>
+                    <option v-for="(ticket) in event.tickets" :value="ticket" :key="ticket.id">{{ticket.title}}</option>
+                </select>
+            </div>
+            <!--end ticketselection-->
+        </div>
     </div>
-    <!--end ticketselection-->
-
-
-</div><!--step1-->
-
-<div v-if="(step===2 || nosteps)">
 
     <!--extras selection-->
-    <div v-if="selection.nrtickets>0 && selection.ticket.length!==0">
+    <span v-if="selection.nrtickets>0 && selection.ticket!==0">
         <span v-for="category in selection.categories" :key="category.id" >
-            <div class="col-sm-8" style="border:1px solid orange;margin-bottom:10px">
 
+            <div class="row">
+            <div class="col-sm-12">
+                <hr>
+            <div class="form-group">
             <h4 v-if="show_titles">{{category.title}}</h4>
             <p v-if="show_descriptions">{{category.description}}</p>
 
             <span v-for="(extra, index) in category.extras" :key="extra.id">
                 <span v-if="extra.max === 'ticket'">
                     <input type="checkbox" :id="index" :value="extra.title" v-model="extra.selected">
-                    <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price/100 | toCurrency}} per person</label>
+                    <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}} per person</label>
 
-                    <p class="text-right" v-if="extra.selected>0" >Total: {{selection.nrtickets*extra.price/100 | toCurrency}}</p>
+                    <p class="text-right" v-if="extra.selected>0" >Total: {{selection.nrtickets*extra.price | toCurrency}}</p>
                 </span>
                 <span v-else>
 
@@ -121,52 +147,78 @@
                         <option selected value="0">0</option>
                         <option v-for="counter in parseInt(extra.max)" :key="counter" >{{counter}}</option>
                     </select>
-                    <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price/100 | toCurrency}}</label>
+                    <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}}</label>
 
-                    <p class="text-right" v-if="extra.selected>0" >Total: {{extra.selected*extra.price/100 | toCurrency}}</p>
+                    <p class="text-right" v-if="extra.selected>0" >Total: {{extra.selected*extra.price | toCurrency}}</p>
                     <hr>
                 </span>
 
 
-                <div class="col-sm-8 ml-3" v-if="extra.description && show_descriptions">Info: {{extra.description}}</div>
+                <div class="col-sm-5 ml-3" v-if="extra.description && show_descriptions">Info: {{extra.description}}</div>
                 <br/>
             </span>
-
-            </div><!--border-->
+            </div><!--form-group-->
+            </div><!--col 8-->
+            </div><!--row-->
         </span>
-    </div><!--col-sm-8-->
+    </span>
+    <!--end extras selection-->
 
-</div><!--step2-->
 
-<!--<div v-show="show_payment_page">-->
-    <div v-show="selection.nrtickets>0 && selection.ticket.length!==0" class="col-sm-8" style="border:1px solid orange;margin-bottom:10px">
-        <p>name, email, contact, paymentmethod</p>
+<!--contact details-->
+<div class="row">
+        <div v-show="selection.nrtickets>0 && selection.ticket!==0" class="col-sm-12">
+            <hr>
+        <h4>Contact</h4>
 
         <div class="form-group row">
             <label for="name" class="col-sm-3 col-form-label">Name:</label>
             <div class="col-sm-8">
             <input required type="text" name="name" id="name" class="form-control"
-                v-model="event.title">
+                v-model="selection.name">
             </div>
         </div>
+
         <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">Contact:</label>
+                <label for="name" class="col-sm-3 col-form-label">Phone:</label>
             <div class="col-sm-8">
-            <input required type="text" name="contact" id="contact" class="form-control"
-                v-model="event.title">
+                <vue-tel-input
+                    v-model="selection.phone"
+                    @country-changed="country_changed"
+                    :inputOptions="{
+                        showDialCode: false,
+                        tabindex: 0
+                    }"
+                    :preferredCountries="[
+                    'NL',
+                    'US',
+                    'GB',
+                    ]"
+                    mode="international"
+                    placeholder=""
+
+                    ></vue-tel-input>
+                    <!-- {{phone_data}}-->
             </div>
         </div>
+
          <div class="form-group row">
             <label for="name" class="col-sm-3 col-form-label">Email:</label>
             <div class="col-sm-8">
             <input required type="email" name="email" id="email" class="form-control"
-                v-model="event.title">
+                v-model="selection.email">
             </div>
         </div>
 
-    </div>
+    </div><!--col 12-->
+</div><!--row-->
+<!--end contact details-->
 
-    <div v-show="selection.nrtickets>0 && selection.ticket.length!==0" class="col-sm-8" style="border:1px solid orange;margin-bottom:10px">
+<!--payment container-->
+<div class="row">
+        <div v-show="selection.nrtickets>0 && selection.ticket!==0" class="col-sm-12">
+            <hr>
+            <h4>Payment</h4>
 
         <span v-if="show_error">error? {{error}}</span>
     <!--adyen drop in-->
@@ -178,44 +230,55 @@
         </div>
     </div>
     <!--end adyen drop in-->
-    </div>
-<!--show payment page-->
+    </div><!--col 12-->
+</div><!--row-->
+<!--end payment container-->
+
+
+
 <hr>
-<div class="col-sm-8" style="padding:0px">
-        <button style="" v-if="step>=1 || nosteps || show_payment_page" class="btn btn-outline-primary" type="submit" @click.prevent="prev()">Previous</button>
-        <button style="" v-if="step>1 && !nosteps" class="btn btn-outline-primary" type="submit" @click.prevent="cancel()">Cancel</button>
-
-        <button style="float:right" v-if="step>=1 && step<3 && !nosteps && selection.nrtickets>0 && selection.ticket.length!==0" class="btn btn-primary" type="submit" @click.prevent="next()">Next</button>
-        <button style="float:right" v-show="(step===3 || nosteps) && selection.nrtickets>0 && selection.ticket.length!==0 && !show_payment_page" class="btn btn-outline-primary" type="submit" @click.prevent="dropin.submit()" >Pay</button>
+<div class="row">
+<div class="col-sm-12">
+        <button style="" v-if="show_payment_page" class="btn btn-primary" type="submit" @click.prevent="prev()">Previous</button>
+        <button style="float:right" v-show="selection.nrtickets>0 && selection.ticket!==0" class="btn btn-primary" type="submit" @click.prevent="dropin.submit()" >Complete your booking</button>
+</div>
 </div>
 
-    </div><!-- if-event-->
-</div>
+</div><!--col 7-->
+</div><!-- row-->
 
+</div><!-- if-event-->
+</div>
 </template>
 
 
 
 <script>
-
+import { VueTelInput } from 'vue-tel-input'
 
 //import axioscalls from '@./resources/services/axioscalls'
 export default {
+  components: {
+        VueTelInput,
+  },
 
   data(){
     return {
-        show_titles:false,
+        show_titles:true,
         show_descriptions:false,
         nosteps:true,
         show_payment_page:false,
         event_id:"",
         event:"",
         tickets:"",
-        step:1,
         counter:"0",
         selection:{
-            nrtickets:"2",
-            ticket:[],
+            name:"",
+            email:"",
+            phone:"",
+            countrycode:"",
+            nrtickets:"0",
+            ticket:0,
             categories:{
                 extras:[],
             },
@@ -226,6 +289,8 @@ export default {
         paymentmethods_not_yet_loaded:true,//to avoid dropin being loaded more than once
         error:"",
         dropin:"",
+        phone:"",
+        phone_data:[],
     }//return
   },//data
 
@@ -241,10 +306,19 @@ export default {
             this.paymentmethods_not_yet_loaded =false;
         }
 
-
     },//mounted
 
     methods: {
+
+        country_changed(data){
+            console.log('country changed');
+            this.phone_data=data;
+            if (this.selection){
+                this.selection.dialcode = this.phone_data.dialCode;
+                this.selection.countrycode = this.phone_data.iso2;
+
+            }
+        },
 
         getEvent()
         {
@@ -384,17 +458,6 @@ export default {
         },
         //end adyen
 
-
-        test(){
-
-
-                      this.pay_button_text = "ideal";
-                        console.log("button test ="+this.teststring);
-
-
-
-                },
-
         prev() {
             if (!this.nosteps) this.step--;
             this.show_payment_page = false;
@@ -413,10 +476,8 @@ export default {
                 this.paymentmethods_not_yet_loaded =false;
             }
         },
-        toCurrency (val) {
 
-            return (val/100).toFixed(2);
-        },
+        //helper function for iterating over the correct number of tickets
         getNumbers:function(start,stop){
 
             stop++;//add one to the end to include the last iteration (2-6 tickets needs 5 iterations, not 4)

@@ -24,7 +24,7 @@ window.Vue = require('vue');
 
 
 Vue.filter('toCurrency', function (value) {
-    value = '€ ' + parseFloat(value).toFixed(2);
+    value = '€ ' + parseFloat(value/100).toFixed(2);
     return value.replace(".00", "");//replace in case format is en
 });
 

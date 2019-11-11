@@ -24,6 +24,8 @@
                     <br><hr>
                     <input type="checkbox" id="checkbox" v-model="show_details_table">
                     <label for="checkbox">show detailed table</label>
+                    <input type="checkbox" id="checkbox" v-model="show_past_events">
+                    <label for="checkbox">show past events</label>
 
                     <table class="table table-striped table-bordered table-responsive table-sm" v-if="events.length > 0" ref="table">
                         <thead>
@@ -41,9 +43,8 @@
                             </tr>
                         </thead>
                         <tbody>
-
-
                             <tr v-for="(event, index) in events" :key="event.id">
+                            <template v-if="show_past_events || (!show_past_events && (new Date(event.event_date) >= Date.now()))">
 
                                 <td>
                                     {{ event.title }}
@@ -87,7 +88,9 @@
                                     <button @click="initUpdate(index)" class="btn btn-success btn-sm"><i class="fas fa-edit"></i>Edit</button>
                                     <button @click="deleteEvent(index)" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i>Delete</button>
                                 </td>
-                            </tr>
+
+                            </template>
+                              </tr>
                         </tbody>
                     </table>
                      <div v-else>
@@ -317,7 +320,8 @@ export default {
   data() {
     return {
         //checkbox
-        show_details_table:true,
+        show_details_table:false,
+        show_past_events:false,
         loaded:false,
         //event data
         event: {

@@ -14,8 +14,6 @@
 
 @section('content')
 
-
-
 <calendar-component></calendar-component>
 
 
