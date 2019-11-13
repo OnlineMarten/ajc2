@@ -39,6 +39,9 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="{{ route('extra.index') }}">Extras <span class="sr-only"></span></a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('promocode.index') }}">Promocodes <span class="sr-only"></span></a>
+                    </li>
 
 
 

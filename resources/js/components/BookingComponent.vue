@@ -66,26 +66,38 @@
 
                 </span>
             </span>
-<!--
-            <li class="list-group-item d-flex justify-content-between bg-light">
-              <div class="text-success">
-                <h6 class="my-0">Promo code</h6>
-                <small>10% discount</small>
-              </div>
-              <span class="text-success">-$5</span>
+
+            <li v-if="valid_promocode" class="list-group-item d-flex justify-content-between bg-light">
+                    <span>Total without discount</span>
+              <strong>{{(totalAmount+total_discount) | toCurrency}}</strong>
+
             </li>
--->
+
+            <li v-if="valid_promocode" class="list-group-item d-flex justify-content-between bg-light">
+              <div class="text-success">
+                <h6 class="my-0">Promo code Discount</h6>
+                <small>
+                    <span v-if="promocode.discount_amount">- {{promocode.discount_amount | toCurrency}}</span>
+                    <span v-if="promocode.discount_perc">{{promocode.discount_perc}} %</span>
+
+                    </small>
+              </div>
+              <span class="text-success">- {{total_discount | toCurrency}}</span>
+            </li>
+
             <li v-if="selection.nrtickets>0 && selection.ticket!==0" class="list-group-item d-flex justify-content-between">
-              <span>Total (EURO)</span>
+              <span>Total</span>
               <strong>{{totalAmount | toCurrency}}</strong>
             </li>
           </ul>
 
           <form class="card p-2">
+               <small class="text-danger" v-if="promocode_error_message"> * Invalid code</small>
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Promo code">
+
+              <input type="text" v-model="promocode.code" class="form-control" placeholder="Promo code">
               <div class="input-group-append">
-                <button type="submit" class="btn btn-secondary">Redeem</button>
+                <button type="submit" class="btn btn-secondary" @click.prevent="checkPromoCode()">Redeem</button>
               </div>
             </div>
           </form>
@@ -216,7 +228,7 @@
 
 <!--payment container-->
 <div class="row">
-        <div v-show="selection.nrtickets>0 && selection.ticket!==0" class="col-sm-12">
+        <div v-show="selection.total_amount>0" class="col-sm-12">
             <hr>
             <h4>Payment</h4>
 
@@ -240,7 +252,7 @@
 <div class="row">
 <div class="col-sm-12">
         <button style="" v-if="show_payment_page" class="btn btn-primary" type="submit" @click.prevent="prev()">Previous</button>
-        <button style="float:right" v-show="selection.nrtickets>0 && selection.ticket!==0" class="btn btn-primary" type="submit" @click.prevent="dropin.submit()" >Complete your booking</button>
+        <button style="float:right" v-show="selection.nrtickets>0 && selection.ticket!==0" class="btn btn-primary" type="submit" @click.prevent="checkout()" >Complete your booking</button>
 </div>
 </div>
 
@@ -284,6 +296,8 @@ export default {
             },
             event:[],
             total_amount:"0",
+            total_discount:"0",
+            total_discount_vat:"0",
         },
         show_error:false,
         paymentmethods_not_yet_loaded:true,//to avoid dropin being loaded more than once
@@ -291,6 +305,15 @@ export default {
         dropin:"",
         phone:"",
         phone_data:[],
+        valid_promocode:false,
+        promocode_error_message:false,
+        promocode:{
+            code:"",
+            discount_amount:"0",
+            discount_perc:"0",
+            apply_to_extras:"0",
+            apply_to_tickets:"0",
+        },
     }//return
   },//data
 
@@ -318,6 +341,37 @@ export default {
                 this.selection.countrycode = this.phone_data.iso2;
 
             }
+        },
+         checkPromoCode(){
+            console.log(this.promocode.code);
+            //reset values
+            this.promocode.discount_amount="0";
+            this.promocode.discount_perc="0";
+            this.promocode.apply_to_extras="0";
+            this.promocode.apply_to_tickets="0";
+            this.promocode_error_message=false;
+
+            if (this.promocode.code){
+
+
+                axios.get("/checkpromocode/"+this.promocode.code).then(response => {
+                    console.log("response="+response.data.promocode)
+                    if (response.data.promocode!=='false'){//we have a valid code
+                        console.log("we have a valid code")
+                        this.valid_promocode = true;
+                        this.promocode = response.data.promocode;
+                    }
+                    else{
+                        console.log("invalid code");
+                        this.valid_promocode = false;
+                        this.promocode_error_message=true;
+                    }
+                });
+            }
+            else{
+                console.log("no code entered");
+            }
+
         },
 
         getEvent()
@@ -406,6 +460,19 @@ export default {
 
             });
         },
+        checkout(){
+
+             if (this.selection.total_amount>0)
+                    {
+                        console.log("going to payment");
+                        this.dropin.submit();
+                    }
+                    else{
+                        console.log("nothing to pay, going to confirmation");
+                        window.location = process.env.MIX_APP_URL+"/checkout?direct=true";
+                    }
+
+        },
 
         makePayment(data){
             console.log(data);
@@ -490,23 +557,25 @@ export default {
     computed:{
 
         //calculate total amount in basket
+
         totalAmount: function () {
-            this.selection.total_amount =  this.selection.nrtickets*(this.selection.ticket.price);
+            let totalTickets=0;
+            let totalExtras=0;
+            this.total_discount = 0;
+            this.total_discount_vat = 0;
+            //this.selection.total_amount =  this.selection.nrtickets*(this.selection.ticket.price);
+            totalTickets = this.selection.nrtickets*(this.selection.ticket.price);
 
             for (var i = 0; i < this.selection.categories.length; i++  ) {
                 console.log("in categories loop");
                 for (var n = 0; n < this.selection.categories[i].extras.length; n++  ) {
 
                    if(this.selection.categories[i].extras[n].selected===true){
-                        console.log(this.selection.categories[i].extras[n].title + ' : multiply by nrtickets');
-                       // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
-                        this.selection.total_amount += this.selection.categories[i].extras[n].price*this.selection.nrtickets;
+                        totalExtras+= this.selection.categories[i].extras[n].price*this.selection.nrtickets;
                    }
                    else{
                        if (this.selection.categories[i].extras[n].selected){//check if selected exists, it does not exist automatically
-                            console.log(this.selection.categories[i].extras[n].title +  ' : multiply by selected amount');
-                           // console.log(this.selection.categories[i].extras[n].price + this.selection.categories[i].extras[n].selected);
-                            this.selection.total_amount += this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected;
+                            totalExtras+= this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected
                        }
                    }
 
@@ -514,9 +583,59 @@ export default {
 
             }//for catagories
 
+             if (this.valid_promocode){//we have a valid promocode, calculate discounts
+
+                if(this.promocode.discount_amount){
+                     this.total_discount += this.promocode.discount_amount;
+
+                     this.total_discount_vat += this.promocode.discount_amount * this.selection.ticket.vat/100;
+                     //Here we assume the total discount amount is less than the total ticket price.
+                     //If the discount is larger the calculation is incorrect!!
+                }
+
+                if(this.promocode.discount_perc){
+
+                    if(this.promocode.apply_to_tickets){
+                        this.total_discount += (this.promocode.discount_perc/100)*totalTickets;
+                        this.total_discount_vat += (this.promocode.discount_perc/100)*totalTickets *( this.selection.ticket.vat/100)
+
+
+                    }
+                    if(this.promocode.apply_to_extras){
+                         this.total_discount += (this.promocode.discount_perc/100)*totalExtras;
+
+                        for (var i = 0; i < this.selection.categories.length; i++  ) {
+
+                        for (var n = 0; n < this.selection.categories[i].extras.length; n++  ) {
+
+                        if(this.selection.categories[i].extras[n].selected===true){
+                                totalExtras+= this.selection.categories[i].extras[n].price*this.selection.nrtickets;
+                                totalExtras_vat += this.selection.categories[i].extras[n].price*this.selection.nrtickets *
+                                                        this.selection.categories[i].extras[n].vat/100;
+                        }
+                        else{
+                            if (this.selection.categories[i].extras[n].selected){//check if selected exists, it does not exist automatically
+                                    totalExtras+= this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected;
+                                    totalExtras_vat += this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected *
+                                                            this.selection.categories[i].extras[n].price/100;
+                            }
+                        }
+
+                        }//vat extras
+
+            }//for catagories
+
+
+                    }
+
+                }
+             }
+
+            this.selection.total_amount = totalTickets + totalExtras - this.total_discount;
+            console.log('finished calulating. total extras:'
+                            +totalExtras+'total discount:'+this.total_discount+' total discount vat:'+this.total_discount_vat);
             return this.selection.total_amount;
         }
-
     }
 }//export default
 </script>

@@ -70,6 +70,7 @@ Vue.component('ticket-component', require('./components/TicketComponent.vue').de
 
 Vue.component('event-component', require('./components/EventComponent.vue').default);
 Vue.component('extra-component', require('./components/ExtraComponent.vue').default);
+Vue.component('promocode-component', require('./components/PromoCodeComponent.vue').default);
 
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 

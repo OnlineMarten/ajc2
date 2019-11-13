@@ -163,7 +163,7 @@ class EventController extends Controller
             ], 200);
     }
 
-/*dit werkt, maar lever 1 table op, wat betekent maar 1 row per table
+/*dit werkt, maar levert 1 table op, wat betekent maar 1 row per table
         $event = Event::join('ticket_groups','ticket_groups.id', '=', 'ticket_group_id')
             ->join('ticket_ticket_group','ticket_ticket_group.ticket_id', '=', 'ticket_ticket_group.ticket_group_id')
             ->join('tickets','tickets.id', '=','ticket_ticket_group.ticket_id' )
@@ -272,9 +272,7 @@ class EventController extends Controller
            // session()->flash('alert-danger', 'Can not delete the event of '. \Carbon\Carbon::parse($event->event_date)->formatLocalized('%a %d %b %Y').', because there are already tickets sold!');
         }
         else{
-         //   $event->upgrades()->detach();//remove all connected upgrades (and delete from pivot table)
             $event->categories()->detach();//remove all connected tickets (and delete from pivot table)
-          //  $event->ticketgroups()->detach();//remove all connected tickets (and delete from pivot table)
             $event->delete();
             logger()->channel('info')->info('Event: "'.$event->title.', date: '. $event->event_date.'" deleted by '.auth()->user()->name);
             session()->flash('alert-success', 'Event deleted');

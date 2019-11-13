@@ -20,6 +20,7 @@ Route::get('/checkout', function () {
 });
 
 Route::get('/calendarevents', 'EventController@calendarEvents')->name('calendarEvents');
+Route::get('/checkPromoCode', 'PromoCodeController@checkPromoCode')->name('checkPromoCode');
 
 Route::get('/booking/{event_id}', function () {
     return view('booking');
@@ -37,6 +38,7 @@ Route::get('getevent/{event_id}', 'EventController@show')->name('getevent');//ax
 Route::get('checkEventAvailable/{event_id}', 'EventController@checkEventAvailable')->name('checkevent');//axios get event available for sale
 //Route::get('eventgettickets/{event_id}', 'EventController@allTicketsConnectedToEvent')->name('eventgettickets');
 Route::get('ticketgroupgettickets/{ticket_group_id}', 'TicketGroupController@allTicketsConnectedToTicketGroup')->name('ticketgroupgettickets');
+Route::get('checkpromocode/{code}', 'PromoCodeController@checkPromoCode')->name('checkpromocode');//axios check for valid promocode
 
 /*ADMIN ONLY*/
 Route::group(['middleware' => 'auth'], function () {
@@ -46,6 +48,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/admin/ticket_group', 'TicketGroupController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('/admin/ticket', 'TicketController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('/admin/extra', 'ExtraController')->only([  'index',  'store', 'update', 'destroy'    ]);
+    Route::resource('/admin/promocode', 'PromoCodeController')->only([  'index',  'store', 'update', 'destroy'    ]);
 
 
     Route::get('/admin/eventgetcategories/{event_id}', 'EventController@allCategoriesConnectedToEvent')->name('eventgetcategories');
