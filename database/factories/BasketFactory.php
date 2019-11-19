@@ -2,10 +2,10 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\PromoCode;
+use App\Basket;
 use Faker\Generator as Faker;
 
-$factory->define(PromoCode::class, function (Faker $faker) {
+$factory->define(Basket::class, function (Faker $faker) {
     return [
         //
     ];

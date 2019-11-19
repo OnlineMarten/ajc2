@@ -290,6 +290,7 @@ export default {
 
     reset() {
         this.readPromoCodes();
+        this.promocode={};
     },
 
     readPromoCodes() {

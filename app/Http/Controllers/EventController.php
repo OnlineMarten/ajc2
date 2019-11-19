@@ -356,6 +356,44 @@ class EventController extends Controller
                 ], 200);
     }
 
+    public function openEvents()
+    {
+        $events = Event::
+        orderBy("event_date")
+        ->get();
+
+
+        $calendarevents = [];
+        $e=[];
+
+        foreach ($events as $event) {
+            if ($event->active) {
+
+
+
+                $hours=date('H', strtotime($event->start_time));
+                $minutes=date('i', strtotime($event->start_time));
+                $date= strtotime($event->event_date);
+                $minutes_close_sale_before_start = config('custom.minutes_close_sale_before_start');//stop verkoop aantal minuten vooraf  aanvang
+
+                $deadline = date('Y-m-d H:i:s', $date+$hours*60*60+$minutes*60);//create date including start time cruise and set tis as deadline
+
+                if (strtotime($deadline)> time()) {//cruise nog voor deadline verkoop = aanvangstijd cruise
+                    if (!$event->sold_out){//niet uitverkocht
+                        $e['id'] =$event->id;
+                        $e['date'] = $event->event_date;
+                        array_push($calendarevents,$e);
+                    }
+                }
+
+            }
+        }
+        // Output json for our calendar
+        return response()->json([
+            'events'    => $calendarevents,
+        ], 200);
+    }
+
     public function allCategoriesConnectedToEvent($event_id)
     {
         //get all tickets  connected to a specific event

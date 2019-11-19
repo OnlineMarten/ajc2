@@ -28,7 +28,13 @@
 <hr>
 <booking-selection></booking-selection>
 
-<?php echo "de merchant account =".config('services.adyen.merchantaccount');?>
+<?php echo "de merchant account =".config('services.adyen.merchantaccount');
+
+session(['basket_id' => '3']);
+echo session('basket_id');
+
+
+?>
 
 @endsection
 

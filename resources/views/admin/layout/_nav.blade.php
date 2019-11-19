@@ -42,6 +42,9 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="{{ route('promocode.index') }}">Promocodes <span class="sr-only"></span></a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{{ route('sale.index') }}">Sales <span class="sr-only"></span></a>
+                    </li>
 
 
 

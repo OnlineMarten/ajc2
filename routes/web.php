@@ -20,7 +20,9 @@ Route::get('/checkout', function () {
 });
 
 Route::get('/calendarevents', 'EventController@calendarEvents')->name('calendarEvents');
+Route::get('/openevents', 'EventController@openEvents')->name('openEvents');
 Route::get('/checkPromoCode', 'PromoCodeController@checkPromoCode')->name('checkPromoCode');
+Route::get('/refreshbaskets', 'BasketController@refreshBaskets')->name('refreshbaskets');
 
 Route::get('/booking/{event_id}', function () {
     return view('booking');
@@ -29,7 +31,7 @@ Route::get('/booking/{event_id}', function () {
 /*adyen*/
 Route::get('/paymentmethods', 'AdyenController@paymentMethods');
 Route::post('/makepayment', 'AdyenController@makePayment');
-
+Route::resource('/basket', 'BasketController')->only([  'store', 'update'    ]);
 
 Auth::routes();
 
@@ -49,6 +51,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/admin/ticket', 'TicketController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('/admin/extra', 'ExtraController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('/admin/promocode', 'PromoCodeController')->only([  'index',  'store', 'update', 'destroy'    ]);
+    Route::resource('/admin/sale', 'SaleController')->only([  'index',  'store', 'update', 'destroy'    ]);
+    Route::resource('admin/basket', 'BasketController')->only([  'index',  'destroy'    ]);
 
 
     Route::get('/admin/eventgetcategories/{event_id}', 'EventController@allCategoriesConnectedToEvent')->name('eventgetcategories');

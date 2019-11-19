@@ -24,7 +24,18 @@ window.Vue = require('vue');
 
 
 Vue.filter('toCurrency', function (value) {
-    value = '€ ' + parseFloat(value/100).toFixed(2);
+
+    let symbol;
+    if (value<0){
+        value= -value;
+        symbol = '- € ';
+    }
+    else{
+        symbol = '€ ';
+    }
+    value = symbol + parseFloat(value/100).toFixed(2);
+
+
     return value.replace(".00", "");//replace in case format is en
 });
 
@@ -67,7 +78,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('category-component', require('./components/CategoryComponent.vue').default);
 Vue.component('ticketgroup-component', require('./components/TicketGroupComponent.vue').default);
 Vue.component('ticket-component', require('./components/TicketComponent.vue').default);
-
+Vue.component('sale-component', require('./components/SaleComponent.vue').default);
 Vue.component('event-component', require('./components/EventComponent.vue').default);
 Vue.component('extra-component', require('./components/ExtraComponent.vue').default);
 Vue.component('promocode-component', require('./components/PromoCodeComponent.vue').default);

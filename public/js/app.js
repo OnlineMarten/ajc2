@@ -13229,29 +13229,11 @@ __webpack_require__.r(__webpack_exports__);
 
           if (this.promocode.apply_to_extras) {
             this.total_discount += this.promocode.discount_perc / 100 * totalExtras;
-
-            for (var i = 0; i < this.selection.categories.length; i++) {
-              for (var n = 0; n < this.selection.categories[i].extras.length; n++) {
-                if (this.selection.categories[i].extras[n].selected === true) {
-                  totalExtras += this.selection.categories[i].extras[n].price * this.selection.nrtickets;
-                  totalExtras_vat += this.selection.categories[i].extras[n].price * this.selection.nrtickets * this.selection.categories[i].extras[n].vat / 100;
-                } else {
-                  if (this.selection.categories[i].extras[n].selected) {
-                    //check if selected exists, it does not exist automatically
-                    totalExtras += this.selection.categories[i].extras[n].price * this.selection.categories[i].extras[n].selected;
-                    totalExtras_vat += this.selection.categories[i].extras[n].price * this.selection.categories[i].extras[n].selected * this.selection.categories[i].extras[n].price / 100;
-                  }
-                }
-              } //vat extras
-
-            } //for catagories
-
           }
         }
       }
 
       this.selection.total_amount = totalTickets + totalExtras - this.total_discount;
-      console.log('finished calulating. total extras:' + totalExtras + 'total discount:' + this.total_discount + ' total discount vat:' + this.total_discount_vat);
       return this.selection.total_amount;
     }
   }
@@ -15020,6 +15002,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     reset: function reset() {
       this.readPromoCodes();
+      this.promocode = {};
     },
     readPromoCodes: function readPromoCodes() {
       var _this3 = this;
@@ -15078,6 +15061,830 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 });
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SaleComponent.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+ //import axioscalls from '@./resources/services/axioscalls'
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_0__["VueTelInput"]
+  },
+  data: function data() {
+    return {
+      counter: "0",
+      show_error: false,
+      show: false,
+      error: "",
+      errors: "",
+      show_past_sales: false,
+      message: "",
+      add_update: "",
+      selection: {
+        name: "",
+        email: "",
+        phone: "",
+        country_code: "",
+        dial_code: "",
+        nr_tickets: "0",
+        ticket_nr: "",
+        guestlist_comments: "",
+        admin_comments: "",
+        lang: "en",
+        event_id: "",
+        ticket_id: "",
+        promocode_id: "0",
+        extras: [],
+        total_amount: "0",
+        total_discount: "0",
+        amount_paid: "0",
+        paying_now: "0"
+      },
+      //end selection
+      ticket: {
+        price: "0"
+      },
+      promocode: {
+        code: "",
+        id: "0",
+        discount_amount: "0",
+        discount_perc: "0",
+        apply_to_extras: "0",
+        apply_to_tickets: "0"
+      },
+      valid_promocode: false,
+      promocode_error_message: false,
+      //event:[],//weg?
+      phone: "",
+      phone_data: [],
+      show_event_details: false,
+      remaining_after_paying_now: "0",
+      paying_now_div_100: "0",
+      event: [],
+      events: [],
+      categories: [],
+      tickets: [],
+      sales: [],
+      promocodes: [],
+      //get and store all promocodes
+      // beforeEditingCache:{},
+      array_index: "0" //  _beforeEditingCache:[],
+      // _originalSale:{},
+
+    }; //return
+  },
+  //data
+  mounted: function mounted() {
+    console.log('mounted');
+    this.readSales(); //load promocodes and available events so it is ready in case we want to add or update a sale.
+
+    this.readPromoCodes();
+    this.readAvailableEvents();
+  },
+  //mounted
+  methods: {
+    cancelAddSale: function cancelAddSale() {
+      this.errors = "";
+      /*
+      this.show_event_details=false;
+      this.selection.event_id="0";
+       this.selection.ticket_id="0";
+       this.selection.promocode_id="0";
+       this.selection.nr_tickets="0";
+       this.valid_promocode=false;
+      //this.ticket="";
+       this.selection.amount_paid="0";
+       */
+
+      this.reset();
+    },
+    cancelUpdateSale: function cancelUpdateSale() {
+      this.reset(); // Exit editing mode
+
+      this.readSales();
+    },
+    reset: function reset() {
+      //this.selection ={};
+      this.selection.name = "";
+      this.selection.email = "";
+      this.selection.phone = "";
+      this.selection.nr_tickets = "0";
+      this.selection.ticket_nr = "";
+      this.selection.guestlist_comments = "";
+      this.selection.admin_comments = "";
+      this.selection.lang = "en";
+      this.selection.event_id = "";
+      this.selection.ticket_id = "";
+      this.selection.promocode_id = "0";
+      this.selection.extras = [];
+      this.selection.total_amount = "0";
+      this.selection.total_discount = "0";
+      this.selection.amount_paid = "0";
+      this.selection.paying_now = "0";
+      this.paying_now_div_100 = "0";
+      this.categories = [];
+      this.promocode = {};
+      this.promocode.id = "0";
+      this.promocode.code = "";
+      this.promocode.discount_amount = "0";
+      this.promocode.discount_perc = "0";
+      this.promocode.apply_to_extras = "0";
+      this.promocode.apply_to_tickets = "0";
+      this.errors = "";
+      this.show_error = false;
+    },
+    readSales: function readSales() {
+      var _this = this;
+
+      axios.get("/admin/sale").then(function (response) {
+        _this.sales = response.data.sales;
+      });
+    },
+    readAvailableEvents: function readAvailableEvents() {
+      var _this2 = this;
+
+      axios.get("openevents").then(function (response) {
+        _this2.events = response.data.events;
+      });
+    },
+    readEvent: function readEvent() {
+      var _this3 = this;
+
+      axios.get("/getevent/" + this.selection.event_id).then(function (response) {
+        _this3.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
+
+        _this3.categories = response.data.event.categories;
+        _this3.tickets = response.data.event.tickets;
+        _this3.show_event_details = true; //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+
+        if (_this3.selection.ticket_id > 0) {
+          _this3.ticket = _this3.tickets.find(function (ticket) {
+            return ticket.id === _this3.selection.ticket_id;
+          });
+          console.log('current ticket loaded');
+        }
+
+        if (_this3.selection.promocode_id > 0) {
+          _this3.promocode = _this3.promocodes.find(function (promocode) {
+            return promocode.id === _this3.selection.promocode_id;
+          });
+          console.log('current promocode loaded'); //if we have a promocode we also need to fake a promocode on change event to set all the values:
+
+          _this3.onChangePromoCode();
+        } //this.onChangePromoCode();
+
+      });
+    },
+    readPromoCodes: function readPromoCodes() {
+      var _this4 = this;
+
+      axios.get("admin/promocode").then(function (response) {
+        _this4.promocodes = response.data.promocodes;
+      });
+    },
+    initAddSale: function initAddSale() {
+      //   this.resetSelection();
+      this.add_update = "add";
+      this.readAvailableEvents(); //this.readPromoCodes();
+
+      $("#add_sale_model").modal("show");
+    },
+    initUpdateSale: function initUpdateSale(index) {
+      this.paying_now_div_100 = "0";
+      this.add_update = "update";
+      $("#add_sale_model").modal("show");
+      console.log('making copy of original sale');
+      this.array_index = index;
+      this.selection = this.sales[index]; //this.readAvailableEvents();
+      //this.readPromoCodes();
+
+      this.readEvent();
+    },
+    updateSale: function updateSale() {
+      var _this5 = this;
+
+      console.log('update sale');
+      axios.put("/admin/sale/" + this.selection.id, this.selection).then(function (response) {
+        $("#add_sale_model").modal("hide");
+
+        _this5.readSales();
+
+        _this5.showMessage(response.data.message);
+
+        _this5.reset();
+
+        console.log('repsonse');
+      })["catch"](function (error) {
+        console.log('error');
+
+        _this5.showErrors(error);
+      });
+    },
+    createSale: function createSale() {
+      var _this6 = this;
+
+      // create a ticket number
+      var random_nr = Math.floor(Math.random() * (99999 - 10000)) + 10000;
+      this.selection.ticket_nr = "AJC-" + this.formatDate(this.event.event_date) + '-' + this.formatDate(new Date(), true) + '-' + random_nr; //update basket so we are sure we ave a valid basket
+
+      axios.post("/basket", this.selection).then(function (response) {
+        //basket succesfuly updated, now add sale
+        axios.post("/admin/sale", _this6.selection).then(function (response) {
+          $("#add_sale_model").modal("hide"); //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
+
+          _this6.readSales();
+
+          _this6.showMessage(response.data.message);
+
+          _this6.reset();
+        })["catch"](function (error) {
+          //coud not add sale, show error
+          _this6.showErrors(error);
+        });
+      })["catch"](function (error) {
+        //could not update basket, show error
+        _this6.showErrors(error);
+      });
+    },
+    deleteSale: function deleteSale(index) {
+      var _this7 = this;
+
+      var conf = confirm('Do you ready want to delete reservation "' + this.sales[index].ticket_nr + '"?');
+
+      if (conf === true) {
+        axios["delete"]("/admin/sale/" + this.sales[index].id).then(function (response) {
+          _this7.sales.splice(index, 1);
+
+          _this7.showMessage(response.data.message);
+        })["catch"](function (error) {
+          _this7.showMessage(error.response.data.message); // Error
+
+        });
+      }
+    },
+    refreshBaskets: function refreshBaskets() {
+      axios.get("/refreshbaskets").then(function (response) {})["catch"](function (error) {});
+    },
+    updateBasket: function updateBasket() {
+      var _this8 = this;
+
+      console.log('eventid: ' + this.selection.event_id + ' nrtickets: ' + this.selection.nr_tickets + ' ticketid: ' + this.selection.ticket_id);
+
+      if (this.selection.event_id > 0 && this.selection.nr_tickets > 0 && this.selection.ticket_id > 0) {
+        axios.post("/basket", this.selection).then(function (response) {
+          console.log('basket updated');
+        })["catch"](function (error) {
+          _this8.showErrors(error);
+        });
+      } //end if
+
+    },
+    onTicketChange: function onTicketChange() {
+      var _this9 = this;
+
+      this.ticket = this.tickets.find(function (ticket) {
+        return ticket.id === _this9.selection.ticket_id;
+      });
+      this.updateBasket();
+      console.log('new ticket loaded: ' + this.ticket.title);
+    },
+    onNrTicketsChange: function onNrTicketsChange() {
+      this.updateBasket();
+      this.errors = "";
+      console.log('nrtickets changed:' + this.selection.nr_tickets);
+    },
+    onChangePromoCode: function onChangePromoCode() {
+      var _this10 = this;
+
+      console.log('promocode changed');
+      this.promocode_error_message = false;
+      console.log(this.selection.promocode_id);
+
+      if (this.selection.promocode_id > 0) {
+        //check code
+        console.log('checking code');
+        this.promocode.code = this.promocodes.find(function (promocode) {
+          return promocode.id === _this10.selection.promocode_id;
+        }).code;
+        console.log('selected promocode: ' + this.promocode.code);
+        console.log('checking ' + this.promocode.code);
+        axios.get("/checkpromocode/" + this.promocode.code).then(function (response) {
+          console.log("response=" + response.data.promocode);
+
+          if (response.data.promocode != 'false') {
+            //we have a valid code
+            _this10.valid_promocode = true;
+            _this10.promocode = _this10.promocodes.find(function (promocode) {
+              return promocode.id === _this10.selection.promocode_id;
+            });
+            console.log("we have a valid code. ID= " + _this10.selection.promocode_id);
+          } else {
+            console.log("invalid code");
+            _this10.valid_promocode = false;
+            _this10.promocode_error_message = true;
+          }
+        });
+      } else {
+        console.log("no code");
+        this.valid_promocode = false;
+      }
+    },
+    onEventChange: function onEventChange() {
+      console.log('event change');
+      this.readEvent();
+      this.updateBasket(); //basket only needs create or update when tickets have been selected
+    },
+    onCountryChange: function onCountryChange(data) {
+      console.log('country changed');
+      this.phone_data = data;
+
+      if (this.selection) {
+        this.selection.dial_code = this.phone_data.dialCode;
+        this.selection.country_code = this.phone_data.iso2;
+      }
+    },
+    //helper function for iterating over the correct number of tickets
+    getNumbers: function getNumbers(start, stop) {
+      stop++; //add one to the end to include the last iteration (2-6 tickets needs 5 iterations, not 4)
+
+      return new Array(stop - start).fill(start).map(function (n, i) {
+        return n + i;
+      });
+    },
+    //helper function for formatting ticketnr
+    formatDate: function formatDate(date) {
+      var no_year = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear().toString().substr(-2);
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+      if (no_year) return [day, month].join('');else return [day, month, year].join('');
+    },
+    showMessage: function showMessage(message) {
+      this.message = message;
+      this.show = true;
+    },
+    showErrors: function showErrors(error) {
+      var _this11 = this;
+
+      this.errors = "<ul>";
+      var response = error.response;
+      Object.keys(response.data.errors).forEach(function (item) {
+        _this11.errors += "<li>" + response.data.errors[item] + "</li>";
+      });
+      this.errors += "</ul>";
+    }
+  },
+  //methods
+  computed: {
+    //calculate total amount in basket
+    totalAmount: function totalAmount() {
+      this.selection.total_discount = 0;
+      this.selection.paying_now = this.paying_now_div_100 * 100;
+      var totalTickets = 0;
+      var totalExtras = 0;
+      this.selection.extras = []; //clear extras selection and rebuild
+
+      totalTickets = this.selection.nr_tickets * this.ticket.price;
+
+      for (var i = 0; i < this.categories.length; i++) {
+        for (var n = 0; n < this.categories[i].extras.length; n++) {
+          if (this.categories[i].extras[n].selected === true) {
+            totalExtras += this.categories[i].extras[n].price * this.selection.nr_tickets; //rebuild extras selection array with extra id and amount(nr)
+
+            this.selection.extras.push({
+              id: this.categories[i].extras[n].id,
+              nr: this.selection.nr_tickets
+            });
+          } else {
+            if (this.categories[i].extras[n].selected > 0) {
+              //check if selected exists, it does not exist automatically
+              totalExtras += this.categories[i].extras[n].price * this.categories[i].extras[n].selected; //rebuild extras selection array with extra id and amount(nr)
+
+              this.selection.extras.push({
+                id: this.categories[i].extras[n].id,
+                nr: this.categories[i].extras[n].selected
+              });
+            }
+          }
+        } //for extras
+
+      } //for catagories
+
+
+      if (this.valid_promocode) {
+        //we have a valid promocode, calculate discounts
+        if (this.promocode.discount_amount) {
+          this.selection.total_discount += this.promocode.discount_amount; //Here we assume the total discount amount is less than the total ticket price.
+          //If the discount is larger the calculation is incorrect!!
+        }
+
+        if (this.promocode.discount_perc) {
+          if (this.promocode.apply_to_tickets) {
+            this.selection.total_discount += this.promocode.discount_perc / 100 * totalTickets;
+          }
+
+          if (this.promocode.apply_to_extras) {
+            this.selection.total_discount += this.promocode.discount_perc / 100 * totalExtras;
+          }
+        }
+      }
+
+      this.selection.total_amount = totalTickets + totalExtras - this.selection.total_discount; //adjust remaining amount when paying now changes
+
+      this.remaining_after_paying_now = this.selection.total_amount - this.selection.amount_paid - this.selection.paying_now;
+      console.log('total amount' + this.selection.total_amount + 'paying now' + this.selection.paying_now + 'already paid' + this.selection.amount_paid + 'remaining' + this.remaining_after_paying_now);
+      return this.selection.total_amount;
+    }
+  }
+}); //export default
 
 /***/ }),
 
@@ -78688,6 +79495,1517 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&":
+/*!****************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b& ***!
+  \****************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-12" }, [
+        _vm.show
+          ? _c(
+              "div",
+              {
+                staticClass: "alert alert-info alert-dismissible fade show",
+                attrs: { role: "alert", id: "alert", name: "alert" }
+              },
+              [
+                _c(
+                  "button",
+                  {
+                    staticClass: "close",
+                    attrs: { type: "button", "aria-label": "Close" },
+                    on: {
+                      click: function($event) {
+                        _vm.show = !_vm.show
+                      }
+                    }
+                  },
+                  [
+                    _c("span", { attrs: { "aria-hidden": "true" } }, [
+                      _vm._v("×")
+                    ])
+                  ]
+                ),
+                _vm._v(
+                  "\n                " + _vm._s(_vm.message) + "\n            "
+                )
+              ]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Reservations\n\n\n                ")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary btn-xs float-left",
+                on: {
+                  click: function($event) {
+                    return _vm.initAddSale()
+                  }
+                }
+              },
+              [
+                _vm._v(
+                  "\n                            + Add New Reservation\n                    "
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c("br"),
+            _c("hr"),
+            _vm._v(" "),
+            _vm.sales.length > 0
+              ? _c(
+                  "table",
+                  {
+                    ref: "table",
+                    staticClass:
+                      "table table-striped table-bordered table-responsive table-sm"
+                  },
+                  [
+                    _vm._m(0),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      _vm._l(_vm.sales, function(sale, index) {
+                        return _c("tr", { key: sale.id }, [
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(sale.created_at),
+                                    "dd DD MMM YYYY"
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(sale.event_date),
+                                    "dd DD MMM YYYY"
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(sale.nr_tickets) +
+                                " x " +
+                                _vm._s(sale.ticket_title) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(sale.name) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(sale.country_code) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("small", [
+                              _vm._v("Ticketnr:" + _vm._s(sale.ticket_nr)),
+                              _c("br"),
+                              _vm._v(" "),
+                              sale.promocode
+                                ? _c("span", [
+                                    _vm._v(
+                                      "Promocode:" + _vm._s(sale.promocode)
+                                    ),
+                                    _c("br")
+                                  ])
+                                : _vm._e(),
+                              _vm._v(
+                                "\n\n                                       Total: " +
+                                  _vm._s(
+                                    _vm._f("toCurrency")(
+                                      sale.total_amount + sale.total_discount
+                                    )
+                                  ) +
+                                  "\n                                       "
+                              ),
+                              sale.promocode
+                                ? _c("span", [
+                                    _vm._v(
+                                      "Discount: " +
+                                        _vm._s(
+                                          _vm._f("toCurrency")(
+                                            sale.total_discount
+                                          )
+                                        ) +
+                                        " "
+                                    )
+                                  ])
+                                : _vm._e(),
+                              _vm._v(
+                                "\n                                            Paid: " +
+                                  _vm._s(
+                                    _vm._f("toCurrency")(sale.amount_paid)
+                                  ) +
+                                  "\n                                           Still to pay: " +
+                                  _vm._s(
+                                    _vm._f("toCurrency")(
+                                      sale.total_amount - sale.amount_paid
+                                    )
+                                  ) +
+                                  " "
+                              )
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-success btn-sm",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.initUpdateSale(index)
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", { staticClass: "fas fa-edit" }),
+                                _vm._v("Edit")
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-danger btn-sm",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.deleteSale(index)
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", { staticClass: "fas fa-trash-alt" }),
+                                _vm._v("Delete")
+                              ]
+                            )
+                          ])
+                        ])
+                      }),
+                      0
+                    )
+                  ]
+                )
+              : _c("div", [
+                  _c("br"),
+                  _c("hr"),
+                  _vm._v(" "),
+                  _c("p", [_vm._v("No sales yet")])
+                ])
+          ])
+        ])
+      ])
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: { tabindex: "-1", role: "dialog", id: "add_sale_model" }
+      },
+      [
+        _c(
+          "div",
+          { staticClass: "modal-dialog", attrs: { role: "document" } },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-header" }, [
+                _c("h4", { staticClass: "modal-title" }, [
+                  _vm.add_update == "add"
+                    ? _c("span", [_vm._v("Add New Reservation")])
+                    : _c("span", [_vm._v("Edit Reservation")])
+                ]),
+                _vm._v(" "),
+                _vm._m(1)
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-body" }, [
+                _vm.errors.length > 0
+                  ? _c("div", { staticClass: "alert alert-danger" }, [
+                      _vm._v(
+                        "\n                        We have errors:\n                        "
+                      ),
+                      _c("ul", [
+                        _c(
+                          "span",
+                          { domProps: { innerHTML: _vm._s(_vm.errors) } },
+                          [_vm._v(_vm._s(_vm.errors))]
+                        )
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c("div", { staticClass: "col-sm-3" }, [
+                    _vm._v(
+                      "\n                        Select event:\n                    "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-8" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.selection.event_id,
+                            expression: "selection.event_id"
+                          }
+                        ],
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.selection,
+                                "event_id",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            function($event) {
+                              return _vm.onEventChange()
+                            }
+                          ]
+                        }
+                      },
+                      [
+                        _c(
+                          "option",
+                          { attrs: { value: "", selected: "", disabled: "" } },
+                          [_vm._v("Choose date")]
+                        ),
+                        _vm._v(" "),
+                        _vm._l(_vm.events, function(event) {
+                          return _c(
+                            "option",
+                            { key: event.id, domProps: { value: event.id } },
+                            [
+                              _vm._v(
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(event.date),
+                                    "dd DD MMM YYYY"
+                                  )
+                                )
+                              )
+                            ]
+                          )
+                        })
+                      ],
+                      2
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _vm.event
+                  ? _c(
+                      "span",
+                      [
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _c("div", { staticClass: "col-sm-3" }, [
+                            _vm._v(
+                              "\n                        Tickets:\n                    "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-sm-8" }, [
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.nr_tickets,
+                                    expression: "selection.nr_tickets"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "nr_tickets",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onNrTicketsChange()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c("option", { domProps: { value: 0 } }, [
+                                  _vm._v("0")
+                                ]),
+                                _vm._v(" "),
+                                _vm._l(_vm.event.capacity, function(counter) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: counter,
+                                      domProps: { value: counter }
+                                    },
+                                    [_vm._v(_vm._s(counter))]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.ticket_id,
+                                    expression: "selection.ticket_id"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "ticket_id",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onTicketChange()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c(
+                                  "option",
+                                  {
+                                    attrs: {
+                                      value: "",
+                                      selected: "",
+                                      disabled: ""
+                                    }
+                                  },
+                                  [_vm._v("Select ticket type")]
+                                ),
+                                _vm._v(" "),
+                                _vm._l(_vm.tickets, function(ticket) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: ticket.id,
+                                      domProps: { value: ticket.id }
+                                    },
+                                    [
+                                      _vm._v(
+                                        _vm._s(ticket.title) +
+                                          " " +
+                                          _vm._s(
+                                            _vm._f("toCurrency")(ticket.price)
+                                          )
+                                      )
+                                    ]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _vm.selection.nr_tickets > 0 &&
+                            _vm.selection.ticket_id &&
+                            _vm.ticket
+                              ? _c(
+                                  "small",
+                                  { staticClass: "text-right primary" },
+                                  [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm._f("toCurrency")(
+                                          _vm.selection.nr_tickets *
+                                            _vm.ticket.price
+                                        )
+                                      )
+                                    )
+                                  ]
+                                )
+                              : _vm._e()
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _vm._l(_vm.categories, function(category) {
+                          return _c(
+                            "span",
+                            { key: category.id },
+                            [
+                              _c("hr"),
+                              _vm._v(" "),
+                              _vm._l(category.extras, function(extra, index) {
+                                return _c("span", { key: extra.id }, [
+                                  _c("div", { staticClass: "row mb-1" }, [
+                                    _c("div", { staticClass: "col-sm-3" }, [
+                                      index === 0
+                                        ? _c("span", [
+                                            _vm._v(
+                                              "\n                                     " +
+                                                _vm._s(category.title) +
+                                                ":\n                                     "
+                                            )
+                                          ])
+                                        : _vm._e()
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-sm-8" }, [
+                                      extra.max === "ticket"
+                                        ? _c("span", [
+                                            _c("input", {
+                                              directives: [
+                                                {
+                                                  name: "model",
+                                                  rawName: "v-model",
+                                                  value: extra.selected,
+                                                  expression: "extra.selected"
+                                                }
+                                              ],
+                                              attrs: {
+                                                type: "checkbox",
+                                                id: index
+                                              },
+                                              domProps: {
+                                                value: extra.title,
+                                                checked: Array.isArray(
+                                                  extra.selected
+                                                )
+                                                  ? _vm._i(
+                                                      extra.selected,
+                                                      extra.title
+                                                    ) > -1
+                                                  : extra.selected
+                                              },
+                                              on: {
+                                                change: function($event) {
+                                                  var $$a = extra.selected,
+                                                    $$el = $event.target,
+                                                    $$c = $$el.checked
+                                                      ? true
+                                                      : false
+                                                  if (Array.isArray($$a)) {
+                                                    var $$v = extra.title,
+                                                      $$i = _vm._i($$a, $$v)
+                                                    if ($$el.checked) {
+                                                      $$i < 0 &&
+                                                        _vm.$set(
+                                                          extra,
+                                                          "selected",
+                                                          $$a.concat([$$v])
+                                                        )
+                                                    } else {
+                                                      $$i > -1 &&
+                                                        _vm.$set(
+                                                          extra,
+                                                          "selected",
+                                                          $$a
+                                                            .slice(0, $$i)
+                                                            .concat(
+                                                              $$a.slice($$i + 1)
+                                                            )
+                                                        )
+                                                    }
+                                                  } else {
+                                                    _vm.$set(
+                                                      extra,
+                                                      "selected",
+                                                      $$c
+                                                    )
+                                                  }
+                                                }
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c(
+                                              "label",
+                                              {
+                                                staticClass: "form-check-label",
+                                                attrs: { for: extra.id }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(extra.title) +
+                                                    " " +
+                                                    _vm._s(
+                                                      _vm._f("toCurrency")(
+                                                        extra.price
+                                                      )
+                                                    ) +
+                                                    " per person"
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            extra.selected > 0
+                                              ? _c(
+                                                  "small",
+                                                  { staticClass: "text-right" },
+                                                  [
+                                                    _vm._v(
+                                                      "Total: " +
+                                                        _vm._s(
+                                                          _vm._f("toCurrency")(
+                                                            _vm.selection
+                                                              .nr_tickets *
+                                                              extra.price
+                                                          )
+                                                        )
+                                                    )
+                                                  ]
+                                                )
+                                              : _vm._e()
+                                          ])
+                                        : _c("span", [
+                                            _c(
+                                              "select",
+                                              {
+                                                directives: [
+                                                  {
+                                                    name: "model",
+                                                    rawName: "v-model",
+                                                    value: extra.selected,
+                                                    expression: "extra.selected"
+                                                  }
+                                                ],
+                                                attrs: { name: "active" },
+                                                on: {
+                                                  change: function($event) {
+                                                    var $$selectedVal = Array.prototype.filter
+                                                      .call(
+                                                        $event.target.options,
+                                                        function(o) {
+                                                          return o.selected
+                                                        }
+                                                      )
+                                                      .map(function(o) {
+                                                        var val =
+                                                          "_value" in o
+                                                            ? o._value
+                                                            : o.value
+                                                        return val
+                                                      })
+                                                    _vm.$set(
+                                                      extra,
+                                                      "selected",
+                                                      $event.target.multiple
+                                                        ? $$selectedVal
+                                                        : $$selectedVal[0]
+                                                    )
+                                                  }
+                                                }
+                                              },
+                                              [
+                                                _c(
+                                                  "option",
+                                                  {
+                                                    attrs: {
+                                                      selected: "",
+                                                      value: "0"
+                                                    }
+                                                  },
+                                                  [_vm._v("0")]
+                                                ),
+                                                _vm._v(" "),
+                                                _vm._l(
+                                                  parseInt(extra.max),
+                                                  function(counter) {
+                                                    return _c(
+                                                      "option",
+                                                      { key: counter },
+                                                      [_vm._v(_vm._s(counter))]
+                                                    )
+                                                  }
+                                                )
+                                              ],
+                                              2
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "label",
+                                              {
+                                                staticClass: "form-check-label",
+                                                attrs: { for: extra.id }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(extra.title) +
+                                                    " " +
+                                                    _vm._s(
+                                                      _vm._f("toCurrency")(
+                                                        extra.price
+                                                      )
+                                                    )
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            extra.selected > 0
+                                              ? _c(
+                                                  "small",
+                                                  { staticClass: "text-right" },
+                                                  [
+                                                    _vm._v(
+                                                      "Total: " +
+                                                        _vm._s(
+                                                          _vm._f("toCurrency")(
+                                                            extra.selected *
+                                                              extra.price
+                                                          )
+                                                        )
+                                                    )
+                                                  ]
+                                                )
+                                              : _vm._e()
+                                          ])
+                                    ])
+                                  ])
+                                ])
+                              })
+                            ],
+                            2
+                          )
+                        }),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row" }, [
+                          _c("div", { staticClass: "col-sm-3" }, [
+                            _vm._v(
+                              "\n                        Promocode:\n                    "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-sm-8" }, [
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.promocode_id,
+                                    expression: "selection.promocode_id"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "promocode_id",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onChangePromoCode()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c("option", { attrs: { value: "0" } }, [
+                                  _vm._v("Select promocode")
+                                ]),
+                                _vm._v(" "),
+                                _vm._l(_vm.promocodes, function(promocode) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: promocode.id,
+                                      domProps: { value: promocode.id }
+                                    },
+                                    [_vm._v(_vm._s(promocode.code))]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _vm.promocode_error_message
+                              ? _c("small", { staticClass: "text-danger" }, [
+                                  _vm._v(" * Invalid code")
+                                ])
+                              : _vm._e()
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _c(
+                            "div",
+                            {
+                              directives: [
+                                {
+                                  name: "show",
+                                  rawName: "v-show",
+                                  value:
+                                    _vm.selection.nr_tickets > 0 &&
+                                    _vm.selection.ticket_id,
+                                  expression:
+                                    "selection.nr_tickets>0 && selection.ticket_id"
+                                }
+                              ],
+                              staticClass: "col-sm-12"
+                            },
+                            [
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Name:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.name,
+                                        expression: "selection.name"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "text",
+                                      name: "name",
+                                      id: "name"
+                                    },
+                                    domProps: { value: _vm.selection.name },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "name",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Phone:")]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "col-sm-8" },
+                                  [
+                                    _c("vue-tel-input", {
+                                      attrs: {
+                                        inputOptions: {
+                                          showDialCode: false,
+                                          tabindex: 0
+                                        },
+                                        preferredCountries: ["NL", "US", "GB"],
+                                        mode: "international",
+                                        placeholder: ""
+                                      },
+                                      on: {
+                                        "country-changed": _vm.onCountryChange
+                                      },
+                                      model: {
+                                        value: _vm.selection.phone,
+                                        callback: function($$v) {
+                                          _vm.$set(_vm.selection, "phone", $$v)
+                                        },
+                                        expression: "selection.phone"
+                                      }
+                                    })
+                                  ],
+                                  1
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Email:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.email,
+                                        expression: "selection.email"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "email",
+                                      name: "email",
+                                      id: "email"
+                                    },
+                                    domProps: { value: _vm.selection.email },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "email",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("language (emails):")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.selection.lang,
+                                          expression: "selection.lang"
+                                        }
+                                      ],
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.$set(
+                                            _vm.selection,
+                                            "lang",
+                                            $event.target.multiple
+                                              ? $$selectedVal
+                                              : $$selectedVal[0]
+                                          )
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c("option", { attrs: { value: "en" } }, [
+                                        _vm._v("English")
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("option", { attrs: { value: "nl" } }, [
+                                        _vm._v("Nederlands")
+                                      ])
+                                    ]
+                                  )
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("guestlist comments:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("textarea", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.guestlist_comments,
+                                        expression:
+                                          "selection.guestlist_comments"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      name: "guestlist_comments",
+                                      id: "guestlist_comments",
+                                      cols: "30",
+                                      rows: "2"
+                                    },
+                                    domProps: {
+                                      value: _vm.selection.guestlist_comments
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "guestlist_comments",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("admin comments:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("textarea", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.admin_comments,
+                                        expression: "selection.admin_comments"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      name: "admin_comments",
+                                      id: "admin_comments",
+                                      cols: "30",
+                                      rows: "2"
+                                    },
+                                    domProps: {
+                                      value: _vm.selection.admin_comments
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "admin_comments",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("New payment:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.paying_now_div_100,
+                                        expression: "paying_now_div_100"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "number",
+                                      step: "1",
+                                      name: "paying_now",
+                                      id: "paying_now"
+                                    },
+                                    domProps: { value: _vm.paying_now_div_100 },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.paying_now_div_100 =
+                                          $event.target.value
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            ]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _vm.selection.nr_tickets > 0 &&
+                          _vm.selection.ticket_id
+                            ? _c("div", { staticClass: "col-sm-11" }, [
+                                _c("ul", [
+                                  _vm.valid_promocode
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between bg-light"
+                                        },
+                                        [
+                                          _c("span", [
+                                            _vm._v("Total without discount")
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("strong", [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  _vm.selection.total_amount +
+                                                    _vm.selection.total_discount
+                                                )
+                                              )
+                                            )
+                                          ])
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.valid_promocode
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between bg-light"
+                                        },
+                                        [
+                                          _c(
+                                            "div",
+                                            { staticClass: "text-success" },
+                                            [
+                                              _c(
+                                                "h6",
+                                                { staticClass: "my-0" },
+                                                [
+                                                  _vm._v(
+                                                    "Promo code Discount\n                                "
+                                                  ),
+                                                  _c("small", [
+                                                    _vm.promocode
+                                                      .discount_amount
+                                                      ? _c("span", [
+                                                          _vm._v(
+                                                            "- " +
+                                                              _vm._s(
+                                                                _vm._f(
+                                                                  "toCurrency"
+                                                                )(
+                                                                  _vm.promocode
+                                                                    .discount_amount
+                                                                )
+                                                              )
+                                                          )
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode.discount_perc
+                                                      ? _c("span", [
+                                                          _vm._v(
+                                                            _vm._s(
+                                                              _vm.promocode
+                                                                .discount_perc
+                                                            ) + " %."
+                                                          ),
+                                                          _c("br"),
+                                                          _vm._v(
+                                                            "Applicable on:"
+                                                          )
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode
+                                                      .discount_perc &&
+                                                    _vm.promocode
+                                                      .apply_to_tickets
+                                                      ? _c("span", [
+                                                          _vm._v(" tickets")
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode
+                                                      .discount_perc &&
+                                                    _vm.promocode
+                                                      .apply_to_extras
+                                                      ? _c("span", [
+                                                          _vm._v(" extras")
+                                                        ])
+                                                      : _vm._e()
+                                                  ])
+                                                ]
+                                              )
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "span",
+                                            { staticClass: "text-success" },
+                                            [
+                                              _vm._v(
+                                                "- " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      _vm.selection
+                                                        .total_discount
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [_vm._v("Total")]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.totalAmount
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm.selection.amount_paid > 0
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between"
+                                        },
+                                        [
+                                          _c("span", [_vm._v("Already paid")]),
+                                          _vm._v(" "),
+                                          _c("strong", [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  _vm.selection.amount_paid
+                                                )
+                                              )
+                                            )
+                                          ])
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [_vm._v("Paying now")]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.selection.paying_now
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [
+                                        _vm._v("Remaining after payment")
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.remaining_after_paying_now
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  )
+                                ])
+                              ])
+                            : _vm._e()
+                        ])
+                      ],
+                      2
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("hr")
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-footer" }, [
+                _vm.add_update == "add"
+                  ? _c("span", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary btn-outline",
+                          attrs: { type: "button", "data-dismiss": "modal" },
+                          on: { click: _vm.cancelAddSale }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _vm.selection.nr_tickets > 0 && _vm.selection.ticket_id
+                        ? _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary",
+                              attrs: { type: "button" },
+                              on: { click: _vm.createSale }
+                            },
+                            [_vm._v("Make reservation")]
+                          )
+                        : _vm._e()
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.add_update == "update"
+                  ? _c("span", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-default",
+                          attrs: { type: "button", "data-dismiss": "modal" },
+                          on: { click: _vm.cancelUpdateSale }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "button" },
+                          on: { click: _vm.updateSale }
+                        },
+                        [_vm._v("Update")]
+                      )
+                    ])
+                  : _vm._e()
+              ])
+            ])
+          ]
+        )
+      ]
+    )
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", [_vm._v("Reservation made on")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Event Date")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("tickets")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("country")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("promocode")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Action")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/TicketComponent.vue?vue&type=template&id=5b8c7b36&":
 /*!******************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/TicketComponent.vue?vue&type=template&id=5b8c7b36& ***!
@@ -95351,7 +97669,16 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 //Vue.component('VueMiniCalendar', require('vue-mini-calendar').default);
 
 Vue.filter('toCurrency', function (value) {
-  value = '€ ' + parseFloat(value / 100).toFixed(2);
+  var symbol;
+
+  if (value < 0) {
+    value = -value;
+    symbol = '- € ';
+  } else {
+    symbol = '€ ';
+  }
+
+  value = symbol + parseFloat(value / 100).toFixed(2);
   return value.replace(".00", ""); //replace in case format is en
 }); //const VueFilterDateFormat = require('vue-filter-date-format');
 
@@ -95373,6 +97700,7 @@ Vue.component('example-component', __webpack_require__(/*! ./components/ExampleC
 Vue.component('category-component', __webpack_require__(/*! ./components/CategoryComponent.vue */ "./resources/js/components/CategoryComponent.vue")["default"]);
 Vue.component('ticketgroup-component', __webpack_require__(/*! ./components/TicketGroupComponent.vue */ "./resources/js/components/TicketGroupComponent.vue")["default"]);
 Vue.component('ticket-component', __webpack_require__(/*! ./components/TicketComponent.vue */ "./resources/js/components/TicketComponent.vue")["default"]);
+Vue.component('sale-component', __webpack_require__(/*! ./components/SaleComponent.vue */ "./resources/js/components/SaleComponent.vue")["default"]);
 Vue.component('event-component', __webpack_require__(/*! ./components/EventComponent.vue */ "./resources/js/components/EventComponent.vue")["default"]);
 Vue.component('extra-component', __webpack_require__(/*! ./components/ExtraComponent.vue */ "./resources/js/components/ExtraComponent.vue")["default"]);
 Vue.component('promocode-component', __webpack_require__(/*! ./components/PromoCodeComponent.vue */ "./resources/js/components/PromoCodeComponent.vue")["default"]);
@@ -96000,6 +98328,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_PromoCodeComponent_vue_vue_type_template_id_10193c28___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_PromoCodeComponent_vue_vue_type_template_id_10193c28___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/SaleComponent.vue":
+/*!***************************************************!*\
+  !*** ./resources/js/components/SaleComponent.vue ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=template&id=3fa4cd1b& */ "./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&");
+/* harmony import */ var _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/SaleComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&":
+/*!****************************************************************************!*\
+  !*** ./resources/js/components/SaleComponent.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./SaleComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b& ***!
+  \**********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./SaleComponent.vue?vue&type=template&id=3fa4cd1b& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

@@ -603,37 +603,11 @@ export default {
                     }
                     if(this.promocode.apply_to_extras){
                          this.total_discount += (this.promocode.discount_perc/100)*totalExtras;
-
-                        for (var i = 0; i < this.selection.categories.length; i++  ) {
-
-                        for (var n = 0; n < this.selection.categories[i].extras.length; n++  ) {
-
-                        if(this.selection.categories[i].extras[n].selected===true){
-                                totalExtras+= this.selection.categories[i].extras[n].price*this.selection.nrtickets;
-                                totalExtras_vat += this.selection.categories[i].extras[n].price*this.selection.nrtickets *
-                                                        this.selection.categories[i].extras[n].vat/100;
-                        }
-                        else{
-                            if (this.selection.categories[i].extras[n].selected){//check if selected exists, it does not exist automatically
-                                    totalExtras+= this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected;
-                                    totalExtras_vat += this.selection.categories[i].extras[n].price*this.selection.categories[i].extras[n].selected *
-                                                            this.selection.categories[i].extras[n].price/100;
-                            }
-                        }
-
-                        }//vat extras
-
-            }//for catagories
-
-
                     }
-
                 }
              }
 
             this.selection.total_amount = totalTickets + totalExtras - this.total_discount;
-            console.log('finished calulating. total extras:'
-                            +totalExtras+'total discount:'+this.total_discount+' total discount vat:'+this.total_discount_vat);
             return this.selection.total_amount;
         }
     }
