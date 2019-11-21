@@ -79,6 +79,7 @@ Vue.component('category-component', require('./components/CategoryComponent.vue'
 Vue.component('ticketgroup-component', require('./components/TicketGroupComponent.vue').default);
 Vue.component('ticket-component', require('./components/TicketComponent.vue').default);
 Vue.component('sale-component', require('./components/SaleComponent.vue').default);
+Vue.component('basket-component', require('./components/BasketComponent.vue').default);
 Vue.component('event-component', require('./components/EventComponent.vue').default);
 Vue.component('extra-component', require('./components/ExtraComponent.vue').default);
 Vue.component('promocode-component', require('./components/PromoCodeComponent.vue').default);

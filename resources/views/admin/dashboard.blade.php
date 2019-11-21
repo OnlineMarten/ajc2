@@ -28,10 +28,22 @@
 <hr>
 <booking-selection></booking-selection>
 
-<?php echo "de merchant account =".config('services.adyen.merchantaccount');
+<?php echo "de merchant account =".config('services.adyen.merchantaccount')."<br><br>";
 
 session(['basket_id' => '3']);
 echo session('basket_id');
+
+//$extras = array [{id: 1, nr: 2}, {id: 4, nr: 2}, {id: 5, nr: 8}, {id: 3, nr: 3}, {id: 2, nr: 2}];
+?>
+<hr>
+<?php
+
+$arr = Array('id' => 1, 'nr' => 5,'id' => 2, 'nr' => 6);
+foreach($arr as $key => $value) {
+    echo $key." ";
+    echo $value."<br>";
+}
+
 
 
 ?>

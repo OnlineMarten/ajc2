@@ -54,7 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/admin/sale', 'SaleController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('admin/basket', 'BasketController')->only([  'index',  'destroy'    ]);
 
-
+    Route::get('/admin/salegetextras/{sale_id}', 'SaleController@allExtrasConnectedToSale')->name('salegetextras');
     Route::get('/admin/eventgetcategories/{event_id}', 'EventController@allCategoriesConnectedToEvent')->name('eventgetcategories');
     Route::get('/admin/eventgetticketgroups/{event_id}', 'EventController@allTicketgroupsConnectedToEvent')->name('eventgetticketgroups');
     //Route::get('/admin/extragetcategories/{extra_id}', 'ExtraController@allCategoriesConnectedToExtra')->name('extragetcategories');

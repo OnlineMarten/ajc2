@@ -26,8 +26,7 @@ class SaleController extends Controller
 
       //      ->where('events.id','=', $id)
 
-            ->select('sales.*', 'events.event_date','tickets.title as ticket_title',
-                    'promo_codes.code as promocode' )
+            ->select('sales.*', 'events.event_date','tickets.title as ticket_title' )
                     ->orderby('created_at','desc')
             ->get();
 
@@ -90,7 +89,7 @@ class SaleController extends Controller
         }
 
         if (!$basket){
-            //no basket, return with error
+            //no basket, return with error, should never happen as basket was successfully created less than a second ago
             //send email
                 return response()->json([
                     'errors'       => [
@@ -120,13 +119,21 @@ class SaleController extends Controller
            // 'extras'        => $basket->extras,
         ]);
 
+        //can not use sync as very entry wil be overwritten by the previous one
+        //this means we need to detach all before re attaching all when we are updating.
+        foreach($basket->extras as $key => $value) {
+            $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+        }
+
+
+
         //sale added, now delete basket
         $basket->delete();
 
-        logger()->channel('info')->info('Sale "'.request("ticket_nr").'" created by '.auth()->user()->name);
+        logger()->channel('info')->info('Sale "'.$sale->ticket_nr.'" created by '.auth()->user()->name);
 
         return response()->json([
-            'message'       => 'New Reservation "'.request('ticket_nr'). '" created'
+            'message'       => 'New Reservation "'.$sale->ticket_nr. '" created'
         ], 200);
     }
 
@@ -172,6 +179,7 @@ class SaleController extends Controller
 
         $sale = Sale::findOrFail($request->id);
 
+        //in case we are updating an exisitng reservation we have to check for already made payments
         $total_paid = request('amount_paid') + request('paying_now');
 
         $sale->event_id           = request('event_id');
@@ -191,13 +199,28 @@ class SaleController extends Controller
         $sale->admin_comments     = request('admin_comments');
         $sale->ticket_nr     = request('ticket_nr');
 
+
+
+
         if (!$sale->update()) {
             return response()->json([
                 'message' => 'update failed'
             ], 200);
 
         }
-     //   $sale->extras()->sync($request->checkedExtras);//attach extras to category
+
+        //sale is updated, now sync extras
+        $sale->extras = request('extras');
+
+        //can not use sync as very entry wil be overwritten by the previous one
+        //this means we need to detach all before re attaching all when we are updating.
+        $sale->extras()->detach();
+
+        foreach($sale->extras as $key => $value) {
+            $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+        }
+
+
 
         logger()->channel('info')->info('reservation "'.$sale->ticket_nr.'" updated by '.auth()->user()->name);
 
@@ -214,7 +237,7 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
-      //  $sale->extras()->detach();//remove all connected tickets (and delete from pivot table)
+        $sale->extras()->detach();//remove all connected tickets (and delete from pivot table)
             $sale->delete();
             logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" deleted by '.auth()->user()->name);
             session()->flash('alert-success', 'Sale '.$sale->ticket_nr.' deleted');
@@ -222,5 +245,18 @@ class SaleController extends Controller
        return response()->json([
         'message'       => 'Reservation: "'.$sale->ticket_nr.'" deleted '
     ], 200);
+    }
+
+    public function allExtrasConnectedToSale($sale_id)
+    {
+        //get all tickets  connected to a specific sale
+
+        $sale = Sale::findOrFail($sale_id);
+        $extras = $sale->extras()->get();//->pluck('extra_id','pivot->nr');
+
+
+        return response()->json([
+            'extras' => $extras,
+        ], 200);
     }
 }

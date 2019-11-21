@@ -12,9 +12,38 @@ class BasketController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        //used from router to display page and from an axios call to get the (initial) data
+
+        if($request->wantsJson())  {
+
+            $baskets = Basket::join('events','events.id', '=', 'baskets.event_id')
+            ->join('tickets','tickets.id', '=', 'baskets.ticket_id')
+            ->leftjoin('promo_codes','promo_codes.id', '=','baskets.promocode_id' )
+            //leftjoin uses all columns in left table, even if not match in right table
+
+      //      ->where('events.id','=', $id)
+
+            ->select('baskets.*', 'events.event_date','tickets.title as ticket_title','promo_codes.code as promocode' )
+                    ->orderby('updated_at','desc')
+            ->get();
+
+
+
+/*
+            $sales = Sale::
+
+            orderBy("created_at")
+            ->get();
+*/
+                return response()->json([
+                    'baskets'    => $baskets,
+                ], 200);
+            }
+
+            return view('admin.basket');
+
     }
 
     /**
@@ -24,7 +53,7 @@ class BasketController extends Controller
      */
     public function create()
     {
-        //
+        //create and update are combined in store function below
     }
 
     /**
@@ -42,13 +71,14 @@ class BasketController extends Controller
         ]);
 
 
-
-
-        //check if we have a basket id
-        $basket_id = session('basket_id');
+        //set basket to empty
         $basket = "";
 
-        //we have a basket id, let 's check if basket is still there
+        //check if we have a basket id in the session, if not the the session has expired and this is a new session.
+        $basket_id = session('basket_id');
+
+
+        //we have a basket id, let's check if basket is still there, if not it has been removed by refreshbaskets, because it was expired
         if($basket_id){
 
             $basket = Basket::find($basket_id);
@@ -56,7 +86,7 @@ class BasketController extends Controller
         }
 
         if (!$basket){
-            //no basket, let's check availability
+            //we have no basket, let's check availability, if there are still enough tickets, we can create a new one
 
             //check availability here
             $enough_tickets = true;
@@ -71,14 +101,7 @@ class BasketController extends Controller
 
         }
 
-
-
         //at this point we still have a basket or otherwise still enough tickets, so let's create or update the basket
-
-        //in case we are updating an exisitng reservation we have to check for already made payments
-        $total_paid = request('amount_paid')+request('paying_now');
-
-
         $basket = Basket::updateOrCreate(
 
             [ 'id'                    => $basket_id
@@ -95,7 +118,7 @@ class BasketController extends Controller
             'country_code'           => request('country_code'),
             'dial_code'           => request('dial_code'),
             'lang'           => request('lang'),
-            'amount_paid'           => $total_paid,
+            'amount_paid'           => request('paying_now'),
             'total_amount'           => request('total_amount'),
             'total_discount'           => request('total_discount'),
             'guestlist_comments'           => request('guestlist_comments'),
@@ -104,7 +127,7 @@ class BasketController extends Controller
             'extras'        => request('extras'),
         ]);
 
-        //set basket id in session
+        //set (or overwrite) basket id in session
         session(['basket_id' => $basket['id']]);
 
         return response()->json([
@@ -143,6 +166,7 @@ class BasketController extends Controller
      */
     public function update(Request $request, $id)
     {
+       /*
         $this->validate($request, [
             'event_id'         => 'required',
             'ticket_id'         => 'required',
@@ -164,6 +188,7 @@ class BasketController extends Controller
         return response()->json([
             'message' => 'success'
         ], 200);
+        */
     }
 
     /**
@@ -174,22 +199,30 @@ class BasketController extends Controller
      */
     public function destroy(Basket $basket)
     {
-        //
+        $basket->delete();
+        logger()->channel('info')->info('Reservation: "'.$basket->updated_at.'" deleted by '.auth()->user()->name);
+        session()->flash('alert-success', 'Basket (last updated: '.$basket->updated_at.') deleted');
+        // return redirect( route('events.index') );
+        return response()->json([
+            'message'       => 'Basket (last updated: "'.$basket->updated_at.'") deleted '
+        ], 200);
     }
 
     public function refreshBaskets()
     {
         //possible update: from baskets older than 10 minutes only remove tickets and delete baskets after approx 30 minutes.
 
-        //go through all baskets and delete the ones that are older than the threshold
+        //go through all baskets and delete the ones that have not been updated for longer than the threshold
         $date = new \DateTime;
         $minutes = config('custom.basket_lifetime');
         $date->modify(- $minutes.' minutes');
         $deadline = $date->format('Y-m-d H:i:s');
 
         Basket::where('updated_at', '<' , $deadline)->delete();
+        /*
         return response()->json([
             'message' => 'deadline'.$deadline
         ], 200);
+        */
     }
 }

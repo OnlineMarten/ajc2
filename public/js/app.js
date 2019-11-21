@@ -12633,6 +12633,214 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BasketComponent.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BasketComponent.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+ //import axioscalls from '@./resources/services/axioscalls'
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_0__["VueTelInput"]
+  },
+  data: function data() {
+    return {
+      refresh: "",
+      counter: "0",
+      show_error: false,
+      show: false,
+      error: "",
+      errors: "",
+      message: "",
+      baskets: {}
+    }; //return
+  },
+  //data
+  mounted: function mounted() {
+    console.log('mounted');
+    this.readBaskets(); //load promocodes and available events so it is ready in case we want to add or update a sale.
+
+    setInterval(function () {
+      var _this = this;
+
+      setTimeout(function () {
+        _this.refresh = "";
+      }, 500);
+      this.refresh = "Refreshing baskets";
+      this.readBaskets(); // this.refresh = "";
+    }.bind(this), 10000);
+  },
+  //mounted
+  methods: {
+    readBaskets: function readBaskets() {
+      var _this2 = this;
+
+      axios.get("/admin/basket").then(function (response) {
+        _this2.baskets = response.data.baskets;
+      });
+    },
+    readPromoCodes: function readPromoCodes() {
+      var _this3 = this;
+
+      axios.get("admin/promocode").then(function (response) {
+        _this3.promocodes = response.data.promocodes;
+      });
+    },
+    deleteBasket: function deleteBasket(index) {
+      var _this4 = this;
+
+      var conf = confirm('Do you ready want to delete this basket "' + this.baskets[index].updated_at + '"?');
+
+      if (conf === true) {
+        axios["delete"]("/admin/basket/" + this.baskets[index].id).then(function (response) {
+          _this4.baskets.splice(index, 1);
+
+          _this4.showMessage(response.data.message);
+        })["catch"](function (error) {
+          _this4.showMessage(error.response.data.message); // Error
+
+        });
+      }
+    },
+    //helper function for formatting ticketnr
+    formatDate: function formatDate(date) {
+      var no_year = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear().toString().substr(-2);
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+      if (no_year) return [day, month].join('');else return [day, month, year].join('');
+    },
+    showMessage: function showMessage(message) {
+      this.message = message;
+      this.show = true;
+    },
+    showErrors: function showErrors(error) {
+      var _this5 = this;
+
+      this.errors = "<ul>";
+      var response = error.response;
+      Object.keys(response.data.errors).forEach(function (item) {
+        _this5.errors += "<li>" + response.data.errors[item] + "</li>";
+      });
+      this.errors += "</ul>";
+    }
+  } //methods
+
+}); //export default
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BookingComponent.vue?vue&type=script&lang=js&":
 /*!***************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BookingComponent.vue?vue&type=script&lang=js& ***!
@@ -15449,6 +15657,42 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
  //import axioscalls from '@./resources/services/axioscalls'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -15499,7 +15743,6 @@ __webpack_require__.r(__webpack_exports__);
       },
       valid_promocode: false,
       promocode_error_message: false,
-      //event:[],//weg?
       phone: "",
       phone_data: [],
       show_event_details: false,
@@ -15512,10 +15755,8 @@ __webpack_require__.r(__webpack_exports__);
       sales: [],
       promocodes: [],
       //get and store all promocodes
-      // beforeEditingCache:{},
-      array_index: "0" //  _beforeEditingCache:[],
-      // _originalSale:{},
-
+      temp: [],
+      extras: []
     }; //return
   },
   //data
@@ -15530,22 +15771,10 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     cancelAddSale: function cancelAddSale() {
       this.errors = "";
-      /*
-      this.show_event_details=false;
-      this.selection.event_id="0";
-       this.selection.ticket_id="0";
-       this.selection.promocode_id="0";
-       this.selection.nr_tickets="0";
-       this.valid_promocode=false;
-      //this.ticket="";
-       this.selection.amount_paid="0";
-       */
-
       this.reset();
     },
     cancelUpdateSale: function cancelUpdateSale() {
-      this.reset(); // Exit editing mode
-
+      this.reset();
       this.readSales();
     },
     reset: function reset() {
@@ -15553,6 +15782,7 @@ __webpack_require__.r(__webpack_exports__);
       this.selection.name = "";
       this.selection.email = "";
       this.selection.phone = "";
+      this.selection.country_code = "NL";
       this.selection.nr_tickets = "0";
       this.selection.ticket_nr = "";
       this.selection.guestlist_comments = "";
@@ -15577,6 +15807,8 @@ __webpack_require__.r(__webpack_exports__);
       this.promocode.apply_to_tickets = "0";
       this.errors = "";
       this.show_error = false;
+      this.valid_promocode = false;
+      this.promocode_error_message = false;
     },
     readSales: function readSales() {
       var _this = this;
@@ -15600,7 +15832,31 @@ __webpack_require__.r(__webpack_exports__);
 
         _this3.categories = response.data.event.categories;
         _this3.tickets = response.data.event.tickets;
-        _this3.show_event_details = true; //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+        _this3.show_event_details = true;
+
+        if (_this3.add_update === "add") {
+          console.log('this is an add');
+          _this3.extras = [];
+
+          for (var i = 0; i < _this3.categories.length; i++) {
+            for (var n = 0; n < _this3.categories[i].extras.length; n++) {
+              //rebuild extras selection array with extra id and amount(nr)
+              console.log('pushing: ' + _this3.categories[i].extras[n].title);
+
+              _this3.extras.push({
+                title: _this3.categories[i].extras[n].title,
+                max: _this3.categories[i].extras[n].max,
+                price: _this3.categories[i].extras[n].price,
+                id: _this3.categories[i].extras[n].id,
+                nr: 0
+              });
+            } //for extras
+
+          } //for catagories
+
+        } //if add
+        //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+
 
         if (_this3.selection.ticket_id > 0) {
           _this3.ticket = _this3.tickets.find(function (ticket) {
@@ -15635,38 +15891,80 @@ __webpack_require__.r(__webpack_exports__);
       $("#add_sale_model").modal("show");
     },
     initUpdateSale: function initUpdateSale(index) {
+      var _this5 = this;
+
+      this.add_update = "update";
       this.paying_now_div_100 = "0";
       this.add_update = "update";
-      $("#add_sale_model").modal("show");
-      console.log('making copy of original sale');
-      this.array_index = index;
-      this.selection = this.sales[index]; //this.readAvailableEvents();
+      this.selection = this.sales[index]; // this.selection.extras=[];
+
+      if (this.add_update === "update") {
+        //get extras
+        console.log('this is an update');
+        this.temp = [];
+        this.extras = [];
+        axios.get("admin/salegetextras/" + this.sales[index].id).then(function (response) {
+          _this5.temp = response.data.extras;
+
+          for (var i = 0; i < _this5.temp.length; i++) {
+            //rebuild extras selection array with extra id and amount(nr)
+            console.log('pushing: ' + _this5.temp[i].title + '. nr: ' + _this5.temp[i].pivot.nr);
+            /*
+            Vue.set(this.selection.extras.title, i, this.temp[i].title);
+            Vue.set(this.selection.extras.max, i, this.temp[i].max);
+            Vue.set(this.selection.extras.price, i, this.temp[i].price);
+            Vue.set(this.selection.extras.id, i, this.temp[i].id);
+            Vue.set(this.selection.extras.nr, i, this.temp[i].pivot.nr);
+            */
+
+            var newItem = {
+              title: _this5.temp[i].title,
+              max: _this5.temp[i].max,
+              price: _this5.temp[i].price,
+              id: _this5.temp[i].id,
+              nr: _this5.temp[i].pivot.nr
+            };
+
+            _this5.extras.push(newItem);
+          }
+
+          ; //for extras
+        })["catch"](function (error) {
+          //error.response.data.errors
+          //  console.log('error = '+error.response.data.errors);
+          _this5.showErrors(error);
+        });
+      }
+
+      ;
+      this.readEvent(); //this.readAvailableEvents();
       //this.readPromoCodes();
 
-      this.readEvent();
+      $("#add_sale_model").modal("show");
     },
     updateSale: function updateSale() {
-      var _this5 = this;
+      var _this6 = this;
 
       console.log('update sale');
       axios.put("/admin/sale/" + this.selection.id, this.selection).then(function (response) {
         $("#add_sale_model").modal("hide");
 
-        _this5.readSales();
+        _this6.readSales();
 
-        _this5.showMessage(response.data.message);
+        _this6.showMessage(response.data.message);
 
-        _this5.reset();
+        _this6.reset();
 
-        console.log('repsonse');
+        console.log('response');
       })["catch"](function (error) {
-        console.log('error');
+        //error.response.data.errors
+        console.log('error = ' + error.response.data.errors);
 
-        _this5.showErrors(error);
+        _this6.showErrors(error);
       });
     },
     createSale: function createSale() {
-      var _this6 = this;
+      var _this7 = this;
 
       // create a ticket number
       var random_nr = Math.floor(Math.random() * (99999 - 10000)) + 10000;
@@ -15674,35 +15972,35 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post("/basket", this.selection).then(function (response) {
         //basket succesfuly updated, now add sale
-        axios.post("/admin/sale", _this6.selection).then(function (response) {
+        axios.post("/admin/sale", _this7.selection).then(function (response) {
           $("#add_sale_model").modal("hide"); //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
 
-          _this6.readSales();
+          _this7.readSales();
 
-          _this6.showMessage(response.data.message);
+          _this7.showMessage(response.data.message);
 
-          _this6.reset();
+          _this7.reset();
         })["catch"](function (error) {
           //coud not add sale, show error
-          _this6.showErrors(error);
+          _this7.showErrors(error);
         });
       })["catch"](function (error) {
         //could not update basket, show error
-        _this6.showErrors(error);
+        _this7.showErrors(error);
       });
     },
     deleteSale: function deleteSale(index) {
-      var _this7 = this;
+      var _this8 = this;
 
       var conf = confirm('Do you ready want to delete reservation "' + this.sales[index].ticket_nr + '"?');
 
       if (conf === true) {
         axios["delete"]("/admin/sale/" + this.sales[index].id).then(function (response) {
-          _this7.sales.splice(index, 1);
+          _this8.sales.splice(index, 1);
 
-          _this7.showMessage(response.data.message);
+          _this8.showMessage(response.data.message);
         })["catch"](function (error) {
-          _this7.showMessage(error.response.data.message); // Error
+          _this8.showMessage(error.response.data.message); // Error
 
         });
       }
@@ -15711,7 +16009,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("/refreshbaskets").then(function (response) {})["catch"](function (error) {});
     },
     updateBasket: function updateBasket() {
-      var _this8 = this;
+      var _this9 = this;
 
       console.log('eventid: ' + this.selection.event_id + ' nrtickets: ' + this.selection.nr_tickets + ' ticketid: ' + this.selection.ticket_id);
 
@@ -15719,16 +16017,16 @@ __webpack_require__.r(__webpack_exports__);
         axios.post("/basket", this.selection).then(function (response) {
           console.log('basket updated');
         })["catch"](function (error) {
-          _this8.showErrors(error);
+          _this9.showErrors(error);
         });
       } //end if
 
     },
     onTicketChange: function onTicketChange() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.ticket = this.tickets.find(function (ticket) {
-        return ticket.id === _this9.selection.ticket_id;
+        return ticket.id === _this10.selection.ticket_id;
       });
       this.updateBasket();
       console.log('new ticket loaded: ' + this.ticket.title);
@@ -15739,7 +16037,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log('nrtickets changed:' + this.selection.nr_tickets);
     },
     onChangePromoCode: function onChangePromoCode() {
-      var _this10 = this;
+      var _this11 = this;
 
       console.log('promocode changed');
       this.promocode_error_message = false;
@@ -15749,7 +16047,7 @@ __webpack_require__.r(__webpack_exports__);
         //check code
         console.log('checking code');
         this.promocode.code = this.promocodes.find(function (promocode) {
-          return promocode.id === _this10.selection.promocode_id;
+          return promocode.id === _this11.selection.promocode_id;
         }).code;
         console.log('selected promocode: ' + this.promocode.code);
         console.log('checking ' + this.promocode.code);
@@ -15758,15 +16056,15 @@ __webpack_require__.r(__webpack_exports__);
 
           if (response.data.promocode != 'false') {
             //we have a valid code
-            _this10.valid_promocode = true;
-            _this10.promocode = _this10.promocodes.find(function (promocode) {
-              return promocode.id === _this10.selection.promocode_id;
+            _this11.valid_promocode = true;
+            _this11.promocode = _this11.promocodes.find(function (promocode) {
+              return promocode.id === _this11.selection.promocode_id;
             });
-            console.log("we have a valid code. ID= " + _this10.selection.promocode_id);
+            console.log("we have a valid code. ID= " + _this11.selection.promocode_id);
           } else {
             console.log("invalid code");
-            _this10.valid_promocode = false;
-            _this10.promocode_error_message = true;
+            _this11.valid_promocode = false;
+            _this11.promocode_error_message = true;
           }
         });
       } else {
@@ -15812,12 +16110,12 @@ __webpack_require__.r(__webpack_exports__);
       this.show = true;
     },
     showErrors: function showErrors(error) {
-      var _this11 = this;
+      var _this12 = this;
 
       this.errors = "<ul>";
       var response = error.response;
       Object.keys(response.data.errors).forEach(function (item) {
-        _this11.errors += "<li>" + response.data.errors[item] + "</li>";
+        _this12.errors += "<li>" + response.data.errors[item] + "</li>";
       });
       this.errors += "</ul>";
     }
@@ -15828,36 +16126,41 @@ __webpack_require__.r(__webpack_exports__);
     totalAmount: function totalAmount() {
       this.selection.total_discount = 0;
       this.selection.paying_now = this.paying_now_div_100 * 100;
+      this.selection.extras = this.extras; //copy selected extras into selection which is sent to basket
+
       var totalTickets = 0;
-      var totalExtras = 0;
-      this.selection.extras = []; //clear extras selection and rebuild
+      var totalExtras = 0; //  this.selection.extras=[];//clear extras selection and rebuild
 
       totalTickets = this.selection.nr_tickets * this.ticket.price;
+      /*
+                  for (var i = 0; i < this.categories.length; i++  ) {
+                      for (var n = 0; n < this.categories[i].extras.length; n++  ) {
+                          if(this.categories[i].extras[n].selected===true){
+                                  totalExtras+= this.categories[i].extras[n].price*this.selection.nr_tickets;
+                                  //rebuild extras selection array with extra id and amount(nr)
+                          }
+                         else{
+                             if (this.categories[i].extras[n].selected>0){//check if selected exists, it does not exist automatically
+                                  totalExtras+= this.categories[i].extras[n].price*this.categories[i].extras[n].selected
+                                  //rebuild extras selection array with extra id and amount(nr)
+                              }
+                         }
+      
+                      }//for extras
+      
+                  }//for catagories
+      
+      */
 
-      for (var i = 0; i < this.categories.length; i++) {
-        for (var n = 0; n < this.categories[i].extras.length; n++) {
-          if (this.categories[i].extras[n].selected === true) {
-            totalExtras += this.categories[i].extras[n].price * this.selection.nr_tickets; //rebuild extras selection array with extra id and amount(nr)
-
-            this.selection.extras.push({
-              id: this.categories[i].extras[n].id,
-              nr: this.selection.nr_tickets
-            });
+      for (var i = 0; i < this.extras.length; i++) {
+        if (this.extras[i].nr) {
+          if (this.extras[i].max === "ticket") {
+            totalExtras += this.extras[i].price * this.selection.nr_tickets;
           } else {
-            if (this.categories[i].extras[n].selected > 0) {
-              //check if selected exists, it does not exist automatically
-              totalExtras += this.categories[i].extras[n].price * this.categories[i].extras[n].selected; //rebuild extras selection array with extra id and amount(nr)
-
-              this.selection.extras.push({
-                id: this.categories[i].extras[n].id,
-                nr: this.categories[i].extras[n].selected
-              });
-            }
+            totalExtras += this.extras[i].price * this.extras[i].nr;
           }
-        } //for extras
-
-      } //for catagories
-
+        }
+      }
 
       if (this.valid_promocode) {
         //we have a valid promocode, calculate discounts
@@ -74997,6 +75300,247 @@ var main = {
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88&":
+/*!******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88& ***!
+  \******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-12" }, [
+        _vm.show
+          ? _c(
+              "div",
+              {
+                staticClass: "alert alert-info alert-dismissible fade show",
+                attrs: { role: "alert", id: "alert", name: "alert" }
+              },
+              [
+                _c(
+                  "button",
+                  {
+                    staticClass: "close",
+                    attrs: { type: "button", "aria-label": "Close" },
+                    on: {
+                      click: function($event) {
+                        _vm.show = !_vm.show
+                      }
+                    }
+                  },
+                  [
+                    _c("span", { attrs: { "aria-hidden": "true" } }, [
+                      _vm._v("×")
+                    ])
+                  ]
+                ),
+                _vm._v(
+                  "\n                " + _vm._s(_vm.message) + "\n            "
+                )
+              ]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _c("div", { staticClass: "card" }, [
+          _c(
+            "div",
+            {
+              staticClass: "card-header",
+              staticStyle: {
+                height: "120px",
+                "background-color": "rgba(255,0,0,0.1)"
+              }
+            },
+            [
+              _c("h3", [_vm._v("Baskets")]),
+              _vm._v(" "),
+              _c("p", [_vm._v("(automatically refreshes every 10 seconds)")]),
+              _vm._v(" "),
+              _c("h5", [_vm._v(_vm._s(_vm.refresh))])
+            ]
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("br"),
+            _c("hr"),
+            _vm._v(" "),
+            _vm.baskets.length > 0
+              ? _c(
+                  "table",
+                  {
+                    ref: "table",
+                    staticClass:
+                      "table table-striped table-bordered table-responsive table-sm"
+                  },
+                  [
+                    _vm._m(0),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      _vm._l(_vm.baskets, function(basket, index) {
+                        return _c("tr", { key: basket.id }, [
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  Math.floor(
+                                    (Date.now() - new Date(basket.updated_at)) /
+                                      (1000 * 60)
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(basket.updated_at),
+                                    "dd DD MMM HH:mm "
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(basket.created_at),
+                                    "dd DD MMM HH:mm "
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(basket.event_date),
+                                    "dd DD MMM YYYY"
+                                  )
+                                ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(basket.nr_tickets) +
+                                " x " +
+                                _vm._s(basket.ticket_title) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(basket.name) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(basket.country_code) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            basket.promocode
+                              ? _c("span", [_vm._v(_vm._s(basket.promocode))])
+                              : _vm._e()
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-danger btn-sm",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.deleteBasket(index)
+                                  }
+                                }
+                              },
+                              [
+                                _c("i", { staticClass: "fas fa-trash-alt" }),
+                                _vm._v("Delete")
+                              ]
+                            )
+                          ])
+                        ])
+                      }),
+                      0
+                    )
+                  ]
+                )
+              : _c("div", [
+                  _c("br"),
+                  _c("hr"),
+                  _vm._v(" "),
+                  _c("p", [_vm._v("No baskets")])
+                ])
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", [_vm._v("Idle time (minutes)")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Last updated")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Created")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Event Date")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Tickets")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Country")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Promocode")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Action")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BookingComponent.vue?vue&type=template&id=ba51ade2&":
 /*!*******************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BookingComponent.vue?vue&type=template&id=ba51ade2& ***!
@@ -79850,7 +80394,7 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _vm.event
+                _vm.selection.event_id
                   ? _c(
                       "span",
                       [
@@ -80015,243 +80559,218 @@ var render = function() {
                           ])
                         ]),
                         _vm._v(" "),
-                        _vm._l(_vm.categories, function(category) {
-                          return _c(
-                            "span",
-                            { key: category.id },
-                            [
-                              _c("hr"),
-                              _vm._v(" "),
-                              _vm._l(category.extras, function(extra, index) {
-                                return _c("span", { key: extra.id }, [
-                                  _c("div", { staticClass: "row mb-1" }, [
-                                    _c("div", { staticClass: "col-sm-3" }, [
-                                      index === 0
-                                        ? _c("span", [
-                                            _vm._v(
-                                              "\n                                     " +
-                                                _vm._s(category.title) +
-                                                ":\n                                     "
-                                            )
-                                          ])
-                                        : _vm._e()
-                                    ]),
-                                    _vm._v(" "),
-                                    _c("div", { staticClass: "col-sm-8" }, [
-                                      extra.max === "ticket"
-                                        ? _c("span", [
-                                            _c("input", {
-                                              directives: [
-                                                {
-                                                  name: "model",
-                                                  rawName: "v-model",
-                                                  value: extra.selected,
-                                                  expression: "extra.selected"
-                                                }
-                                              ],
-                                              attrs: {
-                                                type: "checkbox",
-                                                id: index
-                                              },
-                                              domProps: {
-                                                value: extra.title,
-                                                checked: Array.isArray(
-                                                  extra.selected
-                                                )
-                                                  ? _vm._i(
-                                                      extra.selected,
-                                                      extra.title
-                                                    ) > -1
-                                                  : extra.selected
-                                              },
-                                              on: {
-                                                change: function($event) {
-                                                  var $$a = extra.selected,
-                                                    $$el = $event.target,
-                                                    $$c = $$el.checked
-                                                      ? true
-                                                      : false
-                                                  if (Array.isArray($$a)) {
-                                                    var $$v = extra.title,
-                                                      $$i = _vm._i($$a, $$v)
-                                                    if ($$el.checked) {
-                                                      $$i < 0 &&
-                                                        _vm.$set(
-                                                          extra,
-                                                          "selected",
-                                                          $$a.concat([$$v])
-                                                        )
-                                                    } else {
-                                                      $$i > -1 &&
-                                                        _vm.$set(
-                                                          extra,
-                                                          "selected",
-                                                          $$a
-                                                            .slice(0, $$i)
-                                                            .concat(
-                                                              $$a.slice($$i + 1)
-                                                            )
-                                                        )
-                                                    }
-                                                  } else {
-                                                    _vm.$set(
-                                                      extra,
-                                                      "selected",
-                                                      $$c
-                                                    )
-                                                  }
-                                                }
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c(
-                                              "label",
-                                              {
-                                                staticClass: "form-check-label",
-                                                attrs: { for: extra.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  _vm._s(extra.title) +
-                                                    " " +
-                                                    _vm._s(
-                                                      _vm._f("toCurrency")(
-                                                        extra.price
-                                                      )
-                                                    ) +
-                                                    " per person"
-                                                )
-                                              ]
-                                            ),
-                                            _vm._v(" "),
-                                            extra.selected > 0
-                                              ? _c(
-                                                  "small",
-                                                  { staticClass: "text-right" },
-                                                  [
-                                                    _vm._v(
-                                                      "Total: " +
-                                                        _vm._s(
-                                                          _vm._f("toCurrency")(
-                                                            _vm.selection
-                                                              .nr_tickets *
-                                                              extra.price
-                                                          )
-                                                        )
-                                                    )
-                                                  ]
-                                                )
-                                              : _vm._e()
-                                          ])
-                                        : _c("span", [
-                                            _c(
-                                              "select",
-                                              {
-                                                directives: [
-                                                  {
-                                                    name: "model",
-                                                    rawName: "v-model",
-                                                    value: extra.selected,
-                                                    expression: "extra.selected"
-                                                  }
-                                                ],
-                                                attrs: { name: "active" },
-                                                on: {
-                                                  change: function($event) {
-                                                    var $$selectedVal = Array.prototype.filter
-                                                      .call(
-                                                        $event.target.options,
-                                                        function(o) {
-                                                          return o.selected
-                                                        }
-                                                      )
-                                                      .map(function(o) {
-                                                        var val =
-                                                          "_value" in o
-                                                            ? o._value
-                                                            : o.value
-                                                        return val
-                                                      })
-                                                    _vm.$set(
-                                                      extra,
-                                                      "selected",
-                                                      $event.target.multiple
-                                                        ? $$selectedVal
-                                                        : $$selectedVal[0]
-                                                    )
-                                                  }
-                                                }
-                                              },
-                                              [
-                                                _c(
-                                                  "option",
-                                                  {
-                                                    attrs: {
-                                                      selected: "",
-                                                      value: "0"
-                                                    }
-                                                  },
-                                                  [_vm._v("0")]
-                                                ),
-                                                _vm._v(" "),
-                                                _vm._l(
-                                                  parseInt(extra.max),
-                                                  function(counter) {
-                                                    return _c(
-                                                      "option",
-                                                      { key: counter },
-                                                      [_vm._v(_vm._s(counter))]
-                                                    )
-                                                  }
-                                                )
-                                              ],
-                                              2
-                                            ),
-                                            _vm._v(" "),
-                                            _c(
-                                              "label",
-                                              {
-                                                staticClass: "form-check-label",
-                                                attrs: { for: extra.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  _vm._s(extra.title) +
-                                                    " " +
-                                                    _vm._s(
-                                                      _vm._f("toCurrency")(
-                                                        extra.price
-                                                      )
-                                                    )
-                                                )
-                                              ]
-                                            ),
-                                            _vm._v(" "),
-                                            extra.selected > 0
-                                              ? _c(
-                                                  "small",
-                                                  { staticClass: "text-right" },
-                                                  [
-                                                    _vm._v(
-                                                      "Total: " +
-                                                        _vm._s(
-                                                          _vm._f("toCurrency")(
-                                                            extra.selected *
-                                                              extra.price
-                                                          )
-                                                        )
-                                                    )
-                                                  ]
-                                                )
-                                              : _vm._e()
-                                          ])
+                        _c("hr"),
+                        _vm._v(" "),
+                        _vm._l(_vm.extras, function(extra, index) {
+                          return _c("span", { key: extra.id }, [
+                            _c("div", { staticClass: "row mb-1" }, [
+                              _c("div", { staticClass: "col-sm-3" }, [
+                                index === 0
+                                  ? _c("span", [
+                                      _vm._v(
+                                        "\n                                    Extras\n                                     "
+                                      )
                                     ])
-                                  ])
-                                ])
-                              })
-                            ],
-                            2
-                          )
+                                  : _vm._e()
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-8" }, [
+                                extra.max === "ticket"
+                                  ? _c("span", [
+                                      _c("input", {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: extra.nr,
+                                            expression: "extra.nr"
+                                          }
+                                        ],
+                                        attrs: { type: "checkbox", id: index },
+                                        domProps: {
+                                          value: extra.title,
+                                          checked: Array.isArray(extra.nr)
+                                            ? _vm._i(extra.nr, extra.title) > -1
+                                            : extra.nr
+                                        },
+                                        on: {
+                                          change: function($event) {
+                                            var $$a = extra.nr,
+                                              $$el = $event.target,
+                                              $$c = $$el.checked ? true : false
+                                            if (Array.isArray($$a)) {
+                                              var $$v = extra.title,
+                                                $$i = _vm._i($$a, $$v)
+                                              if ($$el.checked) {
+                                                $$i < 0 &&
+                                                  _vm.$set(
+                                                    extra,
+                                                    "nr",
+                                                    $$a.concat([$$v])
+                                                  )
+                                              } else {
+                                                $$i > -1 &&
+                                                  _vm.$set(
+                                                    extra,
+                                                    "nr",
+                                                    $$a
+                                                      .slice(0, $$i)
+                                                      .concat(
+                                                        $$a.slice($$i + 1)
+                                                      )
+                                                  )
+                                              }
+                                            } else {
+                                              _vm.$set(extra, "nr", $$c)
+                                            }
+                                          }
+                                        }
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "label",
+                                        {
+                                          staticClass: "form-check-label",
+                                          attrs: { for: extra.id }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(extra.title) +
+                                              " " +
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  extra.price
+                                                )
+                                              ) +
+                                              " per person"
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      extra.nr > 0
+                                        ? _c(
+                                            "small",
+                                            { staticClass: "text-right" },
+                                            [
+                                              _vm._v(
+                                                "Total: " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      _vm.selection.nr_tickets *
+                                                        extra.price
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        : _vm._e()
+                                    ])
+                                  : _c("span", [
+                                      _c(
+                                        "select",
+                                        {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value: extra.nr,
+                                              expression: "extra.nr"
+                                            }
+                                          ],
+                                          attrs: { name: "active" },
+                                          on: {
+                                            change: function($event) {
+                                              var $$selectedVal = Array.prototype.filter
+                                                .call(
+                                                  $event.target.options,
+                                                  function(o) {
+                                                    return o.selected
+                                                  }
+                                                )
+                                                .map(function(o) {
+                                                  var val =
+                                                    "_value" in o
+                                                      ? o._value
+                                                      : o.value
+                                                  return val
+                                                })
+                                              _vm.$set(
+                                                extra,
+                                                "nr",
+                                                $event.target.multiple
+                                                  ? $$selectedVal
+                                                  : $$selectedVal[0]
+                                              )
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _c(
+                                            "option",
+                                            {
+                                              attrs: {
+                                                selected: "",
+                                                value: "0"
+                                              }
+                                            },
+                                            [_vm._v("0")]
+                                          ),
+                                          _vm._v(" "),
+                                          _vm._l(parseInt(extra.max), function(
+                                            counter
+                                          ) {
+                                            return _c(
+                                              "option",
+                                              {
+                                                key: counter,
+                                                domProps: { value: counter }
+                                              },
+                                              [_vm._v(_vm._s(counter))]
+                                            )
+                                          })
+                                        ],
+                                        2
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "label",
+                                        {
+                                          staticClass: "form-check-label",
+                                          attrs: { for: extra.id }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(extra.title) +
+                                              " " +
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  extra.price
+                                                )
+                                              )
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      extra.nr > 0
+                                        ? _c(
+                                            "small",
+                                            { staticClass: "text-right" },
+                                            [
+                                              _vm._v(
+                                                "Total: " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      extra.nr * extra.price
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        : _vm._e()
+                                    ])
+                              ])
+                            ])
+                          ])
                         }),
                         _vm._v(" "),
                         _c("hr"),
@@ -80416,7 +80935,9 @@ var render = function() {
                                         },
                                         preferredCountries: ["NL", "US", "GB"],
                                         mode: "international",
-                                        placeholder: ""
+                                        placeholder: "",
+                                        defaultCountry:
+                                          _vm.selection.country_code
                                       },
                                       on: {
                                         "country-changed": _vm.onCountryChange
@@ -97701,6 +98222,7 @@ Vue.component('category-component', __webpack_require__(/*! ./components/Categor
 Vue.component('ticketgroup-component', __webpack_require__(/*! ./components/TicketGroupComponent.vue */ "./resources/js/components/TicketGroupComponent.vue")["default"]);
 Vue.component('ticket-component', __webpack_require__(/*! ./components/TicketComponent.vue */ "./resources/js/components/TicketComponent.vue")["default"]);
 Vue.component('sale-component', __webpack_require__(/*! ./components/SaleComponent.vue */ "./resources/js/components/SaleComponent.vue")["default"]);
+Vue.component('basket-component', __webpack_require__(/*! ./components/BasketComponent.vue */ "./resources/js/components/BasketComponent.vue")["default"]);
 Vue.component('event-component', __webpack_require__(/*! ./components/EventComponent.vue */ "./resources/js/components/EventComponent.vue")["default"]);
 Vue.component('extra-component', __webpack_require__(/*! ./components/ExtraComponent.vue */ "./resources/js/components/ExtraComponent.vue")["default"]);
 Vue.component('promocode-component', __webpack_require__(/*! ./components/PromoCodeComponent.vue */ "./resources/js/components/PromoCodeComponent.vue")["default"]);
@@ -97760,6 +98282,75 @@ axios.defaults.baseURL = "http://localhost/projects/ajc2/public";
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/components/BasketComponent.vue":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/BasketComponent.vue ***!
+  \*****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BasketComponent.vue?vue&type=template&id=68bf2a88& */ "./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88&");
+/* harmony import */ var _BasketComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BasketComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/BasketComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _BasketComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/BasketComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/BasketComponent.vue?vue&type=script&lang=js&":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/BasketComponent.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_BasketComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./BasketComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BasketComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_BasketComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88&":
+/*!************************************************************************************!*\
+  !*** ./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88& ***!
+  \************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./BasketComponent.vue?vue&type=template&id=68bf2a88& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BasketComponent.vue?vue&type=template&id=68bf2a88&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BasketComponent_vue_vue_type_template_id_68bf2a88___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 

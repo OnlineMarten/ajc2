@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <span v-if="event">
+                <span v-if="selection.event_id">
 
                 <div class="row mt-2">
                     <div class="col-sm-3">
@@ -157,7 +157,7 @@
                     </div>
                 </div>
 
-
+<!--
                     <span v-for="category in categories" :key="category.id" >
                         <hr>
 
@@ -182,16 +182,51 @@
                                     <span v-else>
 
                                         <select name="active" v-model="extra.selected">
-                                            <option selected value="0">0</option>
-                                            <option v-for="counter in parseInt(extra.max)" :key="counter" >{{counter}}</option>
+                                            <option selected value=0>0</option>
+                                            <option v-for="counter in parseInt(extra.max)" :key="counter" :value=counter >{{counter}}</option>
                                         </select>
                                         <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}}</label>
 
                                         <small class="text-right" v-if="extra.selected>0" >Total: {{extra.selected*extra.price | toCurrency}}</small>
                                     </span>
+                                </div>
+                            </div>
+                        </span>
+                    </span>
+                    extras-->
+
+                    <hr>
+                    <span v-for="(extra, index) in extras" :key="extra.id">
+
+                            <div class="row mb-1">
+
+                                <div class="col-sm-3">
+                                    <span v-if="index===0">
+                                    <!-- {{category.title}}:-->
+                                    Extras
+                                     </span>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <span v-if="extra.max === 'ticket'">
+
+                                            <input type="checkbox" :id="index" :value="extra.title" v-model="extra.nr">
+                                            <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}} per person</label>
+
+                                            <small class="text-right" v-if="extra.nr>0" >Total: {{selection.nr_tickets*extra.price | toCurrency}}</small>
+                                    </span>
+                                    <span v-else>
+
+                                        <select name="active" v-model="extra.nr">
+                                            <option selected value=0>0</option>
+                                            <option v-for="counter in parseInt(extra.max)" :key="counter" :value=counter >{{counter}}</option>
+                                        </select>
+                                        <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}}</label>
+
+                                        <small class="text-right" v-if="extra.nr>0" >Total: {{extra.nr*extra.price | toCurrency}}</small>
+                                    </span>
                                 </div><!--col 8-->
                             </div><!--row-->
-                        </span>
                     </span><!--extras-->
 
                 <hr>
@@ -241,6 +276,7 @@
                     ]"
                     mode="international"
                     placeholder=""
+                    v-bind:defaultCountry=selection.country_code
 
                     ></vue-tel-input>
                     <!-- {{phone_data}}-->
@@ -429,7 +465,6 @@ export default {
         valid_promocode:false,
         promocode_error_message:false,
 
-        //event:[],//weg?
         phone:"",
         phone_data:[],
 
@@ -442,10 +477,8 @@ export default {
         tickets:[],
         sales:[],
         promocodes:[],//get and store all promocodes
-       // beforeEditingCache:{},
-        array_index:"0",
-      //  _beforeEditingCache:[],
-       // _originalSale:{},
+        temp:[],
+        extras:[],
     }//return
   },//data
 
@@ -463,45 +496,34 @@ export default {
 
         cancelAddSale() {
             this.errors="";
-            /*
-            this.show_event_details=false;
-            this.selection.event_id="0";
-             this.selection.ticket_id="0";
-             this.selection.promocode_id="0";
-             this.selection.nr_tickets="0";
-             this.valid_promocode=false;
-            //this.ticket="";
-             this.selection.amount_paid="0";
-             */
             this.reset();
 
 
         },
         cancelUpdateSale(){
             this.reset();
-            // Exit editing mode
-
              this.readSales();
 
         },
         reset(){
-             //this.selection ={};
-             this.selection.name="";
-             this.selection.email="";
-             this.selection.phone="";
-             this.selection.nr_tickets="0";
-             this.selection.ticket_nr="";
-             this.selection.guestlist_comments="";
-             this.selection.admin_comments="";
-             this.selection.lang="en";
-             this.selection.event_id="";
-             this.selection.ticket_id="";
-             this.selection.promocode_id="0";
-             this.selection.extras=[];
-             this.selection.total_amount="0";
-             this.selection.total_discount="0";
-             this.selection.amount_paid="0";
-             this.selection.paying_now="0";
+            //this.selection ={};
+            this.selection.name="";
+            this.selection.email="";
+            this.selection.phone="";
+            this.selection.country_code="NL";
+            this.selection.nr_tickets="0";
+            this.selection.ticket_nr="";
+            this.selection.guestlist_comments="";
+            this.selection.admin_comments="";
+            this.selection.lang="en";
+            this.selection.event_id="";
+            this.selection.ticket_id="";
+            this.selection.promocode_id="0";
+            this.selection.extras=[];
+            this.selection.total_amount="0";
+            this.selection.total_discount="0";
+            this.selection.amount_paid="0";
+            this.selection.paying_now="0";
             this.paying_now_div_100="0";
             this.categories=[];
             this.promocode={};
@@ -512,7 +534,9 @@ export default {
             this.promocode.apply_to_extras="0";
             this.promocode.apply_to_tickets="0";
             this.errors="";
-             this.show_error=false;
+            this.show_error=false;
+            this.valid_promocode=false;
+            this.promocode_error_message=false;
         },
 
 
@@ -535,9 +559,24 @@ export default {
                 //do we need to check if still available?->no, will be chekced with updatebasket
                 this.categories = response.data.event.categories;
                 this.tickets = response.data.event.tickets;
-
                 this.show_event_details=true;
 
+                if (this.add_update === "add"){
+                    console.log('this is an add');
+                    this.extras=[];
+                    for (var i = 0; i < this.categories.length; i++  ) {
+                        for (var n = 0; n < this.categories[i].extras.length; n++  ) {
+                            //rebuild extras selection array with extra id and amount(nr)
+                            console.log('pushing: '+ this.categories[i].extras[n].title);
+                            this.extras.push({
+                            title: this.categories[i].extras[n].title,
+                            max: this.categories[i].extras[n].max,
+                            price: this.categories[i].extras[n].price,
+                            id: this.categories[i].extras[n].id,
+                            nr: 0});
+                        }//for extras
+                    }//for catagories
+                }//if add
 
                 //if we are editing an exisiting sale we have to get the selected ticket and promocode details
                 if (this.selection.ticket_id>0){
@@ -572,15 +611,60 @@ export default {
         },
 
          initUpdateSale(index) {
+            this.add_update = "update";
             this.paying_now_div_100="0";
             this.add_update = "update";
-            $("#add_sale_model").modal("show");
-            console.log('making copy of original sale');
-            this.array_index = index;
             this.selection = this.sales[index];
+           // this.selection.extras=[];
+
+            if (this.add_update==="update"){
+                //get extras
+                console.log('this is an update');
+                this.temp=[];
+                this.extras=[];
+
+                axios.get("admin/salegetextras/"+ this.sales[index].id)
+                    .then(response => {
+                    this.temp = response.data.extras;
+
+                    for (var i = 0; i < this.temp.length; i++  ) {
+                        //rebuild extras selection array with extra id and amount(nr)
+                        console.log('pushing: '+ this.temp[i].title +'. nr: '+this.temp[i].pivot.nr);
+                        /*
+                        Vue.set(this.selection.extras.title, i, this.temp[i].title);
+                        Vue.set(this.selection.extras.max, i, this.temp[i].max);
+                        Vue.set(this.selection.extras.price, i, this.temp[i].price);
+                        Vue.set(this.selection.extras.id, i, this.temp[i].id);
+                        Vue.set(this.selection.extras.nr, i, this.temp[i].pivot.nr);
+                      */
+
+                     var newItem = {
+                        title: this.temp[i].title,
+                        max: this.temp[i].max,
+                        price: this.temp[i].price,
+                        id: this.temp[i].id,
+                        nr: this.temp[i].pivot.nr
+                        };
+
+                       this.extras.push(newItem);
+
+                    };//for extras
+
+                    })
+                    .catch(error => {
+                        //error.response.data.errors
+                    //  console.log('error = '+error.response.data.errors);
+                    this.showErrors(error);
+                    });
+            };
+
+            this.readEvent();
+
+
             //this.readAvailableEvents();
             //this.readPromoCodes();
-            this.readEvent();
+            $("#add_sale_model").modal("show");
+
 
 
         },
@@ -594,11 +678,12 @@ export default {
                 this.readSales();
                 this.showMessage(response.data.message);
                 this.reset();
-                console.log('repsonse');
+                console.log('response');
                 })
 
             .catch(error => {
-                console.log('error');
+                //error.response.data.errors
+                console.log('error = '+error.response.data.errors);
             this.showErrors(error);
             });
         },
@@ -796,34 +881,44 @@ export default {
         totalAmount: function () {
             this.selection.total_discount=0;
             this.selection.paying_now = this.paying_now_div_100 * 100;
-
+            this.selection.extras = this.extras;//copy selected extras into selection which is sent to basket
             let totalTickets=0;
             let totalExtras=0;
-            this.selection.extras=[];//clear extras selection and rebuild
+          //  this.selection.extras=[];//clear extras selection and rebuild
             totalTickets = this.selection.nr_tickets*(this.ticket.price);
-
+/*
             for (var i = 0; i < this.categories.length; i++  ) {
                 for (var n = 0; n < this.categories[i].extras.length; n++  ) {
                     if(this.categories[i].extras[n].selected===true){
                             totalExtras+= this.categories[i].extras[n].price*this.selection.nr_tickets;
                             //rebuild extras selection array with extra id and amount(nr)
-                            this.selection.extras.push({
-                            id: this.categories[i].extras[n].id,
-                            nr: this.selection.nr_tickets});
                     }
                    else{
                        if (this.categories[i].extras[n].selected>0){//check if selected exists, it does not exist automatically
                             totalExtras+= this.categories[i].extras[n].price*this.categories[i].extras[n].selected
                             //rebuild extras selection array with extra id and amount(nr)
-                            this.selection.extras.push({
-                            id: this.categories[i].extras[n].id,
-                            nr: this.categories[i].extras[n].selected});
                         }
                    }
 
                 }//for extras
 
             }//for catagories
+
+*/
+
+
+
+            for (var i = 0; i < this.extras.length; i++  ) {
+                if(this.extras[i].nr){
+                    if(this.extras[i].max==="ticket"){
+                        totalExtras+= this.extras[i].price*this.selection.nr_tickets;
+                    }
+                    else{
+                        totalExtras+= this.extras[i].price*this.extras[i].nr;
+                    }
+                }
+            }
+
 
              if (this.valid_promocode){//we have a valid promocode, calculate discounts
 
