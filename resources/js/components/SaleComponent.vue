@@ -498,7 +498,6 @@ export default {
             this.errors="";
             this.reset();
 
-
         },
         cancelUpdateSale(){
             this.reset();
@@ -577,6 +576,9 @@ export default {
                         }//for extras
                     }//for catagories
                 }//if add
+                if (this.add_update === "update"){
+                    console.log('PLEASE NOTE !!! => update and change of event date, we need to update extras and solve difference issues');
+                }
 
                 //if we are editing an exisiting sale we have to get the selected ticket and promocode details
                 if (this.selection.ticket_id>0){
@@ -604,7 +606,7 @@ export default {
         initAddSale(){
          //   this.resetSelection();
             this.add_update = "add";
-            this.readAvailableEvents();
+         //   this.readAvailableEvents();
             //this.readPromoCodes();
             $("#add_sale_model").modal("show");
 
@@ -628,15 +630,6 @@ export default {
                     this.temp = response.data.extras;
 
                     for (var i = 0; i < this.temp.length; i++  ) {
-                        //rebuild extras selection array with extra id and amount(nr)
-                        console.log('pushing: '+ this.temp[i].title +'. nr: '+this.temp[i].pivot.nr);
-                        /*
-                        Vue.set(this.selection.extras.title, i, this.temp[i].title);
-                        Vue.set(this.selection.extras.max, i, this.temp[i].max);
-                        Vue.set(this.selection.extras.price, i, this.temp[i].price);
-                        Vue.set(this.selection.extras.id, i, this.temp[i].id);
-                        Vue.set(this.selection.extras.nr, i, this.temp[i].pivot.nr);
-                      */
 
                      var newItem = {
                         title: this.temp[i].title,
@@ -659,10 +652,6 @@ export default {
             };
 
             this.readEvent();
-
-
-            //this.readAvailableEvents();
-            //this.readPromoCodes();
             $("#add_sale_model").modal("show");
 
 
@@ -745,13 +734,6 @@ export default {
         }
         },
 
-
-
-
-
-
-
-
         refreshBaskets(){
             axios
                 .get("/refreshbaskets")
@@ -762,8 +744,6 @@ export default {
         },
 
         updateBasket(){
-            console.log('eventid: '+ this.selection.event_id +' nrtickets: ' +
-                                this.selection.nr_tickets + ' ticketid: ' + this.selection.ticket_id);
 
             if (this.selection.event_id>0 && this.selection.nr_tickets>0 && this.selection.ticket_id>0){
                 axios
@@ -794,9 +774,7 @@ export default {
             console.log(this.selection.promocode_id);
            if (this.selection.promocode_id>0){
                 //check code
-                console.log('checking code');
                 this.promocode.code = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id).code;
-                console.log('selected promocode: '+this.promocode.code);
                 console.log('checking '+ this.promocode.code);
 
                 axios.get("/checkpromocode/"+this.promocode.code).then(response => {
@@ -886,27 +864,6 @@ export default {
             let totalExtras=0;
           //  this.selection.extras=[];//clear extras selection and rebuild
             totalTickets = this.selection.nr_tickets*(this.ticket.price);
-/*
-            for (var i = 0; i < this.categories.length; i++  ) {
-                for (var n = 0; n < this.categories[i].extras.length; n++  ) {
-                    if(this.categories[i].extras[n].selected===true){
-                            totalExtras+= this.categories[i].extras[n].price*this.selection.nr_tickets;
-                            //rebuild extras selection array with extra id and amount(nr)
-                    }
-                   else{
-                       if (this.categories[i].extras[n].selected>0){//check if selected exists, it does not exist automatically
-                            totalExtras+= this.categories[i].extras[n].price*this.categories[i].extras[n].selected
-                            //rebuild extras selection array with extra id and amount(nr)
-                        }
-                   }
-
-                }//for extras
-
-            }//for catagories
-
-*/
-
-
 
             for (var i = 0; i < this.extras.length; i++  ) {
                 if(this.extras[i].nr){
@@ -947,8 +904,7 @@ export default {
 
             //adjust remaining amount when paying now changes
             this.remaining_after_paying_now = this.selection.total_amount - this.selection.amount_paid-this.selection.paying_now;
-            console.log('total amount'+this.selection.total_amount +'paying now'+this.selection.paying_now +'already paid' +this.selection.amount_paid
-             +'remaining'+this.remaining_after_paying_now  );
+         //   console.log('total amount'+this.selection.total_amount +'paying now'+this.selection.paying_now +'already paid' +this.selection.amount_paid +'remaining'+this.remaining_after_paying_now  );
 
             return this.selection.total_amount;
         }
