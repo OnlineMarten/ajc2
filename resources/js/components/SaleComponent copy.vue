@@ -122,10 +122,6 @@
                             <span v-html="errors">{{ errors }}</span>
                         </ul>
                     </div>
-                    <div class="alert alert-danger alert-dismissible fade show" v-if="show_warning" role="alert" id="alert" name="alert">
-
-                {{ warning_messages }}
-            </div>
 
 
 
@@ -428,12 +424,10 @@ export default {
         counter:"0",
         show_error:false,
         show: false,
-        show_warning:false,
         error:"",
         errors: "",
         show_past_sales:false,
         message: "",
-        warning_messages:"",
         add_update: "",
 
         selection:{
@@ -483,8 +477,7 @@ export default {
         tickets:[],
         sales:[],
         promocodes:[],//get and store all promocodes
-        selected_sale:[],
-        selected_extras:[],
+        temp:[],
         extras:[],
     }//return
   },//data
@@ -543,7 +536,6 @@ export default {
             this.show_error=false;
             this.valid_promocode=false;
             this.promocode_error_message=false;
-            this.show_warning=false;
         },
 
 
@@ -561,34 +553,46 @@ export default {
         },
 
          readEvent(){
-            this.show_warning=false;
-            this.warning_messages="";
             axios.get("/getevent/"+this.selection.event_id).then(response => {
                 this.event = response.data.event.event;
                 //do we need to check if still available?->no, will be chekced with updatebasket
-
-                //load event details
                 this.categories = response.data.event.categories;
                 this.tickets = response.data.event.tickets;
                 this.show_event_details=true;
-                this.extras=[];
-                for (var i = 0; i < this.categories.length; i++  ) {
-                    for (var n = 0; n < this.categories[i].extras.length; n++  ) {
-                        //rebuild extras selection array with extra id and amount(nr)
-                        console.log('pushing: '+ this.categories[i].extras[n].title);
-                        this.extras.push({
-                        title: this.categories[i].extras[n].title,
-                        max: this.categories[i].extras[n].max,
-                        price: this.categories[i].extras[n].price,
-                        id: this.categories[i].extras[n].id,
-                        nr: 0});
-                    }//for extras
-                }//for catagories
 
-                if(this.add_update==="update"){
-                    console.log('compare events')
-                    this.checkSaleDateTransferrable();
+                if (this.add_update === "add"){
+                    console.log('this is an add');
+                    this.extras=[];
+                    for (var i = 0; i < this.categories.length; i++  ) {
+                        for (var n = 0; n < this.categories[i].extras.length; n++  ) {
+                            //rebuild extras selection array with extra id and amount(nr)
+                            console.log('pushing: '+ this.categories[i].extras[n].title);
+                            this.extras.push({
+                            title: this.categories[i].extras[n].title,
+                            max: this.categories[i].extras[n].max,
+                            price: this.categories[i].extras[n].price,
+                            id: this.categories[i].extras[n].id,
+                            nr: 0});
+                        }//for extras
+                    }//for catagories
+                }//if add
+                if (this.add_update === "update"){
+                    console.log('PLEASE NOTE !!! => update and change of event date, we need to update extras and solve difference issues');
                 }
+
+                //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+                if (this.selection.ticket_id>0){
+                    this.ticket = this.tickets.find(ticket => ticket.id === this.selection.ticket_id);
+                    console.log('current ticket loaded');
+                }
+                if (this.selection.promocode_id>0){
+                    this.promocode = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id);
+                    console.log('current promocode loaded');
+
+                    //if we have a promocode we also need to fake a promocode on change event to set all the values:
+                    this.onChangePromoCode();
+                }
+                //this.onChangePromoCode();
             });
         },
 
@@ -598,56 +602,6 @@ export default {
             });
         },
 
-        checkSaleDateTransferrable(){
-                console.log('checking sale transferrable');
-            //move extras to
-          //  this.selected_extras=this.extras;
-           // this.extras=[];
-            //selected date event details are in this.selection, this.tickets and this.extras
-            //current sale details are stored in this.selected_sale and this.selected_extras
-            // now compare and set all seleted options into new date where possible and notify where not possible
-            this.warning_messages="Not found: ";
-            var warnings=false;
-
-            //first check tickets
-            if(this.tickets.find(ticket => ticket.id === this.selected_sale.ticket_id)){
-                console.log('ticket found');
-                this.selection.ticket_id=this.selected_sale.ticket_id;
-            }
-            else{
-                console.log('ticket not found');
-                this.selection.ticket_id="";//verplaatsen naar reset?
-                this.warning_messages+="ticket";
-                warnings=true;
-               // this.showWarningMessage("ticket not found")
-            }
-
-            //then check extras
-            for (var i = 0; i < this.selected_extras.length; i++  ) {
-                var index = this.extras.findIndex(extra => extra.id === this.selected_extras[i].id);
-                if (index>=0){
-                    console.log('extra found, id='+index);
-                        this.extras[index].nr = this.selected_extras[i].nr;
-
-                }
-
-                else{
-                    console.log('extra not found, id='+index);
-                    //check if this extra was selected
-                    if (this.selected_extras[i].nr){
-                        this.warning_messages+=" + "+this.selected_extras[i].title;
-                        warnings=true;
-                    }
-                    else{
-                        //extra not found, but no problem
-                        console.log('extra not found, but not selected, so its fine'+this.selected_extras[i].title);
-                    }
-                }
-            }//end check extras
-
-            if(warnings) this.showWarningMessage(this.warning_messages);
-
-        },
 
         initAddSale(){
          //   this.resetSelection();
@@ -662,39 +616,14 @@ export default {
             this.add_update = "update";
             this.paying_now_div_100="0";
             this.add_update = "update";
-            //load event data into selecion and make a copy in case we want to change the date.
-            this.selected_sale = this.sales[index];
             this.selection = this.sales[index];
-            this.selection.event_id=this.selected_sale.event_id;//set event id into selection because we know that it exists
            // this.selection.extras=[];
 
-
-            axios.get("/getevent/"+this.selection.event_id).then(response => {
-                this.event = response.data.event.event;
-                //do we need to check if still available?->no, will be chekced with updatebasket
-
-                //load event details
-                this.categories = response.data.event.categories;
-                this.tickets = response.data.event.tickets;
-                this.show_event_details=true;
-                this.extras=[];
-                for (var i = 0; i < this.categories.length; i++  ) {
-                    for (var n = 0; n < this.categories[i].extras.length; n++  ) {
-                        //rebuild extras selection array with extra id and amount(nr)
-                        console.log('pushing: '+ this.categories[i].extras[n].title);
-                        this.extras.push({
-                        title: this.categories[i].extras[n].title,
-                        max: this.categories[i].extras[n].max,
-                        price: this.categories[i].extras[n].price,
-                        id: this.categories[i].extras[n].id,
-                        nr: 0});
-                    }//for extras
-                }//for catagories
-
-
-                //get selected extras sale
+            if (this.add_update==="update"){
+                //get extras
+                console.log('this is an update');
                 this.temp=[];
-                this.selected_extras=[];
+                this.extras=[];
 
                 axios.get("admin/salegetextras/"+ this.sales[index].id)
                     .then(response => {
@@ -709,28 +638,10 @@ export default {
                         id: this.temp[i].id,
                         nr: this.temp[i].pivot.nr
                         };
-                       this.selected_extras.push(newItem);
+
+                       this.extras.push(newItem);
 
                     };//for extras
-
-
-                    //compare event extras with sale extras
-                    this.checkSaleDateTransferrable();
-
-                    //if we are editing an exisiting sale we have to get the selected ticket and promocode details
-                        if (this.selection.ticket_id>0){
-                            this.ticket = this.tickets.find(ticket => ticket.id === this.selection.ticket_id);
-                            console.log('current ticket loaded');
-                        }
-                        if (this.selection.promocode_id>0){
-                            this.promocode = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id);
-                            console.log('current promocode loaded');
-
-                            //if we have a promocode we also need to fake a promocode on change event to set all the values:
-                            this.onChangePromoCode();
-                        }
-                        //this.onChangePromoCode();
-                    $("#add_sale_model").modal("show");
 
                     })
                     .catch(error => {
@@ -738,11 +649,14 @@ export default {
                     //  console.log('error = '+error.response.data.errors);
                     this.showErrors(error);
                     });
+            };
 
-            });
+            this.readEvent();
+            $("#add_sale_model").modal("show");
+
+
 
         },
-
         updateSale(){
             console.log('update sale');
             axios
@@ -886,7 +800,6 @@ export default {
         onEventChange(){
             console.log('event change')
             this.readEvent();
-
             this.updateBasket();//basket only needs create or update when tickets have been selected
         },
 
@@ -924,11 +837,6 @@ export default {
         showMessage(message) {
             this.message = message;
             this.show = true;
-        },
-
-        showWarningMessage(warning_message) {
-            this.warning_messages = warning_message;
-            this.show_warning = true;
         },
 
          showErrors(error) {

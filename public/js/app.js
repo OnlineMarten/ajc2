@@ -15693,6 +15693,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
  //import axioscalls from '@./resources/services/axioscalls'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -15704,10 +15708,12 @@ __webpack_require__.r(__webpack_exports__);
       counter: "0",
       show_error: false,
       show: false,
+      show_warning: false,
       error: "",
       errors: "",
       show_past_sales: false,
       message: "",
+      warning_messages: "",
       add_update: "",
       selection: {
         name: "",
@@ -15755,7 +15761,8 @@ __webpack_require__.r(__webpack_exports__);
       sales: [],
       promocodes: [],
       //get and store all promocodes
-      temp: [],
+      selected_sale: [],
+      selected_extras: [],
       extras: []
     }; //return
   },
@@ -15809,6 +15816,7 @@ __webpack_require__.r(__webpack_exports__);
       this.show_error = false;
       this.valid_promocode = false;
       this.promocode_error_message = false;
+      this.show_warning = false;
     },
     readSales: function readSales() {
       var _this = this;
@@ -15827,57 +15835,39 @@ __webpack_require__.r(__webpack_exports__);
     readEvent: function readEvent() {
       var _this3 = this;
 
+      this.show_warning = false;
+      this.warning_messages = "";
       axios.get("/getevent/" + this.selection.event_id).then(function (response) {
         _this3.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
+        //load event details
 
         _this3.categories = response.data.event.categories;
         _this3.tickets = response.data.event.tickets;
         _this3.show_event_details = true;
+        _this3.extras = [];
 
-        if (_this3.add_update === "add") {
-          console.log('this is an add');
-          _this3.extras = [];
+        for (var i = 0; i < _this3.categories.length; i++) {
+          for (var n = 0; n < _this3.categories[i].extras.length; n++) {
+            //rebuild extras selection array with extra id and amount(nr)
+            console.log('pushing: ' + _this3.categories[i].extras[n].title);
 
-          for (var i = 0; i < _this3.categories.length; i++) {
-            for (var n = 0; n < _this3.categories[i].extras.length; n++) {
-              //rebuild extras selection array with extra id and amount(nr)
-              console.log('pushing: ' + _this3.categories[i].extras[n].title);
+            _this3.extras.push({
+              title: _this3.categories[i].extras[n].title,
+              max: _this3.categories[i].extras[n].max,
+              price: _this3.categories[i].extras[n].price,
+              id: _this3.categories[i].extras[n].id,
+              nr: 0
+            });
+          } //for extras
 
-              _this3.extras.push({
-                title: _this3.categories[i].extras[n].title,
-                max: _this3.categories[i].extras[n].max,
-                price: _this3.categories[i].extras[n].price,
-                id: _this3.categories[i].extras[n].id,
-                nr: 0
-              });
-            } //for extras
-
-          } //for catagories
-
-        } //if add
+        } //for catagories
 
 
         if (_this3.add_update === "update") {
-          console.log('PLEASE NOTE !!! => update and change of event date, we need to update extras and solve difference issues');
-        } //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+          console.log('compare events');
 
-
-        if (_this3.selection.ticket_id > 0) {
-          _this3.ticket = _this3.tickets.find(function (ticket) {
-            return ticket.id === _this3.selection.ticket_id;
-          });
-          console.log('current ticket loaded');
+          _this3.checkSaleDateTransferrable();
         }
-
-        if (_this3.selection.promocode_id > 0) {
-          _this3.promocode = _this3.promocodes.find(function (promocode) {
-            return promocode.id === _this3.selection.promocode_id;
-          });
-          console.log('current promocode loaded'); //if we have a promocode we also need to fake a promocode on change event to set all the values:
-
-          _this3.onChangePromoCode();
-        } //this.onChangePromoCode();
-
       });
     },
     readPromoCodes: function readPromoCodes() {
@@ -15887,6 +15877,57 @@ __webpack_require__.r(__webpack_exports__);
         _this4.promocodes = response.data.promocodes;
       });
     },
+    checkSaleDateTransferrable: function checkSaleDateTransferrable() {
+      var _this5 = this;
+
+      console.log('checking sale transferrable'); //move extras to
+      //  this.selected_extras=this.extras;
+      // this.extras=[];
+      //selected date event details are in this.selection, this.tickets and this.extras
+      //current sale details are stored in this.selected_sale and this.selected_extras
+      // now compare and set all seleted options into new date where possible and notify where not possible
+
+      this.warning_messages = "Not found: ";
+      var warnings = false; //first check tickets
+
+      if (this.tickets.find(function (ticket) {
+        return ticket.id === _this5.selected_sale.ticket_id;
+      })) {
+        console.log('ticket found');
+        this.selection.ticket_id = this.selected_sale.ticket_id;
+      } else {
+        console.log('ticket not found');
+        this.selection.ticket_id = ""; //verplaatsen naar reset?
+
+        this.warning_messages += "ticket";
+        warnings = true; // this.showWarningMessage("ticket not found")
+      } //then check extras
+
+
+      for (var i = 0; i < this.selected_extras.length; i++) {
+        var index = this.extras.findIndex(function (extra) {
+          return extra.id === _this5.selected_extras[i].id;
+        });
+
+        if (index >= 0) {
+          console.log('extra found, id=' + index);
+          this.extras[index].nr = this.selected_extras[i].nr;
+        } else {
+          console.log('extra not found, id=' + index); //check if this extra was selected
+
+          if (this.selected_extras[i].nr) {
+            this.warning_messages += " + " + this.selected_extras[i].title;
+            warnings = true;
+          } else {
+            //extra not found, but no problem
+            console.log('extra not found, but not selected, so its fine' + this.selected_extras[i].title);
+          }
+        }
+      } //end check extras
+
+
+      if (warnings) this.showWarningMessage(this.warning_messages);
+    },
     initAddSale: function initAddSale() {
       //   this.resetSelection();
       this.add_update = "add"; //   this.readAvailableEvents();
@@ -15895,68 +15936,115 @@ __webpack_require__.r(__webpack_exports__);
       $("#add_sale_model").modal("show");
     },
     initUpdateSale: function initUpdateSale(index) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.add_update = "update";
       this.paying_now_div_100 = "0";
-      this.add_update = "update";
-      this.selection = this.sales[index]; // this.selection.extras=[];
+      this.add_update = "update"; //load event data into selecion and make a copy in case we want to change the date.
 
-      if (this.add_update === "update") {
-        //get extras
-        console.log('this is an update');
-        this.temp = [];
-        this.extras = [];
-        axios.get("admin/salegetextras/" + this.sales[index].id).then(function (response) {
-          _this5.temp = response.data.extras;
+      this.selected_sale = this.sales[index];
+      this.selection = this.sales[index];
+      this.selection.event_id = this.selected_sale.event_id; //set event id into selection because we know that it exists
+      // this.selection.extras=[];
 
-          for (var i = 0; i < _this5.temp.length; i++) {
+      axios.get("/getevent/" + this.selection.event_id).then(function (response) {
+        _this6.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
+        //load event details
+
+        _this6.categories = response.data.event.categories;
+        _this6.tickets = response.data.event.tickets;
+        _this6.show_event_details = true;
+        _this6.extras = [];
+
+        for (var i = 0; i < _this6.categories.length; i++) {
+          for (var n = 0; n < _this6.categories[i].extras.length; n++) {
+            //rebuild extras selection array with extra id and amount(nr)
+            console.log('pushing: ' + _this6.categories[i].extras[n].title);
+
+            _this6.extras.push({
+              title: _this6.categories[i].extras[n].title,
+              max: _this6.categories[i].extras[n].max,
+              price: _this6.categories[i].extras[n].price,
+              id: _this6.categories[i].extras[n].id,
+              nr: 0
+            });
+          } //for extras
+
+        } //for catagories
+        //get selected extras sale
+
+
+        _this6.temp = [];
+        _this6.selected_extras = [];
+        axios.get("admin/salegetextras/" + _this6.sales[index].id).then(function (response) {
+          _this6.temp = response.data.extras;
+
+          for (var i = 0; i < _this6.temp.length; i++) {
             var newItem = {
-              title: _this5.temp[i].title,
-              max: _this5.temp[i].max,
-              price: _this5.temp[i].price,
-              id: _this5.temp[i].id,
-              nr: _this5.temp[i].pivot.nr
+              title: _this6.temp[i].title,
+              max: _this6.temp[i].max,
+              price: _this6.temp[i].price,
+              id: _this6.temp[i].id,
+              nr: _this6.temp[i].pivot.nr
             };
 
-            _this5.extras.push(newItem);
+            _this6.selected_extras.push(newItem);
           }
 
           ; //for extras
+          //compare event extras with sale extras
+
+          _this6.checkSaleDateTransferrable(); //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+
+
+          if (_this6.selection.ticket_id > 0) {
+            _this6.ticket = _this6.tickets.find(function (ticket) {
+              return ticket.id === _this6.selection.ticket_id;
+            });
+            console.log('current ticket loaded');
+          }
+
+          if (_this6.selection.promocode_id > 0) {
+            _this6.promocode = _this6.promocodes.find(function (promocode) {
+              return promocode.id === _this6.selection.promocode_id;
+            });
+            console.log('current promocode loaded'); //if we have a promocode we also need to fake a promocode on change event to set all the values:
+
+            _this6.onChangePromoCode();
+          } //this.onChangePromoCode();
+
+
+          $("#add_sale_model").modal("show");
         })["catch"](function (error) {
           //error.response.data.errors
           //  console.log('error = '+error.response.data.errors);
-          _this5.showErrors(error);
+          _this6.showErrors(error);
         });
-      }
-
-      ;
-      this.readEvent();
-      $("#add_sale_model").modal("show");
+      });
     },
     updateSale: function updateSale() {
-      var _this6 = this;
+      var _this7 = this;
 
       console.log('update sale');
       axios.put("/admin/sale/" + this.selection.id, this.selection).then(function (response) {
         $("#add_sale_model").modal("hide");
 
-        _this6.readSales();
+        _this7.readSales();
 
-        _this6.showMessage(response.data.message);
+        _this7.showMessage(response.data.message);
 
-        _this6.reset();
+        _this7.reset();
 
         console.log('response');
       })["catch"](function (error) {
         //error.response.data.errors
         console.log('error = ' + error.response.data.errors);
 
-        _this6.showErrors(error);
+        _this7.showErrors(error);
       });
     },
     createSale: function createSale() {
-      var _this7 = this;
+      var _this8 = this;
 
       // create a ticket number
       var random_nr = Math.floor(Math.random() * (99999 - 10000)) + 10000;
@@ -15964,35 +16052,35 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post("/basket", this.selection).then(function (response) {
         //basket succesfuly updated, now add sale
-        axios.post("/admin/sale", _this7.selection).then(function (response) {
+        axios.post("/admin/sale", _this8.selection).then(function (response) {
           $("#add_sale_model").modal("hide"); //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
 
-          _this7.readSales();
+          _this8.readSales();
 
-          _this7.showMessage(response.data.message);
+          _this8.showMessage(response.data.message);
 
-          _this7.reset();
+          _this8.reset();
         })["catch"](function (error) {
           //coud not add sale, show error
-          _this7.showErrors(error);
+          _this8.showErrors(error);
         });
       })["catch"](function (error) {
         //could not update basket, show error
-        _this7.showErrors(error);
+        _this8.showErrors(error);
       });
     },
     deleteSale: function deleteSale(index) {
-      var _this8 = this;
+      var _this9 = this;
 
       var conf = confirm('Do you ready want to delete reservation "' + this.sales[index].ticket_nr + '"?');
 
       if (conf === true) {
         axios["delete"]("/admin/sale/" + this.sales[index].id).then(function (response) {
-          _this8.sales.splice(index, 1);
+          _this9.sales.splice(index, 1);
 
-          _this8.showMessage(response.data.message);
+          _this9.showMessage(response.data.message);
         })["catch"](function (error) {
-          _this8.showMessage(error.response.data.message); // Error
+          _this9.showMessage(error.response.data.message); // Error
 
         });
       }
@@ -16001,22 +16089,22 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("/refreshbaskets").then(function (response) {})["catch"](function (error) {});
     },
     updateBasket: function updateBasket() {
-      var _this9 = this;
+      var _this10 = this;
 
       if (this.selection.event_id > 0 && this.selection.nr_tickets > 0 && this.selection.ticket_id > 0) {
         axios.post("/basket", this.selection).then(function (response) {
           console.log('basket updated');
         })["catch"](function (error) {
-          _this9.showErrors(error);
+          _this10.showErrors(error);
         });
       } //end if
 
     },
     onTicketChange: function onTicketChange() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.ticket = this.tickets.find(function (ticket) {
-        return ticket.id === _this10.selection.ticket_id;
+        return ticket.id === _this11.selection.ticket_id;
       });
       this.updateBasket();
       console.log('new ticket loaded: ' + this.ticket.title);
@@ -16027,7 +16115,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log('nrtickets changed:' + this.selection.nr_tickets);
     },
     onChangePromoCode: function onChangePromoCode() {
-      var _this11 = this;
+      var _this12 = this;
 
       console.log('promocode changed');
       this.promocode_error_message = false;
@@ -16036,7 +16124,7 @@ __webpack_require__.r(__webpack_exports__);
       if (this.selection.promocode_id > 0) {
         //check code
         this.promocode.code = this.promocodes.find(function (promocode) {
-          return promocode.id === _this11.selection.promocode_id;
+          return promocode.id === _this12.selection.promocode_id;
         }).code;
         console.log('checking ' + this.promocode.code);
         axios.get("/checkpromocode/" + this.promocode.code).then(function (response) {
@@ -16044,15 +16132,15 @@ __webpack_require__.r(__webpack_exports__);
 
           if (response.data.promocode != 'false') {
             //we have a valid code
-            _this11.valid_promocode = true;
-            _this11.promocode = _this11.promocodes.find(function (promocode) {
-              return promocode.id === _this11.selection.promocode_id;
+            _this12.valid_promocode = true;
+            _this12.promocode = _this12.promocodes.find(function (promocode) {
+              return promocode.id === _this12.selection.promocode_id;
             });
-            console.log("we have a valid code. ID= " + _this11.selection.promocode_id);
+            console.log("we have a valid code. ID= " + _this12.selection.promocode_id);
           } else {
             console.log("invalid code");
-            _this11.valid_promocode = false;
-            _this11.promocode_error_message = true;
+            _this12.valid_promocode = false;
+            _this12.promocode_error_message = true;
           }
         });
       } else {
@@ -16097,13 +16185,17 @@ __webpack_require__.r(__webpack_exports__);
       this.message = message;
       this.show = true;
     },
+    showWarningMessage: function showWarningMessage(warning_message) {
+      this.warning_messages = warning_message;
+      this.show_warning = true;
+    },
     showErrors: function showErrors(error) {
-      var _this12 = this;
+      var _this13 = this;
 
       this.errors = "<ul>";
       var response = error.response;
       Object.keys(response.data.errors).forEach(function (item) {
-        _this12.errors += "<li>" + response.data.errors[item] + "</li>";
+        _this13.errors += "<li>" + response.data.errors[item] + "</li>";
       });
       this.errors += "</ul>";
     }
@@ -80290,6 +80382,24 @@ var render = function() {
                     ])
                   : _vm._e(),
                 _vm._v(" "),
+                _vm.show_warning
+                  ? _c(
+                      "div",
+                      {
+                        staticClass:
+                          "alert alert-danger alert-dismissible fade show",
+                        attrs: { role: "alert", id: "alert", name: "alert" }
+                      },
+                      [
+                        _vm._v(
+                          "\n\n                " +
+                            _vm._s(_vm.warning_messages) +
+                            "\n            "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
                 _c("div", { staticClass: "row" }, [
                   _c("div", { staticClass: "col-sm-3" }, [
                     _vm._v(
@@ -98897,14 +99007,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************************************!*\
   !*** ./resources/js/components/SaleComponent.vue ***!
   \***************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=template&id=3fa4cd1b& */ "./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&");
 /* harmony import */ var _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -98934,7 +99045,7 @@ component.options.__file = "resources/js/components/SaleComponent.vue"
 /*!****************************************************************************!*\
   !*** ./resources/js/components/SaleComponent.vue?vue&type=script&lang=js& ***!
   \****************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

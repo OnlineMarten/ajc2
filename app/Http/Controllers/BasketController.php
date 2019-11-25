@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Basket;
+use App\Event;
 use Illuminate\Http\Request;
 
 class BasketController extends Controller
@@ -69,6 +70,8 @@ class BasketController extends Controller
             'nr_tickets'         => 'required|min:1',
 
         ]);
+        $event = Event::find($request->event_id);
+        logger()->channel('info')->info('event:'.$event);
 
 
         //set basket to empty
@@ -84,21 +87,20 @@ class BasketController extends Controller
             $basket = Basket::find($basket_id);
 
         }
+        if ($basket) {//check availability excluding current basket
+            $basket->nr_tickets=0;
+            $basket->save();
+        }
+        $available_tickets = $event->getAvailableTickets();
 
-        if (!$basket){
-            //we have no basket, let's check availability, if there are still enough tickets, we can create a new one
+        //now we know the availability, let's see if we have enough
+        if ($available_tickets < $request->nr_tickets){
 
-            //check availability here
-            $enough_tickets = true;
-
-            if (!$enough_tickets){
-                return response()->json([
-                    'errors'       => [
-                        'error'=>'not enough tickets available'
-                    ]
-                ], 422);
-            }
-
+            return response()->json([
+                'errors'       => [
+                    'error'=>'not enough tickets available, only '.$available_tickets.' tickets available'
+                ]
+            ], 422);
         }
 
         //at this point we still have a basket or otherwise still enough tickets, so let's create or update the basket
@@ -129,6 +131,7 @@ class BasketController extends Controller
 
         //set (or overwrite) basket id in session
         session(['basket_id' => $basket['id']]);
+        logger()->channel('info')->info('basket updated');
 
         return response()->json([
             'message'       => 'success'
@@ -225,4 +228,6 @@ class BasketController extends Controller
         ], 200);
         */
     }
+
+
 }

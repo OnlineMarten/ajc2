@@ -10,4 +10,5 @@ class Basket extends Model
     protected $casts = [
         'extras' => 'array'
     ];
+
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Event;
 use App\TicketGroup;
 use App\Extra;
+use App\Sale;
+use App\Log;
 
 use Illuminate\Http\Request;
 
@@ -19,7 +21,6 @@ class EventController extends Controller
     public function index(Request $request)
     {
         //used from router to display page and from an axios call to get the (initial) data
-
         if($request->wantsJson())  {
 
 
@@ -434,6 +435,14 @@ class EventController extends Controller
             ], 200);
         }
     }
+
+    public function getEvent($event_id){
+        $event = Event::find($event_id);//get event
+        return $event;
+    }
+
+
+
 
 
 }

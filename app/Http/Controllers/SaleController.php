@@ -259,4 +259,15 @@ class SaleController extends Controller
             'extras' => $extras,
         ], 200);
     }
+
+    public function getSalesNrTickets($event_id)
+    {
+
+        $sales = Sale::where('event_id',$event_id)->pluck('nr_tickets');
+            return response()->json([
+                'sales'    => $sales,
+            ], 200);
+
+
+    }
 }
