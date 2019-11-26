@@ -88,8 +88,8 @@ class BasketController extends Controller
 
         }
         if ($basket) {//check availability excluding current basket
-            $basket->nr_tickets=0;
-            $basket->save();
+         //   $basket->nr_tickets=0;
+         //   $basket->save();
         }
         $available_tickets = $event->getAvailableTickets();
 
@@ -202,12 +202,40 @@ class BasketController extends Controller
      */
     public function destroy(Basket $basket)
     {
-        $basket->delete();
+        $message="";
+        if($basket){
+
+            $basket->delete();
+            $message='Basket (last updated: "'.$basket->updated_at.'") deleted ';
+        }
+
         logger()->channel('info')->info('Reservation: "'.$basket->updated_at.'" deleted by '.auth()->user()->name);
-        session()->flash('alert-success', 'Basket (last updated: '.$basket->updated_at.') deleted');
+      //  session()->flash('alert-success', 'Basket (last updated: '.$basket->updated_at.') deleted');
         // return redirect( route('events.index') );
         return response()->json([
-            'message'       => 'Basket (last updated: "'.$basket->updated_at.'") deleted '
+            'message'       => $message
+        ], 200);
+    }
+
+    public function deleteSessionBasket()
+    {
+        $message="";
+
+            //check if basket is in session id
+            $basket_id = session('basket_id');
+            if($basket_id){
+                $basket = Basket::find($basket_id);
+                if ($basket){
+                    $basket->delete();
+                    $message='Found session basket: (last updated: "'.$basket->updated_at.'") deleted ';
+                }
+            }
+
+       // logger()->channel('info')->info('Reservation: "'.$basket->updated_at.'" deleted by '.auth()->user()->name);
+      //  session()->flash('alert-success', 'Basket (last updated: '.$basket->updated_at.') deleted');
+        // return redirect( route('events.index') );
+        return response()->json([
+            'message'       => $message
         ], 200);
     }
 

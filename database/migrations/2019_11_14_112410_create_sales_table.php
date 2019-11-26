@@ -34,6 +34,8 @@ class CreateSalesTable extends Migration
             $table->string('pspReference')->default("");
             $table->timestamp('ticket_sent')->nullable()->default(NULL);
             $table->timestamps();
+
+            $table->softDeletes();
         });
     }
 

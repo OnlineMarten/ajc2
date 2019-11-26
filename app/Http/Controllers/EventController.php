@@ -441,6 +441,15 @@ class EventController extends Controller
         return $event;
     }
 
+    public function checkAvailability(Request $request){
+        $event = Event::find($request->event_id);//get event
+        $available = $event->getAvailableTickets($request->sale_id,$request->ignore_reserved);
+        return response()->json([
+            'available' => $available,
+        ], 200);
+
+    }
+
 
 
 

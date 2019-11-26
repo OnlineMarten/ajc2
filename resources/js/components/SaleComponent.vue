@@ -1,3 +1,11 @@
+<!--
+EXPLANATION concerning availability checks
+when a new sale is made the availability will automatically be checked when a basket is made or updated, through the session
+which stors the basket id.
+When a current sale is updated (including soft deleted sales) the availability will be checked from this component
+with the checkavailability call
+-->
+
 <template>
 <div>
 
@@ -23,9 +31,9 @@
                     </button>
 
                     <br><hr>
-            <!--        <input type="checkbox" id="checkbox" v-model="show_details_table">
-                    <label for="checkbox">show detailed table</label>
-                    <input type="checkbox" id="checkbox" v-model="show_past_events">
+                    <input type="checkbox" id="checkbox" v-model="show_deleted_sales" v-on:change="onToggleDeletedSales()">
+                    <label for="checkbox">Show deleted reservations</label>
+              <!--  <input type="checkbox" id="checkbox" v-model="show_past_events">
                     <label for="checkbox">show past events</label>
             -->
                     <table class="table table-striped table-bordered table-responsive table-sm" v-if="sales.length > 0" ref="table">
@@ -161,43 +169,6 @@
                     </div>
                 </div>
 
-<!--
-                    <span v-for="category in categories" :key="category.id" >
-                        <hr>
-
-                        <span v-for="(extra, index) in category.extras" :key="extra.id">
-
-                            <div class="row mb-1">
-
-                                <div class="col-sm-3">
-                                    <span v-if="index===0">
-                                     {{category.title}}:
-                                     </span>
-                                </div>
-
-                                <div class="col-sm-8">
-                                    <span v-if="extra.max === 'ticket'">
-
-                                            <input type="checkbox" :id="index" :value="extra.title" v-model="extra.selected">
-                                            <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}} per person</label>
-
-                                            <small class="text-right" v-if="extra.selected>0" >Total: {{selection.nr_tickets*extra.price | toCurrency}}</small>
-                                    </span>
-                                    <span v-else>
-
-                                        <select name="active" v-model="extra.selected">
-                                            <option selected value=0>0</option>
-                                            <option v-for="counter in parseInt(extra.max)" :key="counter" :value=counter >{{counter}}</option>
-                                        </select>
-                                        <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}}</label>
-
-                                        <small class="text-right" v-if="extra.selected>0" >Total: {{extra.selected*extra.price | toCurrency}}</small>
-                                    </span>
-                                </div>
-                            </div>
-                        </span>
-                    </span>
-                    extras-->
 
                     <hr>
                     <span v-for="(extra, index) in extras" :key="extra.id">
@@ -486,6 +457,8 @@ export default {
         selected_sale:[],
         selected_extras:[],
         extras:[],
+        show_deleted_sales:false,
+        not_enough_tickets:false,
     }//return
   },//data
 
@@ -500,15 +473,17 @@ export default {
     },//mounted
 
     methods: {
-
         cancelAddSale() {
             this.errors="";
             this.reset();
+            this.deleteBasket();
+            console.log('cancel add');
 
         },
         cancelUpdateSale(){
             this.reset();
              this.readSales();
+             console.log('cancel update');
 
         },
         reset(){
@@ -544,12 +519,18 @@ export default {
             this.valid_promocode=false;
             this.promocode_error_message=false;
             this.show_warning=false;
+            this.not_enough_tickets=false;
         },
 
 
 
         readSales(){
             axios.get("/admin/sale").then(response => {
+                this.sales = response.data.sales;
+            });
+        },
+        readDeletedSales(){
+            axios.get("/admin/deletedsales").then(response => {
                 this.sales = response.data.sales;
             });
         },
@@ -745,22 +726,29 @@ export default {
 
         updateSale(){
             console.log('update sale');
-            axios
-                .put("/admin/sale/" + this.selection.id, this.selection)
+            this.checkAvailability();//we need to recheck at the moment we are actually updating as in the meantime the status could hgave changed
+            if (this.not_enough_tickets){
 
-                .then(response => {
-                $("#add_sale_model").modal("hide");
-                this.readSales();
-                this.showMessage(response.data.message);
-                this.reset();
-                console.log('response');
-                })
+            }
+            else{
 
-            .catch(error => {
-                //error.response.data.errors
-                console.log('error = '+error.response.data.errors);
-            this.showErrors(error);
-            });
+                axios
+                    .put("/admin/sale/" + this.selection.id, this.selection)
+
+                    .then(response => {
+                    $("#add_sale_model").modal("hide");
+                    this.readSales();
+                    this.showMessage(response.data.message);
+                    this.reset();
+                    console.log('response');
+                    })
+
+                .catch(error => {
+                    //error.response.data.errors
+                    console.log('error = '+error.response.data.errors);
+                this.showErrors(error);
+                });
+            }
         },
 
         createSale(){
@@ -797,27 +785,65 @@ export default {
 
 
         },
-
-        deleteSale(index) {
-        let conf = confirm(
-        'Do you ready want to delete reservation "' +
-          this.sales[index].ticket_nr +
-          '"?'
-        );
-        if (conf === true) {
+        deleteBasket(){
             axios
-            .delete("/admin/sale/" + this.sales[index].id)
+            .get("admin/deletesessionbasket")
 
             .then(response => {
-                this.sales.splice(index, 1);
-                this.showMessage(response.data.message);
+                console.log(response.data.message);
             })
 
             .catch(error => {
-                this.showMessage(error.response.data.message);
+                console.log(error.response.data.message);
                 // Error
             });
-        }
+
+        },
+
+        deleteSale(index) {
+            if (this.show_deleted_sales){//we are destroying a deleted sale
+                let conf = confirm(
+                'Do you ready want permanently delete reservation "' +
+                this.sales[index].ticket_nr +
+                '"? This can not be undone!'
+                );
+                if (conf === true) {
+                    axios
+                    .get("/admin/forcedeletesale/" + this.sales[index].id)
+
+                    .then(response => {
+                        this.sales.splice(index, 1);
+                        this.showMessage(response.data.message);
+                    })
+
+                    .catch(error => {
+                        this.showMessage(error.response.data.message);
+                        // Error
+                    });
+                }
+
+            }
+            else{//soft delete a sale
+                let conf = confirm(
+                'Do you ready want to delete reservation "' +
+                this.sales[index].ticket_nr +
+                '"? (It will be placed in deleted reservations and can be restored later)'
+                );
+                if (conf === true) {
+                    axios
+                    .delete("/admin/sale/" + this.sales[index].id)
+
+                    .then(response => {
+                        this.sales.splice(index, 1);
+                        this.showMessage(response.data.message);
+                    })
+
+                    .catch(error => {
+                        this.showMessage(error.response.data.message);
+                        // Error
+                    });
+                }
+            }
         },
 
         refreshBaskets(){
@@ -843,14 +869,59 @@ export default {
             }//end if
 
         },
+        checkAvailability(){
+            this.show_warning = false;
+            axios
+                .post("/admin/eventcheckavailability",
+                {
+                    event_id: this.selected_sale.event_id,
+                    sale_id: this.selected_sale.id,
+                    ingore_reserved: false,
+                })
+                .then(response => {
+                    console.log(response.data);
+                    if (response.data.available<this.selection.nr_tickets){//not enough tickets
+                        console.log('not enough tickets');
+                        this.not_enough_tickets=true;//will be checked before updating sale
+                        this.warning_messages="not enough tickets, only "+response.data.available+" available."
+                        this.showWarningMessage(this.warning_messages);
+                    }
+                    else{//enough tickets available
+                        this.not_enough_tickets=false;
+                    }
+
+                })
+                .catch(error => {
+                });
+        },
+        onToggleDeletedSales(){
+          //  this.show_deleted_sales=!this.show_deleted_sales;
+            if(this.show_deleted_sales){
+                console.log('show deleted sales');
+                this.readDeletedSales();
+            }
+            else{
+                console.log('show normal sales');
+                this.readSales();
+            }
+
+
+        },
 
         onTicketChange(){
             this.ticket = this.tickets.find(ticket => ticket.id === this.selection.ticket_id);
-             this.updateBasket();
+             if (this.add_update === "add")  this.updateBasket();
+             else{
+                //we are updating a sale, no basket, nothing needs to be done
+            }
             console.log('new ticket loaded: '+ this.ticket.title);
         },
         onNrTicketsChange(){
-            this.updateBasket();
+            if (this.add_update === "add")  this.updateBasket();
+            else{
+                //we are updating a sale, no basket, just check availability
+                this.checkAvailability();
+            }
             this.errors="";
             console.log('nrtickets changed:'+this.selection.nr_tickets);
         },
@@ -886,9 +957,12 @@ export default {
         onEventChange(){
             console.log('event change')
             this.readEvent();
-
-            this.updateBasket();//basket only needs create or update when tickets have been selected
-        },
+            if (this.add_update === "add")  this.updateBasket();//basket only needs create or update when tickets have been selected
+            else{
+                //we are updating a sale, no basket, just check availability
+                this.checkAvailability();
+            }
+            },
 
         onCountryChange(data){
             console.log('country changed');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Sale;
 use App\Basket;
+use App\Event;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -29,15 +30,6 @@ class SaleController extends Controller
             ->select('sales.*', 'events.event_date','tickets.title as ticket_title' )
                     ->orderby('created_at','desc')
             ->get();
-
-
-
-/*
-            $sales = Sale::
-
-            orderBy("created_at")
-            ->get();
-*/
                 return response()->json([
                     'sales'    => $sales,
                 ], 200);
@@ -45,6 +37,27 @@ class SaleController extends Controller
 
             return view('admin.sale');
 
+    }
+
+    public function deletedSales()
+    {
+        //used from router to display page and from an axios call to get the (initial) data
+
+
+            $sales = Sale::onlyTrashed()
+            ->join('events','events.id', '=', 'sales.event_id')
+            ->join('tickets','tickets.id', '=', 'sales.ticket_id')
+            ->leftjoin('promo_codes','promo_codes.id', '=','sales.promocode_id' )
+            //leftjoin uses all columns in left table, even if not match in right table
+
+      //      ->where('events.id','=', $id)
+
+            ->select('sales.*', 'events.event_date','tickets.title as ticket_title' )
+                    ->orderby('created_at','desc')
+            ->get();
+                return response()->json([
+                    'sales'    => $sales,
+                ], 200);
     }
 
 
@@ -119,7 +132,7 @@ class SaleController extends Controller
            // 'extras'        => $basket->extras,
         ]);
 
-        //can not use sync as very entry wil be overwritten by the previous one
+        //can not use sync as every entry wil be overwritten by the previous one
         //this means we need to detach all before re attaching all when we are updating.
         foreach($basket->extras as $key => $value) {
             $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
@@ -129,6 +142,11 @@ class SaleController extends Controller
 
         //sale added, now delete basket
         $basket->delete();
+
+        //update event availability
+        $event = Event::find($sale->event_id);
+        $event->updateEventAvailability();
+
 
         logger()->channel('info')->info('Sale "'.$sale->ticket_nr.'" created by '.auth()->user()->name);
 
@@ -177,7 +195,11 @@ class SaleController extends Controller
 
         ]);
 
-        $sale = Sale::findOrFail($request->id);
+        $sale = Sale::withTrashed()->findOrFail($request->id);
+        //do a restore if sale is trashed
+        if ($sale->trashed()) {
+            $sale->restore();
+        }
 
         //in case we are updating an exisitng reservation we have to check for already made payments
         $total_paid = request('amount_paid') + request('paying_now');
@@ -199,9 +221,6 @@ class SaleController extends Controller
         $sale->admin_comments     = request('admin_comments');
         $sale->ticket_nr     = request('ticket_nr');
 
-
-
-
         if (!$sale->update()) {
             return response()->json([
                 'message' => 'update failed'
@@ -220,7 +239,9 @@ class SaleController extends Controller
             $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
         }
 
-
+        //update event availability
+        $event = Event::find($sale->event_id);
+        $event->updateEventAvailability();
 
         logger()->channel('info')->info('reservation "'.$sale->ticket_nr.'" updated by '.auth()->user()->name);
 
@@ -237,21 +258,55 @@ class SaleController extends Controller
      */
     public function destroy(Sale $sale)
     {
-        $sale->extras()->detach();//remove all connected tickets (and delete from pivot table)
-            $sale->delete();
-            logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" deleted by '.auth()->user()->name);
-            session()->flash('alert-success', 'Sale '.$sale->ticket_nr.' deleted');
+      //  $sale->extras()->detach();//remove all connected tickets (and delete from pivot table)
+
+        $sale->delete();
+
+        //update event availability
+        $event = Event::find($sale->event_id);
+        $event->updateEventAvailability();
+
+        logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" soft deleted by '.auth()->user()->name);
+        session()->flash('alert-success', 'Sale '.$sale->ticket_nr.' deleted');
+
+        return response()->json([
+            'message'       => 'Reservation: "'.$sale->ticket_nr.'" moved to deleted reservations '
+        ], 200);
+    }
+
+    public function forceDeleteSale( $sale_id)
+    {
+
+        $sale = Sale::withTrashed()->findOrFail($sale_id);
+
+        if ($sale->trashed()) {
+
+            $sale->extras()->detach();//remove all connected extras (and delete from pivot table)
+            $sale->forceDelete();
+            //logger()->channel('info')->info('found trashed sale, forcedeleted it');
+        }
+
+        else{
+            logger()->channel('info')->info('could not find trashed sale!');
+            return response()->json([
+                'message'       => 'Reservation: "'.$sale->ticket_nr.'" could not be deleted! '
+            ], 200);
+
+        }
+
+        logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" permanently deleted by '.auth()->user()->name);
        // return redirect( route('events.index') );
        return response()->json([
-        'message'       => 'Reservation: "'.$sale->ticket_nr.'" deleted '
-    ], 200);
+            'message'       => 'Reservation: "'.$sale->ticket_nr.'" permanently deleted '
+        ], 200);
     }
+
 
     public function allExtrasConnectedToSale($sale_id)
     {
         //get all tickets  connected to a specific sale
 
-        $sale = Sale::findOrFail($sale_id);
+        $sale = Sale::withTrashed()->findOrFail($sale_id);
         $extras = $sale->extras()->get();//->pluck('extra_id','pivot->nr');
 
 
@@ -259,6 +314,7 @@ class SaleController extends Controller
             'extras' => $extras,
         ], 200);
     }
+
 
     public function getSalesNrTickets($event_id)
     {

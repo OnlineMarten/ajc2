@@ -31,7 +31,7 @@ Route::get('/booking/{event_id}', function () {
 /*adyen*/
 Route::get('/paymentmethods', 'AdyenController@paymentMethods');
 Route::post('/makepayment', 'AdyenController@makePayment');
-Route::resource('/basket', 'BasketController')->only([  'store', 'update'    ]);
+Route::resource('/basket', 'BasketController')->only([  'store', 'update' ]);
 
 Auth::routes();
 
@@ -54,13 +54,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/admin/sale', 'SaleController')->only([  'index',  'store', 'update', 'destroy'    ]);
     Route::resource('admin/basket', 'BasketController')->only([  'index',  'destroy'    ]);
 
+    Route::get('/admin/deletedsales', 'SaleController@deletedSales')->name('deletedsales');
     Route::get('/admin/salegetextras/{sale_id}', 'SaleController@allExtrasConnectedToSale')->name('salegetextras');
     Route::get('/admin/eventgetcategories/{event_id}', 'EventController@allCategoriesConnectedToEvent')->name('eventgetcategories');
     Route::get('/admin/eventgetticketgroups/{event_id}', 'EventController@allTicketgroupsConnectedToEvent')->name('eventgetticketgroups');
+    Route::post('/admin/eventcheckavailability', 'EventController@checkAvailability')->name('eventcheckavilability');
     //Route::get('/admin/extragetcategories/{extra_id}', 'ExtraController@allCategoriesConnectedToExtra')->name('extragetcategories');
     Route::get('/admin/categorygetextras/{category_id}', 'CategoryController@allExtrasConnectedToCategory')->name('categorygetextras');
     Route::get('/admin/ticketgroupgettickets/{ticket_group_id}', 'TicketGroupController@allTicketsConnectedToTicketGroup')->name('ticketgroupgettickets');
-
+    Route::get('/admin/deletesessionbasket', 'BasketController@deleteSessionBasket')->name('deletesessionbasket');
+    Route::get('/admin/forcedeletesale/{sale_id}', 'SaleController@forceDeleteSale')->name('forceeletesale');
 
 
 });//end route group admin

@@ -43,13 +43,13 @@
                         <a class="nav-link" href="{{ route('promocode.index') }}">Promocodes <span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link" href="{{ route('sale.index') }}">Sales <span class="sr-only"></span></a>
+                        <a class="nav-link" href="{{ route('sale.index') }}">Reservations <span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link" href="{{ route('basket.index') }}">Baskets <span class="sr-only"></span></a>
                     </li>
 
-
+<!--
 
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -71,7 +71,7 @@
                             </a>
                         </div>
                     </li>
-
+                -->
 
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
