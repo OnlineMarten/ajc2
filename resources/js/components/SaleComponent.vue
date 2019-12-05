@@ -55,7 +55,7 @@ with the checkavailability call
                          <!--   <template v-if="show_past_sales || (!show_past_sales && (new Date(sale.event_date) >= Date.now()))">
 -->
                                 <td>
-                                    {{ new Date(sale.created_at) | dateFormat('dd DD MMM YYYY') }}
+                                    {{ new Date(sale.created_at) | dateFormat('HH:mm dd DD MMM YYYY') }}
                                 </td>
                                 <td>
                                     {{ new Date(sale.event_date) | dateFormat('dd DD MMM YYYY') }}
@@ -125,15 +125,14 @@ with the checkavailability call
                 <div class="modal-body">
 
                     <div class="alert alert-danger" v-if="errors.length > 0">
-                        We have errors:
                         <ul>
                             <span v-html="errors">{{ errors }}</span>
                         </ul>
                     </div>
-                    <div class="alert alert-danger alert-dismissible fade show" v-if="show_warning" role="alert" id="alert" name="alert">
 
-                {{ warning_messages }}
-            </div>
+                    <div class="alert alert-danger alert-dismissible fade show" v-if="show_warning" role="alert" id="alert" name="alert">
+                        {{ warning_messages }}
+                    </div>
 
 
 
@@ -520,6 +519,7 @@ export default {
             this.promocode_error_message=false;
             this.show_warning=false;
             this.not_enough_tickets=false;
+            this.show_deleted_sales=false;
         },
 
 
@@ -740,6 +740,7 @@ export default {
                     this.readSales();
                     this.showMessage(response.data.message);
                     this.reset();
+
                     console.log('response');
                     })
 
@@ -872,7 +873,7 @@ export default {
         checkAvailability(){
             this.show_warning = false;
             axios
-                .post("/admin/eventcheckavailability",
+                .post("/eventcheckavailability",
                 {
                     event_id: this.selected_sale.event_id,
                     sale_id: this.selected_sale.id,
@@ -883,7 +884,13 @@ export default {
                     if (response.data.available<this.selection.nr_tickets){//not enough tickets
                         console.log('not enough tickets');
                         this.not_enough_tickets=true;//will be checked before updating sale
-                        this.warning_messages="not enough tickets, only "+response.data.available+" available."
+                        if (response.data.available===0){
+                            this.warning_messages="Another customer is currently holding the last tickets, please try again in 10 minutes."
+                        }
+                        else{
+                            this.warning_messages="not enough tickets, only "+response.data.available+" available."
+                        }
+
                         this.showWarningMessage(this.warning_messages);
                     }
                     else{//enough tickets available

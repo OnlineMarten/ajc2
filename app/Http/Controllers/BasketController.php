@@ -57,6 +57,8 @@ class BasketController extends Controller
         //create and update are combined in store function below
     }
 
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -67,12 +69,12 @@ class BasketController extends Controller
     {
         $this->validate($request, [
             'event_id'         => 'required',
-            'nr_tickets'         => 'required|min:1',
+            'nr_tickets'         => 'required|min:0',
 
         ]);
+
         $event = Event::find($request->event_id);
         logger()->channel('info')->info('event:'.$event);
-
 
         //set basket to empty
         $basket = "";
@@ -80,25 +82,23 @@ class BasketController extends Controller
         //check if we have a basket id in the session, if not the the session has expired and this is a new session.
         $basket_id = session('basket_id');
 
-
         //we have a basket id, let's check if basket is still there, if not it has been removed by refreshbaskets, because it was expired
-        if($basket_id){
+        if ($basket_id){
 
             $basket = Basket::find($basket_id);
+        }
 
-        }
-        if ($basket) {//check availability excluding current basket
-         //   $basket->nr_tickets=0;
-         //   $basket->save();
-        }
         $available_tickets = $event->getAvailableTickets();
 
         //now we know the availability, let's see if we have enough
         if ($available_tickets < $request->nr_tickets){
 
+            if ($available_tickets==0) $message='Another client is currently holding the last tickets. Please try again in 10 minutes.';
+            else $message='not enough tickets available, only '.$available_tickets.' tickets available';
+
             return response()->json([
                 'errors'       => [
-                    'error'=>'not enough tickets available, only '.$available_tickets.' tickets available'
+                    'error'=> $message
                 ]
             ], 422);
         }
@@ -113,6 +113,7 @@ class BasketController extends Controller
             'event_id'                 => request('event_id'),
             'ticket_id'           => request('ticket_id'),
             'promocode_id'           => request('promocode_id'),
+            'promocode_code'           => request('promocode_code'),
             'nr_tickets'           => request('nr_tickets'),
             'name'           => request('name'),
             'email'           => request('email'),
@@ -137,6 +138,105 @@ class BasketController extends Controller
             'message'       => 'success'
         ], 200);
     }
+
+
+    public function checkBasketComplete(Request $request)
+    {
+        $this->validate($request, [
+            'event_id'    => 'required|min:1',
+            'ticket_id'    => 'required|min:1',
+            'nr_tickets'  => 'required|min:1',
+            'name'        => 'required|min:3',
+            'email'     => 'required|email',
+            'phone'     => 'required',
+            'total_amount'=> 'required',
+
+        ]);
+
+        $event = Event::find($request->event_id);
+        logger()->channel('info')->info('event:'.$event);
+
+        if(!$event){
+            return response()->json([
+                'errors'       => [
+                    'error'=> 'no event selected'
+                ]
+            ], 422);
+        }
+        //set basket to empty
+        $basket = "";
+
+        //check if we have a basket id in the session, if not the the session has expired and this is a new session.
+        $basket_id = session('basket_id');
+
+        //we have a basket id, let's check if basket is still there, if not it has been removed by refreshbaskets, because it was expired
+        if ($basket_id){
+
+            $basket = Basket::find($basket_id);
+        }
+
+        $available_tickets = $event->getAvailableTickets();
+
+        //now we know the availability, let's see if we have enough
+        if ($available_tickets < $request->nr_tickets){
+
+           $message='You have waited too long, not enough tickets available now, someone else is holding tickets, please wait 10 minutes';
+
+            return response()->json([
+                'errors'       => [
+                    'error'=> $message
+                ]
+            ], 422);
+        }
+
+        //at this point we still have a basket or otherwise still enough tickets, so let's create or update the basket
+
+        $basket = Basket::updateOrCreate(
+
+            [ 'id'                    => $basket_id
+        ],
+
+            [
+            'event_id'                 => request('event_id'),
+            'ticket_id'           => request('ticket_id'),
+            'promocode_id'           => request('promocode_id'),
+            'promocode_code'           => request('promocode_code'),
+            'nr_tickets'           => request('nr_tickets'),
+            'name'           => request('name'),
+            'email'           => request('email'),
+            'phone'           => request('phone'),
+            'country_code'           => request('country_code'),
+            'dial_code'           => request('dial_code'),
+            'lang'           => request('lang'),
+            'amount_paid'           => request('paying_now'),
+            'total_amount'           => request('total_amount'),
+            'total_discount'           => request('total_discount'),
+            'guestlist_comments'           => request('guestlist_comments'),
+            'admin_comments'           => request('admin_comments'),
+            'ticket_nr'           => request('ticket_nr'),
+            'extras'        => request('extras'),
+        ]);
+
+
+
+        // create a ticket number
+        $basket->ticket_nr = "AJC-" . date('dmy',strtotime($event->event_date)) ."-". date("dm") ."-". $basket->id;
+        $basket->save();
+
+        //set (or overwrite) basket id in session
+        session(['basket_id' => $basket['id']]);
+        //place ticket number in session. Used on front to show on confirmation screen
+        session(['ticket_nr' => $request->reference]);
+
+
+        logger()->channel('info')->info('basket complete and updated');
+
+        //return the ticketnumber so we can send it to Adyen
+        return response()->json([
+            'ticket_nr'       => $basket->ticket_nr
+        ], 200);
+    }
+
 
     /**
      * Display the specified resource.
@@ -255,6 +355,20 @@ class BasketController extends Controller
             'message' => 'deadline'.$deadline
         ], 200);
         */
+    }
+
+    public function getSessionBasket(){
+
+        $basket_id = session('basket_id');
+        if($basket_id){
+            $basket = Basket::find($basket_id);
+            if ($basket){
+                return response()->json([
+                    'basket'    => $basket,
+                ], 200);
+
+            }
+        }
     }
 
 

@@ -18,7 +18,8 @@
 
 <h1>Check out page</h1>
 
-
+ <p>{{ $ticket_nr }}</p>
+ <p>{{ $resultCode }}</p>
 
 
 @endsection

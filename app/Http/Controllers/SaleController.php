@@ -143,8 +143,15 @@ class SaleController extends Controller
         //sale added, now delete basket
         $basket->delete();
 
-        //update event availability
+
         $event = Event::find($sale->event_id);
+
+        //update event tickets sold
+        $sold = $event->tickets_sold;
+        $event->tickets_sold = $sold + $sale->nr_tickets;
+        $event->save();
+
+        //update event availability
         $event->updateEventAvailability();
 
 
@@ -195,10 +202,15 @@ class SaleController extends Controller
 
         ]);
 
+
+        $restored_sale = false;
         $sale = Sale::withTrashed()->findOrFail($request->id);
+        $old_event_id = $sale->event_id;
+        $old_nr_tickets = $sale->nr_tickets;
         //do a restore if sale is trashed
         if ($sale->trashed()) {
             $sale->restore();
+            $restored_sale = true;//if a sale is being restored we do not have to check event change as it was not listed at an event anymore
         }
 
         //in case we are updating an exisitng reservation we have to check for already made payments
@@ -239,8 +251,39 @@ class SaleController extends Controller
             $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
         }
 
+        //if we do not have a restored sale we have to heck for an event change
+
         //update event availability
         $event = Event::find($sale->event_id);
+
+        if (!$restored_sale){//no restored sale
+
+            $old_event = Event::find($old_event_id);
+
+            if ($old_event_id!=$sale->event_id){
+                //we have a date change, update tickets and availability in old and new event
+
+                //update old event deduct old tickets sold
+                $old_event->tickets_sold -= $old_nr_tickets;
+                $old_event->save();
+                $old_event->updateEventAvailability();
+
+                //new event add new tickets sold
+                $event->tickets_sold+=$sale->nr_tickets;
+            }
+
+            else{//not restored, no date change, deduct old nr tickets and add new nr
+                $sold =$event->tickets_sold;
+                $event->tickets_sold = $sold - $old_nr_tickets + $sale->nr_tickets;
+            }
+
+        }
+
+        else{//restored sale, date change unimportant, just add new tickets
+            $event->tickets_sold += $sale->nr_tickets;
+        }
+        //update event
+        $event->save();
         $event->updateEventAvailability();
 
         logger()->channel('info')->info('reservation "'.$sale->ticket_nr.'" updated by '.auth()->user()->name);
@@ -260,11 +303,17 @@ class SaleController extends Controller
     {
       //  $sale->extras()->detach();//remove all connected tickets (and delete from pivot table)
 
-        $sale->delete();
+
 
         //update event availability
         $event = Event::find($sale->event_id);
+
+        //update event tickets sold
+        $sold = $event->tickets_sold;
+        $event->tickets_sold = $sold - $sale->nr_tickets;
+        $event->save();
         $event->updateEventAvailability();
+        $sale->delete();
 
         logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" soft deleted by '.auth()->user()->name);
         session()->flash('alert-success', 'Sale '.$sale->ticket_nr.' deleted');

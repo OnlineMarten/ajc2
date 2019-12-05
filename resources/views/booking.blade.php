@@ -23,7 +23,6 @@
 @section('content')
 
 
-
 <booking-component></booking-component>
 
 

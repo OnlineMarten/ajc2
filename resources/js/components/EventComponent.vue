@@ -44,7 +44,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(event, index) in events" :key="event.id">
-                            <template v-if="show_past_events || (!show_past_events && (new Date(event.event_date) >= Date.now()))">
+                            <template v-if="show_past_events || (!show_past_events && (new Date(event.event_date) >= (new Date() - 86400000)))">
 
                                 <td>
                                     {{ event.title }}

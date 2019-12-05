@@ -182,16 +182,33 @@ class Event extends Model
     }
 
     public function updateEventAvailability(){
+        logger()->channel('info')->info('updating availability');
         $available = $this->getAvailableTickets();
         if ($available ==0){
             //no availability, check for active baskets
+            logger()->channel('info')->info('availability=0, checking baskets');
             $baskets = Basket::where('event_id',$this->id)->pluck('nr_tickets');
             logger()->channel('info')->info('baskets:'.$baskets);
+            if (count($baskets)){
+                //we have baskets, lets check if there are tickets in them
+                $nr=0;
+                foreach ($baskets as $basket){
+                    $nr+=$basket;
+                }
+                if ($nr==0){
+                    $this->sold_out=true;
+                    $this->save();
+                    logger()->channel('info')->info('only empty baskets, set event to sold out');
 
-            if (!count($baskets)){//no actie baskets, set event to sold out
+                }
+                else{
+                    logger()->channel('info')->info('we have baskets with tickets ('.$nr.', do nothing');
+                }
+            }
+            else{
+                logger()->channel('info')->info('no baskets, set event to sold out');
                 $this->sold_out=true;
                 $this->save();
-                logger()->channel('info')->info('set event to sold out');
             }
         }
         else{//there is still availability

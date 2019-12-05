@@ -16,8 +16,9 @@ class CreateBasketsTable extends Migration
         Schema::create('baskets', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('event_id');
-            $table->bigInteger('ticket_id')->default(0);;
+            $table->bigInteger('ticket_id')->nullable()->default(0);
             $table->bigInteger('promocode_id')->default(0);
+            $table->string('promocode_code')->nullable()->default("");
             $table->tinyInteger('nr_tickets');
             $table->string('name')->default("");
             $table->string('email')->default("");

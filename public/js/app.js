@@ -86,6 +86,18 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/@babel/runtime/regenerator/index.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! regenerator-runtime */ "./node_modules/regenerator-runtime/runtime.js");
+
+
+/***/ }),
+
 /***/ "./node_modules/@fullcalendar/core/main.esm.js":
 /*!*****************************************************!*\
   !*** ./node_modules/@fullcalendar/core/main.esm.js ***!
@@ -12850,7 +12862,30 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -13122,10 +13157,15 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_0__["VueTelInput"]
+    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_1__["VueTelInput"]
   },
   data: function data() {
-    return {
+    var _ref;
+
+    return _ref = {
+      errors: "",
+      message: "",
+      show: false,
       show_titles: true,
       show_descriptions: false,
       nosteps: true,
@@ -13138,41 +13178,44 @@ __webpack_require__.r(__webpack_exports__);
         name: "",
         email: "",
         phone: "",
-        countrycode: "",
-        nrtickets: "0",
-        ticket: 0,
-        categories: {
-          extras: []
-        },
-        event: [],
+        country_code: "",
+        dial_code: "",
+        nr_tickets: "0",
+        ticket_nr: "",
+        guestlist_comments: "",
+        admin_comments: "",
+        lang: "en",
+        event_id: "",
+        ticket_id: 0,
+        promocode_id: "0",
+        promocode_code: "",
+        //we need to store the code in case we have a page reload, otherwise we can not safely retreive the code
+        extras: [],
         total_amount: "0",
         total_discount: "0",
-        total_discount_vat: "0"
+        amount_paid: "0",
+        paying_now: "0"
       },
-      show_error: false,
-      paymentmethods_not_yet_loaded: true,
-      //to avoid dropin being loaded more than once
-      error: "",
-      dropin: "",
-      phone: "",
-      phone_data: [],
-      valid_promocode: false,
-      promocode_error_message: false,
+      //end selection
+      ticket: {
+        price: "0"
+      },
       promocode: {
         code: "",
+        id: "0",
         discount_amount: "0",
         discount_perc: "0",
         apply_to_extras: "0",
         apply_to_tickets: "0"
-      }
-    }; //return
+      },
+      valid_promocode: false,
+      promocode_error_message: false,
+      categories: []
+    }, _defineProperty(_ref, "tickets", []), _defineProperty(_ref, "extras", []), _defineProperty(_ref, "show_error", false), _defineProperty(_ref, "paymentmethods_not_yet_loaded", true), _defineProperty(_ref, "error", ""), _defineProperty(_ref, "dropin", ""), _defineProperty(_ref, "phone", ""), _defineProperty(_ref, "phone_data", []), _defineProperty(_ref, "not_enough_tickets", false), _ref; //return
   },
   //data
   mounted: function mounted() {
-    console.log('mounted');
-    console.log(axios.defaults.baseURL);
     this.event_id = _.last(window.location.pathname.split('/'));
-    console.log(this.event_id);
     this.getEvent();
 
     if (this.paymentmethods_not_yet_loaded) {
@@ -13180,60 +13223,318 @@ __webpack_require__.r(__webpack_exports__);
       this.paymentmethods_not_yet_loaded = false;
     }
   },
-  //mounted
   methods: {
     country_changed: function country_changed(data) {
       console.log('country changed');
       this.phone_data = data;
 
       if (this.selection) {
-        this.selection.dialcode = this.phone_data.dialCode;
-        this.selection.countrycode = this.phone_data.iso2;
+        this.selection.dial_code = this.phone_data.dialCode;
+        this.selection.country_code = this.phone_data.iso2;
       }
     },
-    checkPromoCode: function checkPromoCode() {
-      var _this = this;
+    getBasket: function () {
+      var _getBasket = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        var _this = this;
 
-      console.log(this.promocode.code); //reset values
+        var i, index;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                //if we have a basket already (or still) when entering the page we will load it
+                console.log('get basket before');
+                _context2.prev = 1;
+                return _context2.delegateYield(
+                /*#__PURE__*/
+                _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+                  var response;
+                  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          _context.next = 2;
+                          return axios.get("/getsessionbasket");
 
-      this.promocode.discount_amount = "0";
-      this.promocode.discount_perc = "0";
-      this.promocode.apply_to_extras = "0";
-      this.promocode.apply_to_tickets = "0";
-      this.promocode_error_message = false;
+                        case 2:
+                          response = _context.sent;
 
-      if (this.promocode.code) {
-        axios.get("/checkpromocode/" + this.promocode.code).then(function (response) {
-          console.log("response=" + response.data.promocode);
+                          //console.log(response);
+                          if (response.data.basket) {
+                            //we have a basket
+                            console.log('we have a basket');
+                            _this.selection.email = response.data.basket.email;
+                            _this.selection.phone = response.data.basket.phone;
+                            _this.selection.country_code = response.data.basket.country_code;
+                            _this.selection.dial_code = response.data.basket.dial_code;
+                            _this.selection.nr_tickets = response.data.basket.nr_tickets;
+                            _this.selection.ticket_nr = response.data.basket.ticket_nr;
+                            _this.selection.event_id = response.data.basket.event_id;
+                            _this.selection.ticket_id = response.data.basket.ticket_id;
+                            _this.selection.promocode_id = response.data.basket.promocode_id;
+                            _this.selection.promocode_code = response.data.basket.promocode_code;
+                            _this.selection.name = response.data.basket.name; //get extras
 
-          if (response.data.promocode !== 'false') {
-            //we have a valid code
-            console.log("we have a valid code");
-            _this.valid_promocode = true;
-            _this.promocode = response.data.promocode;
-          } else {
-            console.log("invalid code");
-            _this.valid_promocode = false;
-            _this.promocode_error_message = true;
+                            for (i = 0; i < response.data.basket.extras.length; i++) {
+                              index = _this.extras.findIndex(function (extra) {
+                                return extra.id === response.data.basket.extras[i].id;
+                              });
+
+                              if (index >= 0) {
+                                console.log('extra found, id=' + index);
+                                _this.extras[index].nr = response.data.basket.extras[i].nr;
+                              } else {
+                                console.log('extra not found: ' + response.data.basket.extras[i].title);
+                              }
+                            }
+
+                            console.log('get basket after');
+                            console.log('get ticket');
+                            _this.ticket = _this.tickets.find(function (ticket) {
+                              return ticket.id === _this.selection.ticket_id;
+                            });
+
+                            if (!_this.ticket) {
+                              _this.selection.ticket_id = "0";
+                              console.log('no ticket found');
+                            } else console.log('ticket found');
+
+                            if (_this.selection.promocode_id) {
+                              //we have loaded a promocode from the basket, reinstall it
+                              console.log('we have a promocode, needs to be loaded');
+                              _this.promocode.code = _this.selection.promocode_code;
+
+                              _this.checkPromoCode();
+                            } //update basket to sync it with current event (in case the event date was changed)
+
+
+                            _this.updateBasket();
+                          } else {
+                            console.log('no basket');
+                          }
+
+                        case 4:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                })(), "t0", 3);
+
+              case 3:
+                _context2.next = 8;
+                break;
+
+              case 5:
+                _context2.prev = 5;
+                _context2.t1 = _context2["catch"](1);
+                console.log(_context2.t1);
+
+              case 8:
+              case "end":
+                return _context2.stop();
+            }
           }
-        });
-      } else {
-        console.log("no code entered");
+        }, _callee2, null, [[1, 5]]);
+      }));
+
+      function getBasket() {
+        return _getBasket.apply(this, arguments);
       }
-    },
-    getEvent: function getEvent() {
+
+      return getBasket;
+    }(),
+    checkPromoCode: function () {
+      var _checkPromoCode = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                console.log('checking code: ' + this.promocode.code); //reset values
+
+                this.selection.promocode_id = "0";
+                this.selection.promocode_code = "";
+                this.promocode.discount_amount = "0";
+                this.promocode.discount_perc = "0";
+                this.promocode.apply_to_extras = "0";
+                this.promocode.apply_to_tickets = "0";
+                this.promocode_error_message = false;
+
+                if (!this.promocode.code) {
+                  _context3.next = 22;
+                  break;
+                }
+
+                _context3.prev = 9;
+                _context3.next = 12;
+                return axios.get("/checkpromocode/" + this.promocode.code);
+
+              case 12:
+                response = _context3.sent;
+                console.log("response=" + response.data.promocode);
+
+                if (response.data.promocode !== 'false') {
+                  //we have a valid code
+                  console.log("we have a valid code");
+                  this.valid_promocode = true;
+                  this.promocode = response.data.promocode;
+                  this.selection.promocode_id = this.promocode.id;
+                  this.selection.promocode_code = this.promocode.code;
+                } else {
+                  console.log("invalid code");
+                  this.valid_promocode = false;
+                  this.promocode_error_message = true;
+                }
+
+                _context3.next = 20;
+                break;
+
+              case 17:
+                _context3.prev = 17;
+                _context3.t0 = _context3["catch"](9);
+                console.log(_context3.t0);
+
+              case 20:
+                _context3.next = 24;
+                break;
+
+              case 22:
+                console.log("no code entered");
+                this.valid_promocode = false;
+
+              case 24:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this, [[9, 17]]);
+      }));
+
+      function checkPromoCode() {
+        return _checkPromoCode.apply(this, arguments);
+      }
+
+      return checkPromoCode;
+    }(),
+    getEvent: function () {
+      var _getEvent = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+        var response, i, n;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                console.log('get event before');
+                _context4.prev = 1;
+                _context4.next = 4;
+                return axios.get("/getevent/" + this.event_id);
+
+              case 4:
+                response = _context4.sent;
+                this.event = response.data.event.event; //load event details
+
+                this.categories = response.data.event.categories;
+                this.tickets = response.data.event.tickets;
+                this.show_event_details = true;
+                this.selection.event_id = this.event.id;
+                this.extras = [];
+
+                for (i = 0; i < this.categories.length; i++) {
+                  for (n = 0; n < this.categories[i].extras.length; n++) {
+                    //rebuild extras selection array with extra id and amount(nr)
+                    console.log('pushing: ' + this.categories[i].extras[n].title);
+                    this.extras.push({
+                      title: this.categories[i].extras[n].title,
+                      max: this.categories[i].extras[n].max,
+                      price: this.categories[i].extras[n].price,
+                      id: this.categories[i].extras[n].id,
+                      nr: 0
+                    });
+                  } //for extras
+
+                } //for catagories
+
+
+                console.log('get event after');
+                this.getBasket();
+                _context4.next = 19;
+                break;
+
+              case 16:
+                _context4.prev = 16;
+                _context4.t0 = _context4["catch"](1);
+                console.log(_context4.t0);
+
+              case 19:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this, [[1, 16]]);
+      }));
+
+      function getEvent() {
+        return _getEvent.apply(this, arguments);
+      }
+
+      return getEvent;
+    }(),
+    checkAvailability: function checkAvailability() {
       var _this2 = this;
 
-      axios.get("/getevent/" + this.event_id).then(function (response) {
-        _this2.event = response.data.event; //do we need to check if still available?
+      this.show_warning = false;
+      axios.post("/eventcheckavailability", {
+        event_id: this.event_id,
+        sale_id: "",
+        ingore_reserved: false
+      }).then(function (response) {
+        console.log(response.data);
 
-        _this2.selection.categories = response.data.event.categories;
-        _this2.selection.event = response.data.event.event;
+        if (response.data.available < _this2.selection.nr_tickets) {
+          //not enough tickets
+          console.log('not enough tickets');
+          _this2.not_enough_tickets = true; //will be checked before updating sale
+
+          _this2.warning_messages = "not enough tickets, only " + response.data.available + " available.";
+
+          _this2.showWarningMessage(_this2.warning_messages);
+        } else {
+          //enough tickets available
+          _this2.not_enough_tickets = false;
+        }
+      })["catch"](function (error) {
+        _this2.showErrors(error);
       });
+    },
+    updateBasket: function updateBasket() {
+      var _this3 = this;
+
+      //   if ( this.selection.nr_tickets>0 && this.selection.ticket_id>0){
+      axios.post("/basket", this.selection).then(function (response) {
+        console.log('basket updated');
+
+        if (_this3.selection.nr_tickets > 0 && _this3.selection.ticket_id > 0) {
+          _this3.showMessage('The tickets will be reserved for you for 10 minutes');
+        }
+      })["catch"](function (error) {
+        //we should only get here if someone else is currently holding the last tickets
+        //therefore set nr tickets to 0
+        _this3.selection.nr_tickets = 0;
+
+        _this3.showErrors(error);
+
+        _this3.show = false;
+      }); //    }//end if
     },
     //adyen
     getPaymentMethods: function getPaymentMethods() {
-      var _this3 = this;
+      var _this4 = this;
 
       //countryCode sets payment options (NL for iDeal)
       //lang-country  sets language on form
@@ -13249,8 +13550,8 @@ __webpack_require__.r(__webpack_exports__);
 
       if (false) {}
 
-      var total_amount = 25000;
-      if (this.totalAmount > 0) total_amount = this.totalAmount;
+      var total_amount = 25000; //if (this.totalAmount>0) total_amount = this.totalAmount;
+
       axios.get("/paymentmethods", {
         params: {
           amount: total_amount,
@@ -13266,7 +13567,7 @@ __webpack_require__.r(__webpack_exports__);
         };
         var checkout = new AdyenCheckout(configuration); // 2. Create and mount the Component
 
-        _this3.dropin = checkout.create("dropin", {
+        _this4.dropin = checkout.create("dropin", {
           showPayButton: false,
           paymentMethodsConfiguration: {
             ideal: {
@@ -13283,7 +13584,7 @@ __webpack_require__.r(__webpack_exports__);
               // Example optional configuration for Cards
               hasHolderName: true,
               holderNameRequired: true,
-              enableStoreDetails: true,
+              enableStoreDetails: false,
               name: 'creditcard'
             }
           },
@@ -13292,9 +13593,9 @@ __webpack_require__.r(__webpack_exports__);
             //makePayment(state.data)
             // Your function calling your server to make the /payments request
             console.log(state.data);
-            _this3.show_error = false;
+            _this4.show_error = false;
 
-            _this3.makePayment(state.data);
+            _this4.makePayment(state.data);
           },
           //submit
           onSelect: function onSelect(component) {
@@ -13306,25 +13607,47 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     checkout: function checkout() {
+      var _this5 = this;
+
       if (this.selection.total_amount > 0) {
-        console.log("going to payment");
-        this.dropin.submit();
+        console.log('check necessary info is present and update basket');
+        axios.post("/checkbasketcomplete", this.selection).then(function (response) {
+          console.log('basket complete and updated');
+          console.log('ticketnr=' + response.data.ticket_nr);
+          _this5.selection.ticket_nr = response.data.ticket_nr;
+          console.log("going to payment");
+
+          _this5.dropin.submit();
+        })["catch"](function (error) {
+          //we should only get here if someone else is currently holding the last tickets
+          //therefore set nr tickets to 0
+          _this5.showErrors(error);
+
+          _this5.show = false;
+        });
       } else {
         console.log("nothing to pay, going to confirmation");
         window.location = "http://localhost/projects/ajc2/public" + "/checkout?direct=true";
       }
     },
     makePayment: function makePayment(data) {
-      var _this4 = this;
+      var _this6 = this;
 
       console.log(data);
       axios.post("/makepayment", {
-        paymentDetails: data.paymentMethod
+        paymentDetails: data.paymentMethod,
+        amount: this.selection.total_amount,
+        shopperEmail: this.selection.email,
+        shopperName: this.selection.name,
+        telephoneNumber: this.selection.phone,
+        shopperStatement: "Tickets Amsterdam Jewel Cruises",
+        countryCode: this.phone_data.iso2,
+        reference: this.selection.ticket_nr
       }).then(function (response) {
         console.log(response);
 
         if (response.data.hasOwnProperty('action')) {
-          _this4.additionalDetails(response.data['action']);
+          _this6.additionalDetails(response.data['action']);
         } else {
           //go to result page and implement this switch there.
           // window.location = "http://your-company.com/checkout?shopperOrder=12xy"
@@ -13344,8 +13667,8 @@ __webpack_require__.r(__webpack_exports__);
 
             case "Refused":
               console.log('Refused');
-              _this4.error = "The payment has been refused. Please check your card details or try another card";
-              _this4.show_error = true; //this.dropin.setStatus('error', { message: 'Something went wrong.'});
+              _this6.error = "The payment has been refused. Please check your card details or try another card";
+              _this6.show_error = true; //this.dropin.setStatus('error', { message: 'Something went wrong.'});
 
               console.log(response);
               break;
@@ -13384,6 +13707,31 @@ __webpack_require__.r(__webpack_exports__);
         this.paymentmethods_not_yet_loaded = false;
       }
     },
+    showMessage: function showMessage(message) {
+      this.message = message;
+      this.show = true;
+    },
+    showErrors: function showErrors(error) {
+      var _this7 = this;
+
+      this.errors = "<ul>";
+      var response = error.response;
+      Object.keys(response.data.errors).forEach(function (item) {
+        _this7.errors += "<li>" + response.data.errors[item] + "</li>";
+      });
+      this.errors += "</ul>";
+    },
+    //helper function for formatting ticketnr
+    formatDate: function formatDate(date) {
+      var no_year = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear().toString().substr(-2);
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+      if (no_year) return [day, month].join('');else return [day, month, year].join('');
+    },
     //helper function for iterating over the correct number of tickets
     getNumbers: function getNumbers(start, stop) {
       stop++; //add one to the end to include the last iteration (2-6 tickets needs 5 iterations, not 4)
@@ -13391,57 +13739,68 @@ __webpack_require__.r(__webpack_exports__);
       return new Array(stop - start).fill(start).map(function (n, i) {
         return n + i;
       });
+    },
+    onTicketChange: function onTicketChange() {
+      var _this8 = this;
+
+      this.ticket = this.tickets.find(function (ticket) {
+        return ticket.id === _this8.selection.ticket_id;
+      });
+      this.updateBasket();
+      console.log('new ticket loaded: ' + this.ticket.title);
+    },
+    onNrTicketsChange: function onNrTicketsChange() {
+      this.updateBasket();
+      if (this.selection.nr_tickets === 0) this.show = false;
+      this.errors = "";
+      console.log('nrtickets changed:' + this.selection.nr_tickets);
     }
   },
   //methods
   computed: {
     //calculate total amount in basket
     totalAmount: function totalAmount() {
+      this.selection.total_discount = 0; //   this.selection.paying_now = this.paying_now_div_100 * 100;
+
+      this.selection.extras = this.extras; //copy selected extras into selection which is sent to basket
+
       var totalTickets = 0;
-      var totalExtras = 0;
-      this.total_discount = 0;
-      this.total_discount_vat = 0; //this.selection.total_amount =  this.selection.nrtickets*(this.selection.ticket.price);
+      var totalExtras = 0; //  this.selection.extras=[];//clear extras selection and rebuild
 
-      totalTickets = this.selection.nrtickets * this.selection.ticket.price;
+      totalTickets = this.selection.nr_tickets * this.ticket.price;
 
-      for (var i = 0; i < this.selection.categories.length; i++) {
-        console.log("in categories loop");
-
-        for (var n = 0; n < this.selection.categories[i].extras.length; n++) {
-          if (this.selection.categories[i].extras[n].selected === true) {
-            totalExtras += this.selection.categories[i].extras[n].price * this.selection.nrtickets;
+      for (var i = 0; i < this.extras.length; i++) {
+        if (this.extras[i].nr) {
+          if (this.extras[i].max === "ticket") {
+            totalExtras += this.extras[i].price * this.selection.nr_tickets;
           } else {
-            if (this.selection.categories[i].extras[n].selected) {
-              //check if selected exists, it does not exist automatically
-              totalExtras += this.selection.categories[i].extras[n].price * this.selection.categories[i].extras[n].selected;
-            }
+            totalExtras += this.extras[i].price * this.extras[i].nr;
           }
-        } //extras
-
-      } //for catagories
-
+        }
+      }
 
       if (this.valid_promocode) {
         //we have a valid promocode, calculate discounts
         if (this.promocode.discount_amount) {
-          this.total_discount += this.promocode.discount_amount;
-          this.total_discount_vat += this.promocode.discount_amount * this.selection.ticket.vat / 100; //Here we assume the total discount amount is less than the total ticket price.
+          this.selection.total_discount += this.promocode.discount_amount; //Here we assume the total discount amount is less than the total ticket price.
           //If the discount is larger the calculation is incorrect!!
         }
 
         if (this.promocode.discount_perc) {
           if (this.promocode.apply_to_tickets) {
-            this.total_discount += this.promocode.discount_perc / 100 * totalTickets;
-            this.total_discount_vat += this.promocode.discount_perc / 100 * totalTickets * (this.selection.ticket.vat / 100);
+            this.selection.total_discount += this.promocode.discount_perc / 100 * totalTickets;
           }
 
           if (this.promocode.apply_to_extras) {
-            this.total_discount += this.promocode.discount_perc / 100 * totalExtras;
+            this.selection.total_discount += this.promocode.discount_perc / 100 * totalExtras;
           }
         }
       }
 
-      this.selection.total_amount = totalTickets + totalExtras - this.total_discount;
+      this.selection.total_amount = totalTickets + totalExtras - this.selection.total_discount; //adjust remaining amount when paying now changes
+      //   this.remaining_after_paying_now = this.selection.total_amount - this.selection.amount_paid-this.selection.paying_now;
+
+      console.log('total amount' + this.selection.total_amount + 'paying now' + this.selection.paying_now + 'already paid' + this.selection.amount_paid + 'remaining' + this.remaining_after_paying_now);
       return this.selection.total_amount;
     }
   }
@@ -15667,7 +16026,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
  //import axioscalls from '@./resources/services/axioscalls'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -15794,6 +16152,7 @@ __webpack_require__.r(__webpack_exports__);
       this.promocode_error_message = false;
       this.show_warning = false;
       this.not_enough_tickets = false;
+      this.show_deleted_sales = false;
     },
     readSales: function readSales() {
       var _this = this;
@@ -16116,7 +16475,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this12 = this;
 
       this.show_warning = false;
-      axios.post("/admin/eventcheckavailability", {
+      axios.post("/eventcheckavailability", {
         event_id: this.selected_sale.event_id,
         sale_id: this.selected_sale.id,
         ingore_reserved: false
@@ -16128,7 +16487,11 @@ __webpack_require__.r(__webpack_exports__);
           console.log('not enough tickets');
           _this12.not_enough_tickets = true; //will be checked before updating sale
 
-          _this12.warning_messages = "not enough tickets, only " + response.data.available + " available.";
+          if (response.data.available === 0) {
+            _this12.warning_messages = "Another customer is currently holding the last tickets, please try again in 10 minutes.";
+          } else {
+            _this12.warning_messages = "not enough tickets, only " + response.data.available + " available.";
+          }
 
           _this12.showWarningMessage(_this12.warning_messages);
         } else {
@@ -52233,6 +52596,743 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/regenerator-runtime/runtime.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+var runtime = (function (exports) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  exports.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  exports.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  exports.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  exports.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  exports.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return exports.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        // Note: ["return"] must be used for ES3 parsing compatibility.
+        if (delegate.iterator["return"]) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  exports.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  exports.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+
+  // Regardless of whether this script is executing as a CommonJS module
+  // or not, return the runtime object so that we can declare the variable
+  // regeneratorRuntime in the outer scope, which allows this module to be
+  // injected easily by `bin/regenerator --include-runtime script.js`.
+  return exports;
+
+}(
+  // If this script is executing as a CommonJS module, use module.exports
+  // as the regeneratorRuntime namespace. Otherwise create a new empty
+  // object. Either way, the resulting object will be used to initialize
+  // the regeneratorRuntime variable at the top of this file.
+   true ? module.exports : undefined
+));
+
+try {
+  regeneratorRuntime = runtime;
+} catch (accidentalStrictMode) {
+  // This module should not be running in strict mode, so the above
+  // assignment should always work unless something is misconfigured. Just
+  // in case runtime.js accidentally runs in strict mode, we can escape
+  // strict mode using a global Function call. This could conceivably fail
+  // if a Content Security Policy forbids using Function, but in that case
+  // the proper solution is to fix the accidental strict mode problem. If
+  // you've misconfigured your bundler to force strict mode and applied a
+  // CSP to forbid Function, and you're not willing to fix either of those
+  // problems, please detail your unique predicament in a GitHub issue.
+  Function("r", "regeneratorRuntime = r")(runtime);
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/setimmediate/setImmediate.js":
 /*!***************************************************!*\
   !*** ./node_modules/setimmediate/setImmediate.js ***!
@@ -75697,7 +76797,7 @@ var render = function() {
                               " " +
                                 _vm._s(
                                   _vm._f("dateFormat")(
-                                    new Date(_vm.event.event.event_date),
+                                    new Date(_vm.event.event_date),
                                     "dd DD MMM YYYY"
                                   )
                                 )
@@ -75705,22 +76805,20 @@ var render = function() {
                             _c("br"),
                             _vm._v(
                               "\n                " +
-                                _vm._s(_vm.selection.nrtickets) +
+                                _vm._s(_vm.selection.nr_tickets) +
                                 " tickets"
                             )
                           ]),
                           _vm._v(" "),
-                          _vm.selection.nrtickets > 0 &&
-                          _vm.selection.ticket !== 0
+                          _vm.selection.nr_tickets > 0 &&
+                          _vm.selection.ticket_id
                             ? _c("small", { staticClass: "text-muted" }, [
                                 _vm._v(
                                   "(" +
-                                    _vm._s(_vm.selection.ticket.title) +
+                                    _vm._s(_vm.ticket.title) +
                                     "  " +
                                     _vm._s(
-                                      _vm._f("toCurrency")(
-                                        _vm.selection.ticket.price
-                                      )
+                                      _vm._f("toCurrency")(_vm.ticket.price)
                                     ) +
                                     ")"
                                 )
@@ -75728,14 +76826,12 @@ var render = function() {
                             : _vm._e()
                         ]),
                         _vm._v(" "),
-                        _vm.selection.nrtickets > 0 &&
-                        _vm.selection.ticket !== 0
+                        _vm.selection.nr_tickets > 0 && _vm.selection.ticket_id
                           ? _c("span", { staticClass: "text-muted" }, [
                               _vm._v(
                                 _vm._s(
                                   _vm._f("toCurrency")(
-                                    _vm.selection.nrtickets *
-                                      _vm.selection.ticket.price
+                                    _vm.selection.nr_tickets * _vm.ticket.price
                                   )
                                 )
                               )
@@ -75744,143 +76840,111 @@ var render = function() {
                       ]
                     ),
                     _vm._v(" "),
-                    _vm._l(_vm.selection.categories, function(category) {
-                      return _c(
-                        "span",
-                        { key: category.title },
-                        _vm._l(category.extras, function(extra) {
-                          return _c("span", { key: extra.id }, [
-                            extra.max === "ticket" && extra.selected
-                              ? _c("span", [
-                                  _vm.selection.nrtickets > 0
-                                    ? _c("span", [
+                    _vm._l(_vm.extras, function(extra) {
+                      return _c("span", { key: extra.id }, [
+                        extra.max === "ticket"
+                          ? _c("span", [
+                              extra.nr > 0
+                                ? _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between lh-condensed"
+                                    },
+                                    [
+                                      _c("div", [
+                                        _c("h6", { staticClass: "my-0" }, [
+                                          _vm._v(_vm._s(extra.title))
+                                        ]),
+                                        _vm._v(" "),
                                         _c(
-                                          "li",
-                                          {
-                                            staticClass:
-                                              "list-group-item d-flex justify-content-between lh-condensed"
-                                          },
+                                          "small",
+                                          { staticClass: "text-muted" },
                                           [
-                                            _c("div", [
-                                              _c(
-                                                "h6",
-                                                { staticClass: "my-0" },
-                                                [_vm._v(_vm._s(extra.title))]
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "small",
-                                                { staticClass: "text-muted" },
-                                                [
-                                                  _vm._v(
-                                                    "(" +
-                                                      _vm._s(
-                                                        _vm.selection.nrtickets
-                                                      ) +
-                                                      " x " +
-                                                      _vm._s(
-                                                        _vm._f("toCurrency")(
-                                                          extra.price
-                                                        )
-                                                      ) +
-                                                      ")"
+                                            _vm._v(
+                                              "(" +
+                                                _vm._s(
+                                                  _vm.selection.nr_tickets
+                                                ) +
+                                                " x " +
+                                                _vm._s(
+                                                  _vm._f("toCurrency")(
+                                                    extra.price
                                                   )
-                                                ]
-                                              )
-                                            ]),
-                                            _vm._v(" "),
-                                            _c(
-                                              "span",
-                                              { staticClass: "text-muted" },
-                                              [
-                                                _vm._v(
-                                                  _vm._s(
-                                                    _vm._f("toCurrency")(
-                                                      _vm.selection.nrtickets *
-                                                        extra.price
-                                                    )
-                                                  )
+                                                ) +
+                                                ")"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "span",
+                                          { staticClass: "text-muted" },
+                                          [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  _vm.selection.nr_tickets *
+                                                    extra.price
                                                 )
-                                              ]
+                                              )
                                             )
                                           ]
                                         )
                                       ])
-                                    : _vm._e()
-                                ])
-                              : _c("span", [
-                                  extra.selected > 0
-                                    ? _c("span", [
-                                        _vm.selection.nrtickets > 0
-                                          ? _c("span", [
-                                              _c(
-                                                "li",
-                                                {
-                                                  staticClass:
-                                                    "list-group-item d-flex justify-content-between lh-condensed"
-                                                },
-                                                [
-                                                  _c("div", [
-                                                    _c(
-                                                      "h6",
-                                                      { staticClass: "my-0" },
-                                                      [
-                                                        _vm._v(
-                                                          " " +
-                                                            _vm._s(extra.title)
-                                                        )
-                                                      ]
-                                                    ),
-                                                    _vm._v(" "),
-                                                    _c(
-                                                      "small",
-                                                      {
-                                                        staticClass:
-                                                          "text-muted"
-                                                      },
-                                                      [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            extra.selected
-                                                          ) +
-                                                            " x " +
-                                                            _vm._s(
-                                                              _vm._f(
-                                                                "toCurrency"
-                                                              )(extra.price)
-                                                            )
-                                                        )
-                                                      ]
-                                                    )
-                                                  ]),
-                                                  _vm._v(" "),
-                                                  _c(
-                                                    "span",
-                                                    {
-                                                      staticClass: "text-muted"
-                                                    },
-                                                    [
-                                                      _vm._v(
-                                                        _vm._s(
-                                                          _vm._f("toCurrency")(
-                                                            extra.selected *
-                                                              extra.price
-                                                          )
-                                                        )
-                                                      )
-                                                    ]
+                                    ]
+                                  )
+                                : _vm._e()
+                            ])
+                          : _c("span", [
+                              extra.nr > 0
+                                ? _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between lh-condensed"
+                                    },
+                                    [
+                                      _c("div", [
+                                        _c("h6", { staticClass: "my-0" }, [
+                                          _vm._v(" " + _vm._s(extra.title))
+                                        ]),
+                                        _vm._v(" "),
+                                        _c(
+                                          "small",
+                                          { staticClass: "text-muted" },
+                                          [
+                                            _vm._v(
+                                              _vm._s(extra.nr) +
+                                                " x " +
+                                                _vm._s(
+                                                  _vm._f("toCurrency")(
+                                                    extra.price
                                                   )
-                                                ]
+                                                )
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "span",
+                                          { staticClass: "text-muted" },
+                                          [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  extra.nr * extra.price
+                                                )
                                               )
-                                            ])
-                                          : _vm._e()
+                                            )
+                                          ]
+                                        )
                                       ])
-                                    : _vm._e()
-                                ])
-                          ])
-                        }),
-                        0
-                      )
+                                    ]
+                                  )
+                                : _vm._e()
+                            ])
+                      ])
                     }),
                     _vm._v(" "),
                     _vm.valid_promocode
@@ -75897,7 +76961,8 @@ var render = function() {
                               _vm._v(
                                 _vm._s(
                                   _vm._f("toCurrency")(
-                                    _vm.totalAmount + _vm.total_discount
+                                    _vm.totalAmount +
+                                      this.selection.total_discount
                                   )
                                 )
                               )
@@ -75948,7 +77013,9 @@ var render = function() {
                               _vm._v(
                                 "- " +
                                   _vm._s(
-                                    _vm._f("toCurrency")(_vm.total_discount)
+                                    _vm._f("toCurrency")(
+                                      this.selection.total_discount
+                                    )
                                   )
                               )
                             ])
@@ -75956,7 +77023,7 @@ var render = function() {
                         )
                       : _vm._e(),
                     _vm._v(" "),
-                    _vm.selection.nrtickets > 0 && _vm.selection.ticket !== 0
+                    _vm.selection.nr_tickets > 0 && _vm.selection.ticket_id
                       ? _c(
                           "li",
                           {
@@ -76038,15 +77105,59 @@ var render = function() {
               [
                 _c("div", { staticClass: "row" }, [
                   _c("div", { staticClass: "col-sm-12" }, [
-                    _c("hr"),
-                    _vm._v(" "),
-                    _vm.event.ticketgroup.description && _vm.show_titles
-                      ? _c("div", { staticClass: "form-group" }, [
-                          _c("h4", [
-                            _vm._v(_vm._s(_vm.event.ticketgroup.title))
+                    _vm.errors.length > 0
+                      ? _c("div", { staticClass: "alert alert-danger" }, [
+                          _c("ul", [
+                            _c(
+                              "span",
+                              { domProps: { innerHTML: _vm._s(_vm.errors) } },
+                              [_vm._v(_vm._s(_vm.errors))]
+                            )
                           ])
                         ])
                       : _vm._e(),
+                    _vm._v(" "),
+                    _vm.show
+                      ? _c(
+                          "div",
+                          {
+                            staticClass:
+                              "alert alert-info alert-dismissible fade show",
+                            attrs: { role: "alert", id: "alert", name: "alert" }
+                          },
+                          [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "close",
+                                attrs: {
+                                  type: "button",
+                                  "aria-label": "Close"
+                                },
+                                on: {
+                                  click: function($event) {
+                                    _vm.show = !_vm.show
+                                  }
+                                }
+                              },
+                              [
+                                _c(
+                                  "span",
+                                  { attrs: { "aria-hidden": "true" } },
+                                  [_vm._v("×")]
+                                )
+                              ]
+                            ),
+                            _vm._v(
+                              "\n                " +
+                                _vm._s(_vm.message) +
+                                "\n            "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c("hr"),
                     _vm._v(" "),
                     _c("div", { staticClass: "form-group" }, [
                       _c(
@@ -76056,28 +77167,33 @@ var render = function() {
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: _vm.selection.nrtickets,
-                              expression: "selection.nrtickets"
+                              value: _vm.selection.nr_tickets,
+                              expression: "selection.nr_tickets"
                             }
                           ],
                           on: {
-                            change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.$set(
-                                _vm.selection,
-                                "nrtickets",
-                                $event.target.multiple
-                                  ? $$selectedVal
-                                  : $$selectedVal[0]
-                              )
-                            }
+                            change: [
+                              function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.$set(
+                                  _vm.selection,
+                                  "nr_tickets",
+                                  $event.target.multiple
+                                    ? $$selectedVal
+                                    : $$selectedVal[0]
+                                )
+                              },
+                              function($event) {
+                                return _vm.onNrTicketsChange()
+                              }
+                            ]
                           }
                         },
                         [
@@ -76087,8 +77203,8 @@ var render = function() {
                           _vm._v(" "),
                           _vm._l(
                             _vm.getNumbers(
-                              _vm.event.event.min_per_sale,
-                              _vm.event.event.max_per_sale
+                              _vm.event.min_per_sale,
+                              _vm.event.max_per_sale
                             ),
                             function(counter) {
                               return _c(
@@ -76109,41 +77225,49 @@ var render = function() {
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: _vm.selection.ticket,
-                              expression: "selection.ticket"
+                              value: _vm.selection.ticket_id,
+                              expression: "selection.ticket_id"
                             }
                           ],
                           on: {
-                            change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.$set(
-                                _vm.selection,
-                                "ticket",
-                                $event.target.multiple
-                                  ? $$selectedVal
-                                  : $$selectedVal[0]
-                              )
-                            }
+                            change: [
+                              function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.$set(
+                                  _vm.selection,
+                                  "ticket_id",
+                                  $event.target.multiple
+                                    ? $$selectedVal
+                                    : $$selectedVal[0]
+                                )
+                              },
+                              function($event) {
+                                return _vm.onTicketChange()
+                              }
+                            ]
                           }
                         },
                         [
                           _c(
                             "option",
-                            { attrs: { disabled: "" }, domProps: { value: 0 } },
+                            { attrs: { value: "0", disabled: "" } },
                             [_vm._v("Select ticket type")]
                           ),
                           _vm._v(" "),
-                          _vm._l(_vm.event.tickets, function(ticket) {
+                          _vm._l(_vm.tickets, function(ticket) {
                             return _c(
                               "option",
-                              { key: ticket.id, domProps: { value: ticket } },
+                              {
+                                key: ticket.id,
+                                domProps: { value: ticket.id }
+                              },
                               [_vm._v(_vm._s(ticket.title))]
                             )
                           })
@@ -76154,270 +77278,195 @@ var render = function() {
                   ])
                 ]),
                 _vm._v(" "),
-                _vm.selection.nrtickets > 0 && _vm.selection.ticket !== 0
-                  ? _c(
-                      "span",
-                      _vm._l(_vm.selection.categories, function(category) {
-                        return _c("span", { key: category.id }, [
-                          _c("div", { staticClass: "row" }, [
-                            _c("div", { staticClass: "col-sm-12" }, [
-                              _c("hr"),
+                _vm._l(_vm.extras, function(extra, index) {
+                  return _c("span", { key: extra.id }, [
+                    _c("div", { staticClass: "row mb-1" }, [
+                      _c("div", { staticClass: "col-sm-3" }, [
+                        index === 0
+                          ? _c("span", [
+                              _vm._v(
+                                "\n                                    Extras\n                                     "
+                              )
+                            ])
+                          : _vm._e()
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-sm-8" }, [
+                        extra.max === "ticket"
+                          ? _c("span", [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: extra.nr,
+                                    expression: "extra.nr"
+                                  }
+                                ],
+                                attrs: { type: "checkbox", id: index },
+                                domProps: {
+                                  value: extra.title,
+                                  checked: Array.isArray(extra.nr)
+                                    ? _vm._i(extra.nr, extra.title) > -1
+                                    : extra.nr
+                                },
+                                on: {
+                                  change: function($event) {
+                                    var $$a = extra.nr,
+                                      $$el = $event.target,
+                                      $$c = $$el.checked ? true : false
+                                    if (Array.isArray($$a)) {
+                                      var $$v = extra.title,
+                                        $$i = _vm._i($$a, $$v)
+                                      if ($$el.checked) {
+                                        $$i < 0 &&
+                                          _vm.$set(
+                                            extra,
+                                            "nr",
+                                            $$a.concat([$$v])
+                                          )
+                                      } else {
+                                        $$i > -1 &&
+                                          _vm.$set(
+                                            extra,
+                                            "nr",
+                                            $$a
+                                              .slice(0, $$i)
+                                              .concat($$a.slice($$i + 1))
+                                          )
+                                      }
+                                    } else {
+                                      _vm.$set(extra, "nr", $$c)
+                                    }
+                                  }
+                                }
+                              }),
                               _vm._v(" "),
                               _c(
-                                "div",
-                                { staticClass: "form-group" },
+                                "label",
+                                {
+                                  staticClass: "form-check-label",
+                                  attrs: { for: extra.id }
+                                },
                                 [
-                                  _vm.show_titles
-                                    ? _c("h4", [_vm._v(_vm._s(category.title))])
-                                    : _vm._e(),
-                                  _vm._v(" "),
-                                  _vm.show_descriptions
-                                    ? _c("p", [
-                                        _vm._v(_vm._s(category.description))
-                                      ])
-                                    : _vm._e(),
-                                  _vm._v(" "),
-                                  _vm._l(category.extras, function(
-                                    extra,
-                                    index
-                                  ) {
-                                    return _c("span", { key: extra.id }, [
-                                      extra.max === "ticket"
-                                        ? _c("span", [
-                                            _c("input", {
-                                              directives: [
-                                                {
-                                                  name: "model",
-                                                  rawName: "v-model",
-                                                  value: extra.selected,
-                                                  expression: "extra.selected"
-                                                }
-                                              ],
-                                              attrs: {
-                                                type: "checkbox",
-                                                id: index
-                                              },
-                                              domProps: {
-                                                value: extra.title,
-                                                checked: Array.isArray(
-                                                  extra.selected
-                                                )
-                                                  ? _vm._i(
-                                                      extra.selected,
-                                                      extra.title
-                                                    ) > -1
-                                                  : extra.selected
-                                              },
-                                              on: {
-                                                change: function($event) {
-                                                  var $$a = extra.selected,
-                                                    $$el = $event.target,
-                                                    $$c = $$el.checked
-                                                      ? true
-                                                      : false
-                                                  if (Array.isArray($$a)) {
-                                                    var $$v = extra.title,
-                                                      $$i = _vm._i($$a, $$v)
-                                                    if ($$el.checked) {
-                                                      $$i < 0 &&
-                                                        _vm.$set(
-                                                          extra,
-                                                          "selected",
-                                                          $$a.concat([$$v])
-                                                        )
-                                                    } else {
-                                                      $$i > -1 &&
-                                                        _vm.$set(
-                                                          extra,
-                                                          "selected",
-                                                          $$a
-                                                            .slice(0, $$i)
-                                                            .concat(
-                                                              $$a.slice($$i + 1)
-                                                            )
-                                                        )
-                                                    }
-                                                  } else {
-                                                    _vm.$set(
-                                                      extra,
-                                                      "selected",
-                                                      $$c
-                                                    )
-                                                  }
-                                                }
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c(
-                                              "label",
-                                              {
-                                                staticClass: "form-check-label",
-                                                attrs: { for: extra.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  _vm._s(extra.title) +
-                                                    " " +
-                                                    _vm._s(
-                                                      _vm._f("toCurrency")(
-                                                        extra.price
-                                                      )
-                                                    ) +
-                                                    " per person"
-                                                )
-                                              ]
-                                            ),
-                                            _vm._v(" "),
-                                            extra.selected > 0
-                                              ? _c(
-                                                  "p",
-                                                  { staticClass: "text-right" },
-                                                  [
-                                                    _vm._v(
-                                                      "Total: " +
-                                                        _vm._s(
-                                                          _vm._f("toCurrency")(
-                                                            _vm.selection
-                                                              .nrtickets *
-                                                              extra.price
-                                                          )
-                                                        )
-                                                    )
-                                                  ]
-                                                )
-                                              : _vm._e()
-                                          ])
-                                        : _c("span", [
-                                            _c(
-                                              "select",
-                                              {
-                                                directives: [
-                                                  {
-                                                    name: "model",
-                                                    rawName: "v-model",
-                                                    value: extra.selected,
-                                                    expression: "extra.selected"
-                                                  }
-                                                ],
-                                                attrs: { name: "active" },
-                                                on: {
-                                                  change: function($event) {
-                                                    var $$selectedVal = Array.prototype.filter
-                                                      .call(
-                                                        $event.target.options,
-                                                        function(o) {
-                                                          return o.selected
-                                                        }
-                                                      )
-                                                      .map(function(o) {
-                                                        var val =
-                                                          "_value" in o
-                                                            ? o._value
-                                                            : o.value
-                                                        return val
-                                                      })
-                                                    _vm.$set(
-                                                      extra,
-                                                      "selected",
-                                                      $event.target.multiple
-                                                        ? $$selectedVal
-                                                        : $$selectedVal[0]
-                                                    )
-                                                  }
-                                                }
-                                              },
-                                              [
-                                                _c(
-                                                  "option",
-                                                  {
-                                                    attrs: {
-                                                      selected: "",
-                                                      value: "0"
-                                                    }
-                                                  },
-                                                  [_vm._v("0")]
-                                                ),
-                                                _vm._v(" "),
-                                                _vm._l(
-                                                  parseInt(extra.max),
-                                                  function(counter) {
-                                                    return _c(
-                                                      "option",
-                                                      { key: counter },
-                                                      [_vm._v(_vm._s(counter))]
-                                                    )
-                                                  }
-                                                )
-                                              ],
-                                              2
-                                            ),
-                                            _vm._v(" "),
-                                            _c(
-                                              "label",
-                                              {
-                                                staticClass: "form-check-label",
-                                                attrs: { for: extra.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  _vm._s(extra.title) +
-                                                    " " +
-                                                    _vm._s(
-                                                      _vm._f("toCurrency")(
-                                                        extra.price
-                                                      )
-                                                    )
-                                                )
-                                              ]
-                                            ),
-                                            _vm._v(" "),
-                                            extra.selected > 0
-                                              ? _c(
-                                                  "p",
-                                                  { staticClass: "text-right" },
-                                                  [
-                                                    _vm._v(
-                                                      "Total: " +
-                                                        _vm._s(
-                                                          _vm._f("toCurrency")(
-                                                            extra.selected *
-                                                              extra.price
-                                                          )
-                                                        )
-                                                    )
-                                                  ]
-                                                )
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            _c("hr")
-                                          ]),
-                                      _vm._v(" "),
-                                      extra.description && _vm.show_descriptions
-                                        ? _c(
-                                            "div",
-                                            { staticClass: "col-sm-5 ml-3" },
-                                            [
-                                              _vm._v(
-                                                "Info: " +
-                                                  _vm._s(extra.description)
-                                              )
-                                            ]
+                                  _vm._v(
+                                    _vm._s(extra.title) +
+                                      " " +
+                                      _vm._s(
+                                        _vm._f("toCurrency")(extra.price)
+                                      ) +
+                                      " per person"
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              extra.nr > 0
+                                ? _c("small", { staticClass: "text-right" }, [
+                                    _vm._v(
+                                      "Total: " +
+                                        _vm._s(
+                                          _vm._f("toCurrency")(
+                                            _vm.selection.nr_tickets *
+                                              extra.price
                                           )
-                                        : _vm._e(),
-                                      _vm._v(" "),
-                                      _c("br")
-                                    ])
+                                        )
+                                    )
+                                  ])
+                                : _vm._e()
+                            ])
+                          : _c("span", [
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: extra.nr,
+                                      expression: "extra.nr"
+                                    }
+                                  ],
+                                  attrs: { name: "active" },
+                                  on: {
+                                    change: function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        extra,
+                                        "nr",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    }
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "option",
+                                    { attrs: { selected: "", value: "0" } },
+                                    [_vm._v("0")]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm._l(parseInt(extra.max), function(
+                                    counter
+                                  ) {
+                                    return _c(
+                                      "option",
+                                      {
+                                        key: counter,
+                                        domProps: { value: counter }
+                                      },
+                                      [_vm._v(_vm._s(counter))]
+                                    )
                                   })
                                 ],
                                 2
-                              )
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "form-check-label",
+                                  attrs: { for: extra.id }
+                                },
+                                [
+                                  _vm._v(
+                                    _vm._s(extra.title) +
+                                      " " +
+                                      _vm._s(_vm._f("toCurrency")(extra.price))
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              extra.nr > 0
+                                ? _c("small", { staticClass: "text-right" }, [
+                                    _vm._v(
+                                      "Total: " +
+                                        _vm._s(
+                                          _vm._f("toCurrency")(
+                                            extra.nr * extra.price
+                                          )
+                                        )
+                                    )
+                                  ])
+                                : _vm._e()
                             ])
-                          ])
-                        ])
-                      }),
-                      0
-                    )
-                  : _vm._e(),
+                      ])
+                    ])
+                  ])
+                }),
+                _vm._v(" "),
+                _c("hr"),
                 _vm._v(" "),
                 _c("div", { staticClass: "row" }, [
                   _c(
@@ -76428,10 +77477,10 @@ var render = function() {
                           name: "show",
                           rawName: "v-show",
                           value:
-                            _vm.selection.nrtickets > 0 &&
-                            _vm.selection.ticket !== 0,
+                            _vm.selection.nr_tickets > 0 &&
+                            _vm.selection.ticket_id,
                           expression:
-                            "selection.nrtickets>0 && selection.ticket!==0"
+                            "selection.nr_tickets>0 && selection.ticket_id"
                         }
                       ],
                       staticClass: "col-sm-12"
@@ -76627,10 +77676,10 @@ var render = function() {
                             name: "show",
                             rawName: "v-show",
                             value:
-                              _vm.selection.nrtickets > 0 &&
-                              _vm.selection.ticket !== 0,
+                              _vm.selection.nr_tickets > 0 &&
+                              _vm.selection.ticket_id,
                             expression:
-                              "selection.nrtickets>0 && selection.ticket!==0"
+                              "selection.nr_tickets>0 && selection.ticket_id"
                           }
                         ],
                         staticClass: "btn btn-primary",
@@ -76647,7 +77696,8 @@ var render = function() {
                     )
                   ])
                 ])
-              ]
+              ],
+              2
             )
           ])
         ])
@@ -77616,7 +78666,8 @@ var render = function() {
                           [
                             _vm.show_past_events ||
                             (!_vm.show_past_events &&
-                              new Date(event.event_date) >= Date.now())
+                              new Date(event.event_date) >=
+                                new Date() - 86400000)
                               ? [
                                   _c("td", [
                                     _vm._v(
@@ -80299,7 +81350,7 @@ var render = function() {
                                 _vm._s(
                                   _vm._f("dateFormat")(
                                     new Date(sale.created_at),
-                                    "dd DD MMM YYYY"
+                                    "HH:mm dd DD MMM YYYY"
                                   )
                                 ) +
                                 "\n                                "
@@ -80471,9 +81522,6 @@ var render = function() {
               _c("div", { staticClass: "modal-body" }, [
                 _vm.errors.length > 0
                   ? _c("div", { staticClass: "alert alert-danger" }, [
-                      _vm._v(
-                        "\n                        We have errors:\n                        "
-                      ),
                       _c("ul", [
                         _c(
                           "span",
@@ -80494,9 +81542,9 @@ var render = function() {
                       },
                       [
                         _vm._v(
-                          "\n\n                " +
+                          "\n                        " +
                             _vm._s(_vm.warning_messages) +
-                            "\n            "
+                            "\n                    "
                         )
                       ]
                     )
@@ -99109,15 +100157,14 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************************************!*\
   !*** ./resources/js/components/SaleComponent.vue ***!
   \***************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SaleComponent_vue_vue_type_template_id_3fa4cd1b___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=template&id=3fa4cd1b& */ "./resources/js/components/SaleComponent.vue?vue&type=template&id=3fa4cd1b&");
 /* harmony import */ var _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SaleComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/SaleComponent.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _SaleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -99147,7 +100194,7 @@ component.options.__file = "resources/js/components/SaleComponent.vue"
 /*!****************************************************************************!*\
   !*** ./resources/js/components/SaleComponent.vue?vue&type=script&lang=js& ***!
   \****************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
