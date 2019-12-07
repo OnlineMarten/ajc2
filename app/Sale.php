@@ -50,7 +50,10 @@ class Sale extends Model
         //can not use sync as every entry wil be overwritten by the previous one
         //this means we need to detach all before re attaching all when we are updating.
         foreach($basket->extras as $key => $value) {
-            $this->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+            if ($value['nr']){//only add extras with a nr>0, meaning we have sold this extra
+                $this->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+            }
+
         }
 
 
@@ -71,5 +74,23 @@ class Sale extends Model
     $event->updateEventAvailability();
 
     return true;
+}
+
+public function getSale(){
+    $saleDetails = Sale::where('sales.id',$this->id)
+            ->join('events','events.id', '=', 'sales.event_id')
+            ->join('tickets','tickets.id', '=', 'sales.ticket_id')
+            ->leftjoin('promo_codes','promo_codes.id', '=','sales.promocode_id' )
+            //leftjoin uses all columns in left table, even if not match in right table
+
+      //      ->where('events.id','=', $id)
+
+            ->select('sales.*', 'events.event_date','tickets.title as ticket_title' )
+            ->get();
+
+        $extras = Sale::find($this->id)->extras()->get();
+        if (count($extras)) $saleDetails[0]->extras=$extras;
+
+    return $saleDetails[0];
 }
 }

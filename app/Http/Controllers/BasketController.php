@@ -6,6 +6,7 @@ use App\Basket;
 use App\Event;
 use Illuminate\Http\Request;
 
+
 class BasketController extends Controller
 {
     /**
@@ -72,6 +73,9 @@ class BasketController extends Controller
             'nr_tickets'         => 'required|min:0',
 
         ]);
+
+
+
 
         $event = Event::find($request->event_id);
         logger()->channel('info')->info('event:'.$event);

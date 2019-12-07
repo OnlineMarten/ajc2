@@ -135,7 +135,9 @@ class SaleController extends Controller
         //can not use sync as every entry wil be overwritten by the previous one
         //this means we need to detach all before re attaching all when we are updating.
         foreach($basket->extras as $key => $value) {
-            $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+            if ($value['nr']>0){//only add extras which have n=been sold, so nr>0
+                $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+            }
         }
 
 
@@ -248,7 +250,10 @@ class SaleController extends Controller
         $sale->extras()->detach();
 
         foreach($sale->extras as $key => $value) {
-            $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+
+            if ($value['nr']>0){//only add extras with a nr>0, meaning we have sold this extra
+                $sale->extras()->attach([$value['id'] => ['nr' => $value['nr']]]);
+            }
         }
 
         //if we do not have a restored sale we have to heck for an event change

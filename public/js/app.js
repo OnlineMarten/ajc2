@@ -13270,8 +13270,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                             _this.selection.country_code = response.data.basket.country_code;
                             _this.selection.dial_code = response.data.basket.dial_code;
                             _this.selection.nr_tickets = response.data.basket.nr_tickets;
-                            _this.selection.ticket_nr = response.data.basket.ticket_nr;
-                            _this.selection.event_id = response.data.basket.event_id;
+                            _this.selection.ticket_nr = response.data.basket.ticket_nr; //this.selection.event_id = response.data.basket.event_id;
+
                             _this.selection.ticket_id = response.data.basket.ticket_id;
                             _this.selection.promocode_id = response.data.basket.promocode_id;
                             _this.selection.promocode_code = response.data.basket.promocode_code;
@@ -13627,7 +13627,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       } else {
         console.log("nothing to pay, going to confirmation");
-        window.location = "http://localhost/projects/ajc2/public" + "/checkout?direct=true";
+        window.location = "http://localhost" + "/checkout?direct=true";
       }
     },
     makePayment: function makePayment(data) {
@@ -13656,7 +13656,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               // code block
               console.log('Authorised');
               console.log(response.data);
-              window.location = "http://localhost/projects/ajc2/public" + "/checkout/" + response.data; //get the root folder from the .env file
+              window.location = "http://localhost" + "/checkout/" + response.data; //get the root folder from the .env file
 
               break;
 
@@ -99497,7 +99497,7 @@ try {
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.baseURL = "http://localhost/projects/ajc2/public";
+axios.defaults.baseURL = "http://localhost";
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

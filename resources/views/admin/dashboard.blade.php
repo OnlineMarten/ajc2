@@ -43,6 +43,8 @@ foreach($arr as $key => $value) {
     echo $key." ";
     echo $value."<br>";
 }
+
+echo "app url:". config('app.url');
 ?>
 
 @endsection

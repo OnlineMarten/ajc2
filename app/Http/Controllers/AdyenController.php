@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Sale;
 use App\Basket;
+use App\Mail\ReservationConfirmation;
 
 class AdyenController extends Controller
 {
@@ -60,7 +61,7 @@ class AdyenController extends Controller
             "value" => $request->amount
         ),
         "paymentMethod" => $request->paymentDetails,
-        "returnUrl" => "http://localhost/projects/ajc2/public/checkout",
+        "returnUrl" => config('app.url')."/checkout",
         "merchantAccount" => "JewelCruises",
         "sessionValidity" => date("c",strtotime('+10 minutes')),
         "countryCode" => $request->countryCode,
@@ -101,6 +102,7 @@ class AdyenController extends Controller
         logger()->channel('info')->info("Adyen_notification called without eventCode, ignoring.");
         exit;
        }
+
 
        $logtext="";
 
@@ -171,6 +173,12 @@ class AdyenController extends Controller
                             logger()->channel('info')->info($logtext);
                             logger()->channel('info')->info('sale added FAILED');
                         }
+
+                        //email tickets
+                        $saleDetails = $sale->getSale();
+                        logger()->channel('info')->info('saledetails: '.$saleDetails);
+                        \Mail::to('onlinemarten@gmail.com')->send(new ReservationConfirmation($saleDetails));
+
                    }
                }
 

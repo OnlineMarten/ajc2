@@ -389,7 +389,7 @@ export default {
                 this.selection.dial_code = response.data.basket.dial_code;
                 this.selection.nr_tickets = response.data.basket.nr_tickets;
                 this.selection.ticket_nr = response.data.basket.ticket_nr;
-                this.selection.event_id = response.data.basket.event_id;
+                //this.selection.event_id = response.data.basket.event_id;
                 this.selection.ticket_id = response.data.basket.ticket_id;
                 this.selection.promocode_id = response.data.basket.promocode_id;
                 this.selection.promocode_code = response.data.basket.promocode_code;
