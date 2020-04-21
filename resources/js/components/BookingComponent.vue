@@ -116,6 +116,7 @@
 
 
              <div class="alert alert-danger" v-if="errors.length > 0">
+
                 <ul>
                     <span v-html="errors">{{ errors }}</span>
                 </ul>
@@ -192,7 +193,7 @@
 
 <!--contact details-->
 <div class="row">
-        <div v-show="selection.nr_tickets>0 && selection.ticket_id" class="col-sm-12">
+        <div  class="col-sm-12">
             <hr>
         <h4>Contact</h4>
 
@@ -211,7 +212,7 @@
                     v-model="selection.phone"
                     @country-changed="country_changed"
                     :inputOptions="{
-                        showDialCode: false,
+                        showDialCode: true,
                         tabindex: 0
                     }"
                     :preferredCountries="[
@@ -239,33 +240,12 @@
 </div><!--row-->
 <!--end contact details-->
 
-<!--payment container-->
-<div class="row">
-        <div v-show="selection.total_amount>0" class="col-sm-12">
-            <hr>
-            <h4>Payment</h4>
-
-        <span v-if="show_error">error? {{error}}</span>
-    <!--adyen drop in-->
-    <div class="checkout-container">
-        <div class="payment-method">
-            <div id="dropin-container">
-            <!-- Drop-in will be rendered here -->
-            </div>
-        </div>
-    </div>
-    <!--end adyen drop in-->
-    </div><!--col 12-->
-</div><!--row-->
-<!--end payment container-->
-
-
 
 <hr>
 <div class="row">
 <div class="col-sm-12">
-        <button style="" v-if="show_payment_page" class="btn btn-primary" type="submit" @click.prevent="prev()">Previous</button>
-        <button style="float:right" v-show="selection.nr_tickets>0 && selection.ticket_id" class="btn btn-primary" type="submit" @click.prevent="checkout()" >Complete your booking</button>
+        <button style="" class="btn btn-primary" type="submit" @click.prevent="prev()">Back</button>
+        <button style="float:right" class="btn btn-primary" type="submit" @click.prevent="checkout()" >Go to payment</button>
 </div>
 </div>
 
@@ -314,7 +294,7 @@ export default {
             event_id:"",
             ticket_id:0,
             promocode_id:"0",
-            promocode_code:"",//we need to store the code in case we have a page reload, otherwise we can not safely retreive the code
+            promocode_code:"",//we need to store the code in case we have a page reload, otherwise we can not safely retrieve the code
             extras:[],
             total_amount:"0",
             total_discount:"0",
@@ -338,14 +318,10 @@ export default {
         categories:[],
         tickets:[],
         extras:[],
-
         show_error:false,
-        paymentmethods_not_yet_loaded:true,//to avoid dropin being loaded more than once
         error:"",
-        dropin:"",
         phone:"",
         phone_data:[],
-
         not_enough_tickets:false,
 
     }//return
@@ -355,13 +331,26 @@ export default {
     mounted() {
 
         this.event_id = _.last( window.location.pathname.split( '/' ) );
+        console.log(this.event_id);
+
 
         this.getEvent();
 
-        if(this.paymentmethods_not_yet_loaded){
-            this.getPaymentMethods();
-            this.paymentmethods_not_yet_loaded =false;
+
+
+        let uri = window.location.search.substring(1);
+        let params = new URLSearchParams(uri);
+        let result = params.get("type");
+        console.log('type='+result);
+        if (result==="cancel"){
+            this.error = "You have cancelled the payment."
+            this.show_error = true;
         }
+        if (result==="refused"){
+            this.error = "The payment has been refused. Please check your card details or try another card"
+            this.show_error = true;
+        }
+
     },
 
     methods: {
@@ -555,197 +544,74 @@ export default {
         //    }//end if
 
         },
-
-        //adyen
-        getPaymentMethods()
-        {
-            //countryCode sets payment options (NL for iDeal)
-            //lang-country  sets language on form
-            let countrycode = "NL";
-            let language_country = "en-US";
-            let originkey;
-            let environment_setting;
-
-            if (process.env.MIX_APP_ENV =="local"){
-                originkey = process.env.MIX_ADYEN_ORIGINKEY_TEST;
-                environment_setting = "test";
-            }
-            if (process.env.MIX_APP_ENV =="production"){
-                originkey = process.env.MIX_ADYEN_ORIGINKEY_AJC;
-                environment_setting = "live";
-            }
-
-            let total_amount = 25000; //if (this.totalAmount>0) total_amount = this.totalAmount;
-            axios.get("/paymentmethods",{params: {amount: total_amount, countryCode: countrycode}}).then(response => {
-
-            // 1. Create an instance of AdyenCheckout
-            const configuration = {
-                locale: language_country,
-                environment: environment_setting,
-                originKey: originkey,
-                paymentMethodsResponse:response.data
-            };
-            const checkout = new AdyenCheckout(configuration);
-
-            // 2. Create and mount the Component
-            this.dropin = checkout
-
-            .create("dropin", {
-                showPayButton:false,
-
-                paymentMethodsConfiguration: {
-
-                ideal: { // Optional configuration for iDEAL
-                    configuration: {
-                    showImage: false, // Optional. Set to **false** to remove the bank logos from the iDEAL form.
-                    issuer: "0031" // // Optional. Set this to an **id** of an iDEAL issuer to preselect it.
-
-                    },
-                    name: 'ideal'
-                },
-
-                card: { // Example optional configuration for Cards
-                    hasHolderName: true,
-                    holderNameRequired: true,
-                    enableStoreDetails: false,
-                    name: 'creditcard'
-                }
-                },//end paymentmethodsconfiguration
-
-                onSubmit: (state, dropin) => {
-                //makePayment(state.data)
-                    // Your function calling your server to make the /payments request
-                    console.log(state.data);
-
-                    this.show_error = false;
-                    this.makePayment(state.data);
-                },//submit
-
-                onSelect(component){
-                 //   this.pay_button_text=component.props.name;//werkt niet scope probleem?
-                    console.log(component.props.name);
-
-                }
-
-            })//end create
-
-            .mount('#dropin-container');
-
-
-            });
+        prev(){
+            javascript:history.back();
         },
+
+
         checkout(){
 
-             if (this.selection.total_amount>0)
-                    {
-                        console.log('check necessary info is present and update basket');
-
-
-
-                        axios
-                        .post("/checkbasketcomplete", this.selection )
-                        .then(response => {
-                            console.log('basket complete and updated');
-                            console.log('ticketnr='+response.data.ticket_nr);
-                            this.selection.ticket_nr = response.data.ticket_nr
-
-                            console.log("going to payment");
-                            this.dropin.submit();
-
-                        })
-                        .catch(error => {
-                            //we should only get here if someone else is currently holding the last tickets
-                            //therefore set nr tickets to 0
-                            this.showErrors(error);
-                            this.show=false;
-                        });
-
-                    }
-                    else{
-                        console.log("nothing to pay, going to confirmation");
-                        window.location = process.env.MIX_APP_URL+"/checkout?direct=true";
-                    }
-
+            console.log('check necessary info is present and update basket');
+            console.log('nrtickets='+this.selection.nr_tickets);
+            axios
+            .post("/checkbasketcomplete", this.selection )
+            .then(response => {
+                console.log('basket complete and updated');
+                console.log('ticketnr='+response.data.ticket_nr);
+                this.selection.ticket_nr = response.data.ticket_nr
+                if (this.selection.total_amount>0){
+                    console.log("going to payment");
+                    //go to multisafepay payment page
+                    this.makePayment(this.selection);
+                }
+                else{
+                    console.log("nothing to pay, going to confirmation");
+                    window.location = process.env.MIX_APP_URL+"/checkout?direct=true&ticket_nr="+this.selection.ticket_nr;
+                }
+            })
+            .catch(error => {
+                //we should only get here if someone else is currently holding the last tickets
+                //therefore set nr tickets to 0
+                this.showErrors(error);
+                this.show=false;
+            });
         },
 
         makePayment(data){
-            console.log(data);
+            console.log("data="+data);
+
+
             axios.post("/makepayment",{
                     paymentDetails: data.paymentMethod,
                     amount: this.selection.total_amount,
                     shopperEmail: this.selection.email,
                     shopperName:this.selection.name,
                     telephoneNumber: this.selection.phone,
-                    shopperStatement: "Tickets Amsterdam Jewel Cruises",
+                    shopperStatement: this.selection.nr_tickets +" tickets Dinner Cruise "+this.ticket.title,
                     countryCode: this.phone_data.iso2,
                     reference: this.selection.ticket_nr,
-                }).then(response => {
-                console.log(response);
-                if( response.data.hasOwnProperty('action')) {
+                    tickets:this.selection.nr_tickets +" "+this.ticket.title,
 
-                  this.additionalDetails(response.data['action']);
+                })
+                .then(function (response) {
+                    // handle success
+                    console.log("payment data:"+ response.data.payment_url);
+                    window.location = response.data.payment_url;
+                })
+                .catch(function (error) {
+                    console.log("error= " + error);
+                })
 
-                }
 
-                else{
-                  //go to result page and implement this switch there.
-                 // window.location = "http://your-company.com/checkout?shopperOrder=12xy"
-                  switch (response.data.resultCode) {
-                    case "Authorised":
-                      // code block
-                      console.log('Authorised');
-                      console.log(response.data);
-                      window.location = process.env.MIX_APP_URL+"/checkout/"+response.data;//get the root folder from the .env file
-                      break;
-                    case "Cancelled":
-                      // code block
-                      console.log('Cancelled');
-                      break;
-                    case "Refused":
-                      console.log('Refused');
-                      this.error = "The payment has been refused. Please check your card details or try another card"
-                      this.show_error = true;
-                      //this.dropin.setStatus('error', { message: 'Something went wrong.'});
-
-                     console.log(response);
-                      break;
-                    default:
-                      console.log('something else');
-                  }
-                }//else
-            })
 
         },
-        additionalDetails(result){
 
-            console.log('further action required');
 
-            if(result.type == "redirect"){
-                window.location = result.url
-            }
-            //else do something else here
 
-        },
-        //end adyen
-
-        prev() {
-            if (!this.nosteps) this.step--;
-            this.show_payment_page = false;
-        },
-        next() {
-            this.step++;
-        },
         cancel(){
             window.history.back();
         },
-        go_to_payment_page(){
-            this.show_payment_page = true;
 
-            if(this.paymentmethods_not_yet_loaded){
-                this.getPaymentMethods();
-                this.paymentmethods_not_yet_loaded =false;
-            }
-        },
         showMessage(message) {
             this.message = message;
             this.show = true;
@@ -832,11 +698,11 @@ export default {
                 if(this.promocode.discount_perc){
 
                     if(this.promocode.apply_to_tickets){
-                        this.selection.total_discount += (this.promocode.discount_perc/100)*totalTickets;
+                        this.selection.total_discount += Math.round((this.promocode.discount_perc/100)*totalTickets);
 
                     }
                     if(this.promocode.apply_to_extras){
-                         this.selection.total_discount += (this.promocode.discount_perc/100)*totalExtras;
+                         this.selection.total_discount += Math.round((this.promocode.discount_perc/100)*totalExtras);
 
                     }
 
@@ -844,10 +710,10 @@ export default {
              }
 
             this.selection.total_amount = totalTickets + totalExtras - this.selection.total_discount;
-
+            console.log('total tickets'+totalTickets +'total extras'+totalExtras +'total discount' +this.selection.total_discount );
             //adjust remaining amount when paying now changes
          //   this.remaining_after_paying_now = this.selection.total_amount - this.selection.amount_paid-this.selection.paying_now;
-            console.log('total amount'+this.selection.total_amount +'paying now'+this.selection.paying_now +'already paid' +this.selection.amount_paid +'remaining'+this.remaining_after_paying_now  );
+            console.log('total amount: '+this.selection.total_amount +' paying now: '+this.selection.paying_now +' already paid: ' +this.selection.amount_paid +' remaining: '+this.remaining_after_paying_now  );
 
             return this.selection.total_amount;
         }

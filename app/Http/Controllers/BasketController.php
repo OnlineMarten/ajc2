@@ -20,8 +20,8 @@ class BasketController extends Controller
 
         if($request->wantsJson())  {
 
-            $baskets = Basket::join('events','events.id', '=', 'baskets.event_id')
-            ->join('tickets','tickets.id', '=', 'baskets.ticket_id')
+            $baskets = Basket::leftjoin('events','events.id', '=', 'baskets.event_id')
+            ->leftjoin('tickets','tickets.id', '=', 'baskets.ticket_id')
             ->leftjoin('promo_codes','promo_codes.id', '=','baskets.promocode_id' )
             //leftjoin uses all columns in left table, even if not match in right table
 
@@ -78,7 +78,7 @@ class BasketController extends Controller
 
 
         $event = Event::find($request->event_id);
-        logger()->channel('info')->info('event:'.$event);
+        //logger()->channel('info')->info('event:'.$event);
 
         //set basket to empty
         $basket = "";
@@ -146,19 +146,29 @@ class BasketController extends Controller
 
     public function checkBasketComplete(Request $request)
     {
+        //logger()->channel('info')->info($request);
+
         $this->validate($request, [
-            'event_id'    => 'required|min:1',
-            'ticket_id'    => 'required|min:1',
-            'nr_tickets'  => 'required|min:1',
+            'event_id'    => 'numeric|required|min:1',
+            'nr_tickets'  => 'numeric|required|min:1',
+            'ticket_id'    => 'numeric|required|min:1',
             'name'        => 'required|min:3',
             'email'     => 'required|email',
             'phone'     => 'required',
             'total_amount'=> 'required',
 
-        ]);
+        ],
+        [
+            'event_id.min' => 'You have not chosen an event',
+            'nr_tickets.min' => 'You have not selected any tickets',
+            'ticket_id.min' => 'You have not selected a ticket type',
+            'email.required' => 'We need to know your e-mail address to send the tickets',
+        ]
+
+    );
 
         $event = Event::find($request->event_id);
-        logger()->channel('info')->info('event:'.$event);
+        //logger()->channel('info')->info('event:'.$event);
 
         if(!$event){
             return response()->json([
@@ -225,6 +235,7 @@ class BasketController extends Controller
 
         // create a ticket number
         $basket->ticket_nr = "AJC-" . date('dmy',strtotime($event->event_date)) ."-". date("dm") ."-". $basket->id;
+        $basket->touch();//to update the timestamp updated_at even if there were not changes
         $basket->save();
 
         //set (or overwrite) basket id in session
@@ -341,6 +352,28 @@ class BasketController extends Controller
         return response()->json([
             'message'       => $message
         ], 200);
+    }
+
+    public function extendBasketLifetime()
+    {
+       //set basket to empty
+        $basket = "";
+
+        //check if we have a basket id in the session, if not the the session has expired and this is a new session.
+        $basket_id = session('basket_id');
+
+        //we have a basket id, let's check if basket is still there, if not it has been removed by refreshbaskets, because it was expired
+        if ($basket_id){
+
+            $basket = Basket::find($basket_id);
+        }
+        if ($basket){
+            $basket->extendLifetime();
+
+        }
+        if (!$basket){
+            logger()->channel('info')->info('extending basket lifetime failed, no basket found');
+        }
     }
 
     public function refreshBaskets()

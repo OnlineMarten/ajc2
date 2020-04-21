@@ -1,7 +1,7 @@
 <!--
 EXPLANATION concerning availability checks
 when a new sale is made the availability will automatically be checked when a basket is made or updated, through the session
-which stors the basket id.
+which stores the basket id.
 When a current sale is updated (including soft deleted sales) the availability will be checked from this component
 with the checkavailability call
 -->
@@ -46,7 +46,7 @@ with the checkavailability call
                                 <th>tickets</th>
                                 <th>name</th>
                                 <th>country</th>
-                                <th>promocode</th>
+                                <th>details</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -70,13 +70,14 @@ with the checkavailability call
                                     {{ sale.country_code}}
                                 </td>
                                 <td>
-                                   <small>Ticketnr:{{ sale.ticket_nr}}<br>
-                                       <span v-if="sale.promocode">Promocode:{{ sale.promocode}}<br></span>
+                                   <small>{{ sale.ticket_nr}}<br>
+                                       <span v-if="sale.promocode_id">
+                                           Promocode:{{ getPromoCode(sale.promocode_id)}}<br></span>
 
                                        Total: {{(sale.total_amount+sale.total_discount) | toCurrency}}
                                        <span v-if="sale.promocode">Discount: {{(sale.total_discount) | toCurrency}} </span>
-                                            Paid: {{sale.amount_paid | toCurrency}}
-                                           Still to pay: {{(sale.total_amount-sale.amount_paid) | toCurrency}} </small>
+                                            Still to pay: {{(sale.total_amount-sale.amount_paid) | toCurrency}}
+                                           <br>pspRef: {{sale.pspReference}}</small>
                                 </td>
 
                                 <td>
@@ -105,277 +106,6 @@ with the checkavailability call
     <!--row-->
 
 
-    <div class="modal fade" tabindex="-1" role="dialog" id="add_sale_model">
-
-        <!--MODAL ADD UPDATE-->
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h4 class="modal-title">
-                        <span v-if="add_update=='add'">Add New Reservation</span><span v-else>Edit Reservation</span>
-                    </h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-
-                </div>
-                <!--modal header-->
-
-
-                <div class="modal-body">
-
-                    <div class="alert alert-danger" v-if="errors.length > 0">
-                        <ul>
-                            <span v-html="errors">{{ errors }}</span>
-                        </ul>
-                    </div>
-
-                    <div class="alert alert-danger alert-dismissible fade show" v-if="show_warning" role="alert" id="alert" name="alert">
-                        {{ warning_messages }}
-                    </div>
-
-
-
-                <div class="row">
-                    <div class="col-sm-3">
-                        Select event:
-                    </div>
-                    <div class="col-sm-8">
-                        <!--show select box for choosing event date-->
-                        <select v-model="selection.event_id" v-on:change="onEventChange()">
-                            <option value="" selected disabled>Choose date</option>
-                            <option v-for="event in events" :value="event.id" :key="event.id">{{new Date(event.date) | dateFormat('dd DD MMM YYYY')}}</option>
-                        </select>
-                    </div>
-                </div>
-
-                <span v-if="selection.event_id">
-
-                <div class="row mt-2">
-                    <div class="col-sm-3">
-                        Tickets:
-                    </div>
-                    <div class="col-sm-8">
-                        <select v-model="selection.nr_tickets" v-on:change="onNrTicketsChange()">
-                            <option  :value="0" >0</option>
-                            <option v-for="counter in event.capacity" :value="counter" :key="counter">{{counter}}</option>
-                        </select>
-                        <select v-model="selection.ticket_id" v-on:change="onTicketChange()">
-                            <option value="" selected disabled>Select ticket type</option>
-                            <option v-for="(ticket) in tickets" :value="ticket.id" :key="ticket.id">{{ticket.title}} {{ticket.price  | toCurrency}}</option>
-                        </select>
-                        <small v-if="selection.nr_tickets>0 && selection.ticket_id && ticket" class="text-right primary">{{selection.nr_tickets * ticket.price  | toCurrency}}</small>
-                    </div>
-                </div>
-
-
-                    <hr>
-                    <span v-for="(extra, index) in extras" :key="extra.id">
-
-                            <div class="row mb-1">
-
-                                <div class="col-sm-3">
-                                    <span v-if="index===0">
-                                    <!-- {{category.title}}:-->
-                                    Extras
-                                     </span>
-                                </div>
-
-                                <div class="col-sm-8">
-                                    <span v-if="extra.max === 'ticket'">
-
-                                            <input type="checkbox" :id="index" :value="extra.title" v-model="extra.nr">
-                                            <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}} per person</label>
-
-                                            <small class="text-right" v-if="extra.nr>0" >Total: {{selection.nr_tickets*extra.price | toCurrency}}</small>
-                                    </span>
-                                    <span v-else>
-
-                                        <select name="active" v-model="extra.nr">
-                                            <option selected value=0>0</option>
-                                            <option v-for="counter in parseInt(extra.max)" :key="counter" :value=counter >{{counter}}</option>
-                                        </select>
-                                        <label :for="extra.id" class="form-check-label">{{ extra.title }} {{extra.price | toCurrency}}</label>
-
-                                        <small class="text-right" v-if="extra.nr>0" >Total: {{extra.nr*extra.price | toCurrency}}</small>
-                                    </span>
-                                </div><!--col 8-->
-                            </div><!--row-->
-                    </span><!--extras-->
-
-                <hr>
-                <div class="row">
-                    <div class="col-sm-3">
-                        Promocode:
-                    </div>
-                    <div class="col-sm-8">
-                        <select v-model="selection.promocode_id" v-on:change="onChangePromoCode()">
-                            <option value="0">Select promocode</option>
-                            <option v-for="(promocode) in promocodes" :value="promocode.id" :key="promocode.id">{{promocode.code}}</option>
-                        </select>
-                        <small class="text-danger" v-if="promocode_error_message"> * Invalid code</small>
-                    </div>
-                </div>
-
-
-
-<hr>
-
-<!--contact details-->
-<div class="row mt-2">
-        <div v-show="selection.nr_tickets>0 && selection.ticket_id" class="col-sm-12">
-
-        <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">Name:</label>
-            <div class="col-sm-8">
-            <input required type="text" name="name" id="name" class="form-control"
-                v-model="selection.name">
-            </div>
-        </div>
-
-        <div class="form-group row">
-                <label for="name" class="col-sm-3 col-form-label">Phone:</label>
-            <div class="col-sm-8">
-                <vue-tel-input
-                    v-model="selection.phone"
-                    @country-changed="onCountryChange"
-                    :inputOptions="{
-                        showDialCode: false,
-                        tabindex: 0
-                    }"
-                    :preferredCountries="[
-                    'NL',
-                    'US',
-                    'GB',
-                    ]"
-                    mode="international"
-                    placeholder=""
-                    v-bind:defaultCountry=selection.country_code
-
-                    ></vue-tel-input>
-                    <!-- {{phone_data}}-->
-            </div>
-        </div>
-
-         <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">Email:</label>
-            <div class="col-sm-8">
-            <input required type="email" name="email" id="email" class="form-control"
-                v-model="selection.email">
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">language (emails):</label>
-            <div class="col-sm-8">
-                <select v-model="selection.lang">
-                    <option value='en'>English</option>
-                    <option value='nl'>Nederlands</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">guestlist comments:</label>
-            <div class="col-sm-8">
-                <textarea name="guestlist_comments" id="guestlist_comments" cols="30" rows="2" class="form-control"
-                                v-model="selection.guestlist_comments"></textarea>
-            </div>
-        </div>
-
-         <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">admin comments:</label>
-            <div class="col-sm-8">
-                 <textarea name="admin_comments" id="admin_comments" cols="30" rows="2" class="form-control"
-                                v-model="selection.admin_comments"></textarea>
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-sm-3 col-form-label">New payment:</label>
-            <div class="col-sm-8">
-                <input required type="number" step="1" name="paying_now" id="paying_now" class="form-control" v-model="paying_now_div_100">
-            </div>
-        </div>
-
-    </div><!--col 12-->
-</div><!--row-->
-<!--end contact details-->
-
-<!--amount and payment details-->
-
-                <div class="row mt-2">
-                    <div class="col-sm-11" v-if="selection.nr_tickets>0 && selection.ticket_id">
-
-                        <ul>
-
-                            <li v-if="valid_promocode" class="list-group-item d-flex justify-content-between bg-light">
-                                    <span>Total without discount</span>
-                                <strong>{{(selection.total_amount+selection.total_discount) | toCurrency}}</strong>
-
-                            </li>
-
-                            <li v-if="valid_promocode" class="list-group-item d-flex justify-content-between bg-light">
-                                <div class="text-success">
-                                <h6 class="my-0">Promo code Discount
-                                <small>
-                                    <span v-if="promocode.discount_amount">- {{promocode.discount_amount | toCurrency}}</span>
-                                    <span v-if="promocode.discount_perc">{{promocode.discount_perc}} %.<br>Applicable on:</span>
-                                    <span v-if="promocode.discount_perc && promocode.apply_to_tickets"> tickets</span>
-                                    <span v-if="promocode.discount_perc && promocode.apply_to_extras"> extras</span>
-
-                                    </small></h6>
-                                </div>
-                                <span class="text-success">- {{selection.total_discount | toCurrency}}</span>
-                            </li>
-
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>Total</span>
-                                <strong>{{totalAmount | toCurrency}}</strong>
-                            </li>
-                            <li v-if="selection.amount_paid>0" class="list-group-item d-flex justify-content-between">
-                                <span>Already paid</span>
-                                <strong>{{selection.amount_paid | toCurrency}}</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>Paying now</span>
-                                <strong>{{selection.paying_now | toCurrency}}</strong>
-                            </li>
-                             <li class="list-group-item d-flex justify-content-between">
-                                <span>Remaining after payment</span>
-                                <strong>{{remaining_after_paying_now | toCurrency}}</strong>
-                            </li>
-
-                        </ul>
-                    </div><!--col-->
-                </div><!--row-->
-            </span><!--show event detals-->
-
-
-<!--amount and payment details-->
-
-
-
-<hr>
-</div><!-- row-->
-
-                        <!--modal body-->
-
-                        <div class="modal-footer">
-                            <!-- in case of add-->
-                            <span v-if="add_update=='add'">
-                        <button type="button" @click="cancelAddSale" class="btn btn-primary btn-outline" data-dismiss="modal">Cancel</button>
-                        <button  v-if="selection.nr_tickets>0 && selection.ticket_id"  type="button" @click="createSale" class="btn btn-primary">Make reservation</button>
-                        </span>
-                            <!-- in case of update-->
-                            <span v-if="add_update=='update'">
-                        <button type="button" @click="cancelUpdateSale" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" @click="updateSale" class="btn btn-primary">Update</button>
-                        </span>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
 
 
 </div>
@@ -961,6 +691,10 @@ export default {
                 this.valid_promocode = false;
                 }
         },
+        getPromoCode(id){//show promocode code in sales list
+            this.promocode = this.promocodes.find(promocode => promocode.id === id);
+            return this.promocode.code;
+        },
         onEventChange(){
             console.log('event change')
             this.readEvent();
@@ -1077,7 +811,7 @@ export default {
 
             //adjust remaining amount when paying now changes
             this.remaining_after_paying_now = this.selection.total_amount - this.selection.amount_paid-this.selection.paying_now;
-         //   console.log('total amount'+this.selection.total_amount +'paying now'+this.selection.paying_now +'already paid' +this.selection.amount_paid +'remaining'+this.remaining_after_paying_now  );
+            console.log('total amount: '+this.selection.total_amount +' paying now: '+this.selection.paying_now +' already paid: ' +this.selection.amount_paid +' remaining: '+this.remaining_after_paying_now  );
 
             return this.selection.total_amount;
         }

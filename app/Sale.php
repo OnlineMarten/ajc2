@@ -93,4 +93,12 @@ public function getSale(){
 
     return $saleDetails[0];
 }
+
+public function updateTicketSent() {
+
+        $this->ticket_sent=now();
+        $this->save();
+
+}
+
 }

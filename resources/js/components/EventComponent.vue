@@ -225,10 +225,10 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="ticket_groups_reserved" class="col-sm-3 col-form-label">Tickets reserved</label>
+                            <label for="tickets_reserved" class="col-sm-3 col-form-label">Tickets reserved</label>
                             <div class="col-sm-8">
-                            <input type="number" class="form-control form-control-sm" name="ticket_groups_reserved" min="0" step="1" v-model="event.ticket_groups_reserved">
-                            <small class="form-text text-muted">Optional, number of ticket_groups kept apart, not available for online sale (no value entered means zero)</small>
+                            <input type="number" class="form-control form-control-sm" name="tickets_reserved" min="0" step="1" v-model="event.tickets_reserved">
+                            <small class="form-text text-muted">Optional, number of tickets kept apart, not available for online sale (no value entered means zero)</small>
                             </div>
                         </div>
 
@@ -485,6 +485,7 @@ export default {
 
         .catch(error => {
           this.showErrors(error);
+          console.log(error);
         });
     },
 

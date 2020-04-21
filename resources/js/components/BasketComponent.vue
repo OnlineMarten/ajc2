@@ -58,7 +58,7 @@
                                     {{ new Date(basket.event_date) | dateFormat('dd DD MMM YYYY') }}
                                 </td>
                                 <td>
-                                    {{ basket.nr_tickets}} x {{basket.ticket_title}}
+                                    {{ basket.nr_tickets}}  {{basket.ticket_title}}
                                 </td>
                                 <td>
                                     {{ basket.name}}
@@ -144,6 +144,7 @@ export default {
         readBaskets(){
             axios.get("/admin/basket").then(response => {
                 this.baskets = response.data.baskets;
+
             });
         },
 

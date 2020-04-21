@@ -31,7 +31,7 @@ class ReservationConfirmation extends Mailable
     public function build()
     {
 
-        return $this->from('info@amsterdamjewelcruises.com')->markdown('emails.reservation-confirmation') ->with('sale', $this->sale);;
+        return $this->from('info@amsterdamjewelcruises.com')->markdown('emails.reservation-confirmation') ->with('sale', $this->sale);
 
     }
 }

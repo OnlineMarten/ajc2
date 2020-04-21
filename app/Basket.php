@@ -11,6 +11,14 @@ class Basket extends Model
         'extras' => 'array'
     ];
 
+    function extendLifetime(){
+        $date = new \DateTime;
+        $date->modify('+7 days');
+        $this->updated_at = $date;
+        $this->save();
+        logger()->channel('info')->info('extended basket lifetime');
+    }
+
 
 
 }

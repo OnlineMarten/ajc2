@@ -16,10 +16,15 @@
 
 
 
-<h1>Check out page</h1>
+<h1>Thank you for your reservation</h1>
 
- <p>{{ $ticket_nr }}</p>
- <p>{{ $resultCode }}</p>
+<p>Hello {{ $name }}</p>
+ <p>Thank you for your reservation</p>
+ <p>Your confirmation number is: {{ $ticket_nr }}</p>
+ <p>An email, which serves as your ticket, has been sent to: {{ $email }}</p>
+
+
+ <p></p>
 
 
 @endsection

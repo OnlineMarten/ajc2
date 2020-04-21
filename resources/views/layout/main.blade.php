@@ -3,7 +3,7 @@
 
 <head>
 
-    @include('admin.layout._head')
+    @include('layout._head')
 
 </head>
 
@@ -11,17 +11,17 @@
 
     <div id="app">
 
-        @include('admin.layout._nav')
+        @include('layout._nav')
 
         <div class="container">
 
-                @include('admin.layout._messages')
+                @include('layout._messages')
 
             @yield('content')
 
         </div>{{--container--}}
 
-        @include('admin.layout._footer')
+        @include('layout._footer')
 
     </div>{{--app--}}
 

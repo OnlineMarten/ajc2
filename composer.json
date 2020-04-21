@@ -11,13 +11,16 @@
         "php": "^7.2",
         "adyen/php-api-library": "^4.1",
         "fideloper/proxy": "^4.0",
+        "guzzlehttp/psr7": "^1.6",
         "laravel/framework": "^6.2",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "php-http/curl-client": "^2.1",
+        "php-http/message": "^1.8",
+        "whitecube/multisafepay-php": "^0.1.0"
     },
     "require-dev": {
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.4",
-        "laravel/telescope": "^2.1",
         "laravel/ui": "^1.1",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",

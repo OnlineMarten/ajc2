@@ -15,6 +15,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/payment', function () {
+    return view('payment');
+});
+
 //events
 Route::get('/booking/{event_id}', function () {
     return view('booking');
@@ -33,6 +37,8 @@ Route::get('/refreshbaskets', 'BasketController@refreshBaskets')->name('refreshb
 Route::post('checkbasketcomplete', 'BasketController@checkBasketComplete')->name('checkbasketcomplete');
 Route::get('getsessionbasket', 'BasketController@getSessionBasket')->name('getsessionbasket');
 Route::resource('/basket', 'BasketController')->only([  'store', 'update' ]);
+Route::get('extendbasketlifetime', 'BasketController@extendBasketLifetime')->name('extendbasketlifetime');
+
 
 //promocode
 //Route::get('/checkPromoCode', 'PromoCodeController@checkPromoCode')->name('checkPromoCode');
@@ -41,8 +47,8 @@ Route::get('checkpromocode/{code}', 'PromoCodeController@checkPromoCode')->name(
 
 /*adyen*/
 Route::get('/paymentmethods', 'AdyenController@paymentMethods');
-Route::post('/makepayment', 'AdyenController@makePayment');
-Route::get('/checkout', 'AdyenController@checkout');
+Route::post('/makepayment', 'MultiSafePay@makePayment');
+Route::get('/checkout', 'MultiSafePay@checkout');
 
 
 Auth::routes();

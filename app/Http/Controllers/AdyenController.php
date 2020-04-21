@@ -60,6 +60,13 @@ class AdyenController extends Controller
             "currency" => "EUR",
             "value" => $request->amount
         ),
+
+        //these line are only for card testing, need to be romoved when going live
+        "additionalData" => array(
+            "RequestedTestAcquirerResponseCode"=>13
+        ),
+        //END these line are only for card testing, need to be romoved when going live
+
         "paymentMethod" => $request->paymentDetails,
         "returnUrl" => config('app.url')."/checkout",
         "merchantAccount" => "JewelCruises",
@@ -71,7 +78,11 @@ class AdyenController extends Controller
         "shopperStatement" => $request->shopperStatement,
         "countryCode" => $request->countryCode,
         "reference" => $request->reference,
+        "merchantOrderReference" => session('basket_id'),//voor adyen om betaalpogingen te kunnen linken
+        "shopperIP" => request()->ip(),//voor betere adyen fraud check
         );
+
+      //  logger()->channel('info')->info($params);
 
         $result = $service->payments($params);
 
@@ -90,12 +101,13 @@ class AdyenController extends Controller
         };
     }
 
+
     public function notification(Request $request){
-       $accepted=false;
-    //   logger()->channel('info')->info($request);
+
+        //log every notification
+        logger()->channel('info')->info($request);
 
        $eventCode = $request->eventCode;
-       logger()->channel('info')->info("Adyen_notification with eventCode: ".$eventCode);
 
        if (!$eventCode){
            //notification called but not by Adyen?
@@ -103,48 +115,61 @@ class AdyenController extends Controller
         exit;
        }
 
+       //notify adyen we have received the notification
+       print "[accepted]";
 
-       $logtext="";
+       //get basket id which is the last part of the ticket number
 
-    switch($eventCode){
+       $ticket_nr = $request->merchantReference;
+       $pieces = explode("-", $ticket_nr);
+       if(count($pieces)<4){
+            //not a valid ticket number found, we can not process further
+            logger()->channel('info')->info('not a valid ticket number, stop processing');
+            //send email here
+            return;
+       }
+       $basket_id = $pieces[3]; // piece3
+       $basket = Basket::find($basket_id);
 
-       case 'AUTHORISATION':
+
+       $logtext="Adyen_notification with eventCode: ".$eventCode."/n";
+
+        switch($eventCode){
+
+        case 'AUTHORISATION':
                $logtext .= "AUTHORISATION..";
+
                // Handle AUTHORISATION notification.
                // Confirms whether the payment was authorised successfully.
                // The authorisation is successful if the "success" field has the value true.
                // In case of an error or a refusal, it will be false and the "reason" field
                // should be consulted for the cause of the authorisation failure.
-               //echo "authorized, check if success...<br>";
 
                //check if authorization is successful
                if ($request->success == "true"){
                    $logtext .= "SUCCESS<br>";
-                   //get basket id which is the last part of the ticket number
-                   $ticket_nr = $request->merchantReference;
-                   $pieces = explode("-", $ticket_nr);
-                   $basket_id = $pieces[3]; // piece3
-                   $basket = Basket::find($basket_id);
 
+                   //logger()->channel('info')->info('ticketnr'.$ticket_nr .'pieces'.$pieces .'basket_id'.$basket_id .'basket'.$basket);
                    if (!$basket){
                        //basket gone, check if already processed
-                       //echo "no basket, checking if already processed...<br>";
+                       logger()->channel('info')->info('no basket found');
                        $salefound = Sale::where('ticket_nr', $ticket_nr)->count();
                        if (!$salefound){
-                           //not processed and no basket, should never happen, warn admin
-                           //echo "not processed, should never happen!!<br>";
+                           //not processed and no basket, should never happen, log data and send email to admin
                            logger()->channel('info')->info('adyen notification called but no basket and no sale found. ticketnr: '.$ticket_nr);
-                            exit;
+                           logger()->channel('info')->info($request);
+                           //send email here
+
+                           return;
                         }
                        else{
                         $logtext .= "Already processed (".$ticket_nr.")<br>";
+                        logger()->channel('info')->info('already processed: '.$ticket_nr);
                            //sale found, so already processed: do nothing
                            //echo "already processed. no further action required<br>";
                        }
                    }
-                   else{
-                        print "[accepted]";//we send the accepted now. We have everything and otherwise it may take too long before we are done
-                        $accepted = true;
+                   else{//basket found
 
                         //basket found, process sale
                         $logtext.="Basket found. Processing sale...<br>";
@@ -165,29 +190,50 @@ class AdyenController extends Controller
 
                         if ($sale->createSale($basket)){
                             $logtext.="Processing sale finished. Success.<br>";
-                            logger()->channel('info')->info($logtext);
-                            logger()->channel('info')->info('sale added');
+
+                             //email tickets
+                            $saleDetails = $sale->getSale();
+                            $mail_sent = true;
+                            try{
+                                \Mail::to('onlinemarten@gmail.com')->send(new ReservationConfirmation($saleDetails));
+                            }
+                            catch(\Exception $e){
+                                // Get error here
+                                $logtext.="Sending mail failed.<br>";
+                                $mail_sent = false;
+                            }
+                            if ($mail_sent) $logtext.="Mail sent successfully.<br>";
+
                         }
                         else{
-                            $logtext.="Processing sale finished. FAILED!<br>";
-                            logger()->channel('info')->info($logtext);
-                            logger()->channel('info')->info('sale added FAILED');
+                            $logtext.="Processing sale finished. FAILED! No email sent.<br>";
+                            logger()->channel('info')->info('Failed to add sale. No email sent. Ticket nr: '.$ticket_nr);
+                            logger()->channel('info')->info($request);
+                            //send email here
                         }
-
-                        //email tickets
-                        $saleDetails = $sale->getSale();
-                        logger()->channel('info')->info('saledetails: '.$saleDetails);
-                        \Mail::to('onlinemarten@gmail.com')->send(new ReservationConfirmation($saleDetails));
-
                    }
                }
 
                else{
-                   //authorization not successfull: do something?
-                   //echo "no success...<br>";
+                   //authorization not successful
                    $logtext .= ".. FAILED.<br>Ticketnr: ". $request->merchantReference . " Reason : ".$request->reason;
                }
-           break;
+            break;
+
+            case 'PENDING':
+                $logtext .= "PENDING<br>";
+                // Handle PENDING notification.
+
+                $extended = false;
+
+                if ($basket){
+                    $basket->extendLifeTime();
+                    $extended = true;
+                }
+                if (!$extended) {
+                    logger()->channel('info')->info('extending basket lifetime failed, basket not found');
+                }
+            break;
 
        case 'CANCELLATION':
                $logtext .= "CANCELLATION<br>";
@@ -256,18 +302,75 @@ class AdyenController extends Controller
                // There is a new report available, the URL of the report is in the "reason" field.
            break;
     }
-    if(!$accepted) print "[accepted]";
-    logger()->channel('info')->info($logtext);
-
-
-
+    logger()->channel('info')->info("Logged info Adyen notification: ".$logtext);
 
     }
 
-    public function checkout(Request $request){
+    public function addDirectSale($ticket_nr){
+        $logtext="";
+        //get basket id
+        $basket_id = session('basket_id');
+        if ($basket_id) $basket = Basket::find($basket_id);
 
-        logger()->channel('info')->info($request);
+        if (!$basket){
+            //basket gone, check if already processed
+            //echo "no basket, checking if already processed...<br>";
+            $salefound = Sale::where('ticket_nr', $ticket_nr)->count();
+            if (!$salefound){
+                //not processed and no basket, should never happen, warn admin
+                //echo "not processed, should never happen!!<br>";
+                logger()->channel('info')->info('adyen notification called but no basket and no sale found. ticketnr: '.$ticket_nr);
+                 exit;
+             }
+            else{
+             $logtext .= "Already processed (".$ticket_nr.")<br>";
+                //sale found, so already processed: do nothing
+                //echo "already processed. no further action required<br>";
+            }
+        }
+        else{
+             //basket found, process sale
+             $logtext.="Basket found. Processing sale...<br>";
+
+             //first update amount paid in basket
+
+             $sale = new Sale;
+             $sale->pspReference = "direct";
+
+             if ($sale->createSale($basket)){
+                 $logtext.="Processing sale finished. Success.<br>";
+             }
+             else{
+                 $logtext.="Processing sale finished. FAILED!<br>";
+             }
+             //email tickets
+             $saleDetails = $sale->getSale();
+             \Mail::to('onlinemarten@gmail.com')->send(new ReservationConfirmation($saleDetails));
+
+        }
+        logger()->channel('info')->info($logtext);
+    }
+
+    public function checkout(Request $request){
+        //this function is called from adyen after a redirect, in our case iDeal
+        //or it is called from a direct payment, so not going through Adyen.
+
+       // logger()->channel('info')->info($request);
+       // logger()->channel('info')->info('ticket_nr from url:'.$request->ticket_nr);
+
+        //first check if this is a direct reservation (no payment needed, so not through Adyen)
+        if ($request->direct==true){
+            $ticket_nr = $request->ticket_nr;
+            //process reservation
+            $this->addDirectSale($ticket_nr);
+            $resultCode="direct";
+            return  view('checkout', compact('ticket_nr', 'resultCode'));
+        }
+
+        //sale via Adyen, processing wll run through notification, show confirmation screen only,
+        //or go back to booking page if payment failed or refused
         $ticket_nr = session('ticket_nr');
+        logger()->channel('info')->info('ticket_nr from session:'.$ticket_nr);
         $back=false;
         $resultCode = $request->resultCode;
 
@@ -281,13 +384,37 @@ class AdyenController extends Controller
             $back=true;
         }
 
+        if ($resultCode=="error"){
+            $message = 'The payment failed due to technical issues, we could not contact your bank. You can retry.';
+            $back=true;
+        }
+
+        if ($resultCode=="received"){
+            //pending, basket lifetime is extended through Adyen notification handler
+            /*
+            $extended = false;
+            $basket_id_session = session('basket_id');
+            if ($basket_id_session){
+                $basket = Basket::find($basket_id_session);
+                if ($basket){
+                   $basket->extendLifeTime();
+                   $extended = true;
+                }
+
+            }
+            if (!$extended) {
+                logger()->channel('info')->info('extening basket lifetime failed, basket not found');
+            }
+            */
+        }
+
         if ($back){
             $basket_id_session = session('basket_id');
             if($basket_id_session){
 
                 $basket = Basket::find($basket_id_session);
                 if ($basket){
-                    $ref = "booking/".$basket->event_id;
+                    $ref = "booking/".$basket->event_id.'?resultCode='.$resultCode;
                     return redirect()->to($ref)->with('error', $message);//->with('alert', $message);
                 }
             }
