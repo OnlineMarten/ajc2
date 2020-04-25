@@ -6,9 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use App\Sale;
 
-class ReservationConfirmation extends Mailable
+class AdminMessage extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -17,9 +16,9 @@ class ReservationConfirmation extends Mailable
      *
      * @return void
      */
-    public function __construct(Sale $sale)
+    public function __construct($message)
     {
-        $this->sale = $sale;
+        $this->message = $message;
         //logger()->channel('info')->info('sale: '.$sale);
     }
 
@@ -31,7 +30,7 @@ class ReservationConfirmation extends Mailable
     public function build()
     {
 
-        return $this->from('info@amsterdamjewelcruises.com')->markdown('emails.reservation-confirmation') ->with('sale', $this->sale);
+        return $this->from('info@amsterdamjewelcruises.com')->markdown('emails.admin-message') ->with('message', $this->message);
 
     }
 }

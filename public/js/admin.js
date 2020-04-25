@@ -1941,6 +1941,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
  //import axioscalls from '@./resources/services/axioscalls'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3671,6 +3684,276 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
  //import axioscalls from '@./resources/services/axioscalls'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3744,10 +4027,10 @@ __webpack_require__.r(__webpack_exports__);
   },
   //data
   mounted: function mounted() {
-    console.log('mounted');
-    this.readSales(); //load promocodes and available events so it is ready in case we want to add or update a sale.
+    console.log('mounted'); //load promocodes and available events so it is ready in case we want to add or update a sale.
 
     this.readPromoCodes();
+    this.readSales();
     this.readAvailableEvents();
   },
   //mounted
@@ -3783,8 +4066,9 @@ __webpack_require__.r(__webpack_exports__);
       this.selection.amount_paid = "0";
       this.selection.paying_now = "0";
       this.paying_now_div_100 = "0";
-      this.categories = [];
-      this.promocode = {};
+      this.categories = []; // this.promocode={};
+
+      this.promocodes = [];
       this.promocode.id = "0";
       this.promocode.code = "";
       this.promocode.discount_amount = "0";
@@ -4101,9 +4385,6 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
     },
-    refreshBaskets: function refreshBaskets() {
-      axios.get("/refreshbaskets").then(function (response) {})["catch"](function (error) {});
-    },
     updateBasket: function updateBasket() {
       var _this11 = this;
 
@@ -4182,19 +4463,17 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.selection.promocode_id > 0) {
         //check code
-        this.promocode.code = this.promocodes.find(function (promocode) {
+        this.promocode = this.promocodes.find(function (promocode) {
           return promocode.id === _this14.selection.promocode_id;
-        }).code;
+        });
         console.log('checking ' + this.promocode.code);
         axios.get("/checkpromocode/" + this.promocode.code).then(function (response) {
           console.log("response=" + response.data.promocode);
 
           if (response.data.promocode != 'false') {
             //we have a valid code
-            _this14.valid_promocode = true;
-            _this14.promocode = _this14.promocodes.find(function (promocode) {
-              return promocode.id === _this14.selection.promocode_id;
-            });
+            _this14.valid_promocode = true; //this.promocode = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id);
+
             console.log("we have a valid code. ID= " + _this14.selection.promocode_id);
           } else {
             console.log("invalid code");
@@ -4209,10 +4488,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     getPromoCode: function getPromoCode(id) {
       //show promocode code in sales list
-      this.promocode = this.promocodes.find(function (promocode) {
+      console.log('getting promocode'); // this.promocode = this.promocodes.find(promocode => promocode.id === id);
+      // console.log("promocode id="+id+". code found ="+this.promocode.code);
+
+      return this.promocodes.find(function (promocode) {
         return promocode.id === id;
-      });
-      return this.promocode.code;
+      }).code;
     },
     onEventChange: function onEventChange() {
       console.log('event change');
@@ -62771,13 +63052,21 @@ var render = function() {
                           _c("td", [
                             _vm._v(
                               "\n                                    " +
+                                _vm._s(basket.id) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
                                 _vm._s(
                                   Math.floor(
                                     (Date.now() - new Date(basket.updated_at)) /
                                       (1000 * 60)
                                   )
                                 ) +
-                                "\n                                "
+                                " min.\n                                "
                             )
                           ]),
                           _vm._v(" "),
@@ -62803,6 +63092,14 @@ var render = function() {
                                     "dd DD MMM HH:mm "
                                   )
                                 ) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(basket.ticket_nr) +
                                 "\n                                "
                             )
                           ]),
@@ -62853,6 +63150,14 @@ var render = function() {
                           ]),
                           _vm._v(" "),
                           _c("td", [
+                            _vm._v(
+                              "\n                                    " +
+                                _vm._s(basket.status) +
+                                "\n                                "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
                             _c(
                               "button",
                               {
@@ -62894,11 +63199,15 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
+        _c("th", [_vm._v("Id")]),
+        _vm._v(" "),
         _c("th", [_vm._v("Idle time (minutes)")]),
         _vm._v(" "),
         _c("th", [_vm._v("Last updated")]),
         _vm._v(" "),
         _c("th", [_vm._v("Created")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Ticket nr")]),
         _vm._v(" "),
         _c("th", [_vm._v("Event Date")]),
         _vm._v(" "),
@@ -62909,6 +63218,8 @@ var staticRenderFns = [
         _c("th", [_vm._v("Country")]),
         _vm._v(" "),
         _c("th", [_vm._v("Promocode")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Status")]),
         _vm._v(" "),
         _c("th", [_vm._v("Action")])
       ])
@@ -66368,7 +66679,7 @@ var render = function() {
                                   ) +
                                   "\n                                       "
                               ),
-                              sale.promocode
+                              sale.promocode_id
                                 ? _c("span", [
                                     _vm._v(
                                       "Discount: " +
@@ -66393,6 +66704,21 @@ var render = function() {
                               _c("br"),
                               _vm._v("pspRef: " + _vm._s(sale.pspReference))
                             ])
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            sale.ticket_sent
+                              ? _c("span", [
+                                  _vm._v(
+                                    _vm._s(
+                                      _vm._f("dateFormat")(
+                                        new Date(sale.ticket_sent),
+                                        "dd DD MMM YYYY"
+                                      )
+                                    )
+                                  )
+                                ])
+                              : _vm._e()
                           ]),
                           _vm._v(" "),
                           _c("td", [
@@ -66443,7 +66769,1203 @@ var render = function() {
           ])
         ])
       ])
-    ])
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: { tabindex: "-1", role: "dialog", id: "add_sale_model" }
+      },
+      [
+        _c(
+          "div",
+          { staticClass: "modal-dialog", attrs: { role: "document" } },
+          [
+            _c("div", { staticClass: "modal-content" }, [
+              _c("div", { staticClass: "modal-header" }, [
+                _c("h4", { staticClass: "modal-title" }, [
+                  _vm.add_update == "add"
+                    ? _c("span", [_vm._v("Add New Reservation")])
+                    : _c("span", [_vm._v("Edit Reservation")])
+                ]),
+                _vm._v(" "),
+                _vm._m(1)
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-body" }, [
+                _vm.errors.length > 0
+                  ? _c("div", { staticClass: "alert alert-danger" }, [
+                      _vm._v(
+                        "\n                        We have errors:\n                        "
+                      ),
+                      _c("ul", [
+                        _c(
+                          "span",
+                          { domProps: { innerHTML: _vm._s(_vm.errors) } },
+                          [_vm._v(_vm._s(_vm.errors))]
+                        )
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c("div", { staticClass: "col-sm-3" }, [
+                    _vm._v(
+                      "\n                        Select event:\n                    "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-8" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.selection.event_id,
+                            expression: "selection.event_id"
+                          }
+                        ],
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.selection,
+                                "event_id",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            function($event) {
+                              return _vm.onEventChange()
+                            }
+                          ]
+                        }
+                      },
+                      [
+                        _c(
+                          "option",
+                          { attrs: { value: "", selected: "", disabled: "" } },
+                          [_vm._v("Choose date")]
+                        ),
+                        _vm._v(" "),
+                        _vm._l(_vm.events, function(event) {
+                          return _c(
+                            "option",
+                            { key: event.id, domProps: { value: event.id } },
+                            [
+                              _vm._v(
+                                _vm._s(
+                                  _vm._f("dateFormat")(
+                                    new Date(event.date),
+                                    "dd DD MMM YYYY"
+                                  )
+                                )
+                              )
+                            ]
+                          )
+                        })
+                      ],
+                      2
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _vm.selection.event_id
+                  ? _c(
+                      "span",
+                      [
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _c("div", { staticClass: "col-sm-3" }, [
+                            _vm._v(
+                              "\n                        Tickets:\n                    "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-sm-8" }, [
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.nr_tickets,
+                                    expression: "selection.nr_tickets"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "nr_tickets",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onNrTicketsChange()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c("option", { domProps: { value: 0 } }, [
+                                  _vm._v("0")
+                                ]),
+                                _vm._v(" "),
+                                _vm._l(_vm.event.capacity, function(counter) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: counter,
+                                      domProps: { value: counter }
+                                    },
+                                    [_vm._v(_vm._s(counter))]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.ticket_id,
+                                    expression: "selection.ticket_id"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "ticket_id",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onTicketChange()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c(
+                                  "option",
+                                  {
+                                    attrs: {
+                                      value: "",
+                                      selected: "",
+                                      disabled: ""
+                                    }
+                                  },
+                                  [_vm._v("Select ticket type")]
+                                ),
+                                _vm._v(" "),
+                                _vm._l(_vm.tickets, function(ticket) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: ticket.id,
+                                      domProps: { value: ticket.id }
+                                    },
+                                    [
+                                      _vm._v(
+                                        _vm._s(ticket.title) +
+                                          " " +
+                                          _vm._s(
+                                            _vm._f("toCurrency")(ticket.price)
+                                          )
+                                      )
+                                    ]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _vm.selection.nr_tickets > 0 &&
+                            _vm.selection.ticket_id &&
+                            _vm.ticket
+                              ? _c(
+                                  "small",
+                                  { staticClass: "text-right primary" },
+                                  [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm._f("toCurrency")(
+                                          _vm.selection.nr_tickets *
+                                            _vm.ticket.price
+                                        )
+                                      )
+                                    )
+                                  ]
+                                )
+                              : _vm._e()
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _vm._l(_vm.extras, function(extra, index) {
+                          return _c("span", { key: extra.id }, [
+                            _c("div", { staticClass: "row mb-1" }, [
+                              _c("div", { staticClass: "col-sm-3" }, [
+                                index === 0
+                                  ? _c("span", [
+                                      _vm._v(
+                                        "\n                                    Extras\n                                     "
+                                      )
+                                    ])
+                                  : _vm._e()
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "col-sm-8" }, [
+                                extra.max === "ticket"
+                                  ? _c("span", [
+                                      _c("input", {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: extra.nr,
+                                            expression: "extra.nr"
+                                          }
+                                        ],
+                                        attrs: { type: "checkbox", id: index },
+                                        domProps: {
+                                          value: extra.title,
+                                          checked: Array.isArray(extra.nr)
+                                            ? _vm._i(extra.nr, extra.title) > -1
+                                            : extra.nr
+                                        },
+                                        on: {
+                                          change: function($event) {
+                                            var $$a = extra.nr,
+                                              $$el = $event.target,
+                                              $$c = $$el.checked ? true : false
+                                            if (Array.isArray($$a)) {
+                                              var $$v = extra.title,
+                                                $$i = _vm._i($$a, $$v)
+                                              if ($$el.checked) {
+                                                $$i < 0 &&
+                                                  _vm.$set(
+                                                    extra,
+                                                    "nr",
+                                                    $$a.concat([$$v])
+                                                  )
+                                              } else {
+                                                $$i > -1 &&
+                                                  _vm.$set(
+                                                    extra,
+                                                    "nr",
+                                                    $$a
+                                                      .slice(0, $$i)
+                                                      .concat(
+                                                        $$a.slice($$i + 1)
+                                                      )
+                                                  )
+                                              }
+                                            } else {
+                                              _vm.$set(extra, "nr", $$c)
+                                            }
+                                          }
+                                        }
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "label",
+                                        {
+                                          staticClass: "form-check-label",
+                                          attrs: { for: extra.id }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(extra.title) +
+                                              " " +
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  extra.price
+                                                )
+                                              ) +
+                                              " per person"
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      extra.nr > 0
+                                        ? _c(
+                                            "small",
+                                            { staticClass: "text-right" },
+                                            [
+                                              _vm._v(
+                                                "Total: " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      _vm.selection.nr_tickets *
+                                                        extra.price
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        : _vm._e()
+                                    ])
+                                  : _c("span", [
+                                      _c(
+                                        "select",
+                                        {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value: extra.nr,
+                                              expression: "extra.nr"
+                                            }
+                                          ],
+                                          attrs: { name: "active" },
+                                          on: {
+                                            change: function($event) {
+                                              var $$selectedVal = Array.prototype.filter
+                                                .call(
+                                                  $event.target.options,
+                                                  function(o) {
+                                                    return o.selected
+                                                  }
+                                                )
+                                                .map(function(o) {
+                                                  var val =
+                                                    "_value" in o
+                                                      ? o._value
+                                                      : o.value
+                                                  return val
+                                                })
+                                              _vm.$set(
+                                                extra,
+                                                "nr",
+                                                $event.target.multiple
+                                                  ? $$selectedVal
+                                                  : $$selectedVal[0]
+                                              )
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _c(
+                                            "option",
+                                            {
+                                              attrs: {
+                                                selected: "",
+                                                value: "0"
+                                              }
+                                            },
+                                            [_vm._v("0")]
+                                          ),
+                                          _vm._v(" "),
+                                          _vm._l(parseInt(extra.max), function(
+                                            counter
+                                          ) {
+                                            return _c(
+                                              "option",
+                                              {
+                                                key: counter,
+                                                domProps: { value: counter }
+                                              },
+                                              [_vm._v(_vm._s(counter))]
+                                            )
+                                          })
+                                        ],
+                                        2
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "label",
+                                        {
+                                          staticClass: "form-check-label",
+                                          attrs: { for: extra.id }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(extra.title) +
+                                              " " +
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  extra.price
+                                                )
+                                              )
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      extra.nr > 0
+                                        ? _c(
+                                            "small",
+                                            { staticClass: "text-right" },
+                                            [
+                                              _vm._v(
+                                                "Total: " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      extra.nr * extra.price
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        : _vm._e()
+                                    ])
+                              ])
+                            ])
+                          ])
+                        }),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row" }, [
+                          _c("div", { staticClass: "col-sm-3" }, [
+                            _vm._v(
+                              "\n                        Promocode:\n                    "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "col-sm-8" }, [
+                            _c(
+                              "select",
+                              {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.selection.promocode_id,
+                                    expression: "selection.promocode_id"
+                                  }
+                                ],
+                                on: {
+                                  change: [
+                                    function($event) {
+                                      var $$selectedVal = Array.prototype.filter
+                                        .call($event.target.options, function(
+                                          o
+                                        ) {
+                                          return o.selected
+                                        })
+                                        .map(function(o) {
+                                          var val =
+                                            "_value" in o ? o._value : o.value
+                                          return val
+                                        })
+                                      _vm.$set(
+                                        _vm.selection,
+                                        "promocode_id",
+                                        $event.target.multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      )
+                                    },
+                                    function($event) {
+                                      return _vm.onChangePromoCode()
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c("option", { attrs: { value: "0" } }, [
+                                  _vm._v("Select promocode")
+                                ]),
+                                _vm._v(" "),
+                                _vm._l(_vm.promocodes, function(promocode) {
+                                  return _c(
+                                    "option",
+                                    {
+                                      key: promocode.id,
+                                      domProps: { value: promocode.id }
+                                    },
+                                    [_vm._v(_vm._s(promocode.code))]
+                                  )
+                                })
+                              ],
+                              2
+                            ),
+                            _vm._v(" "),
+                            _vm.promocode_error_message
+                              ? _c("small", { staticClass: "text-danger" }, [
+                                  _vm._v(" * Invalid code")
+                                ])
+                              : _vm._e()
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _c(
+                            "div",
+                            {
+                              directives: [
+                                {
+                                  name: "show",
+                                  rawName: "v-show",
+                                  value:
+                                    _vm.selection.nr_tickets > 0 &&
+                                    _vm.selection.ticket_id,
+                                  expression:
+                                    "selection.nr_tickets>0 && selection.ticket_id"
+                                }
+                              ],
+                              staticClass: "col-sm-12"
+                            },
+                            [
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Name:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.name,
+                                        expression: "selection.name"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "text",
+                                      name: "name",
+                                      id: "name"
+                                    },
+                                    domProps: { value: _vm.selection.name },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "name",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Phone:")]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "col-sm-8" },
+                                  [
+                                    _c("vue-tel-input", {
+                                      attrs: {
+                                        inputOptions: {
+                                          showDialCode: false,
+                                          tabindex: 0
+                                        },
+                                        preferredCountries: ["NL", "US", "GB"],
+                                        mode: "international",
+                                        placeholder: "",
+                                        defaultCountry:
+                                          _vm.selection.country_code
+                                      },
+                                      on: {
+                                        "country-changed": _vm.onCountryChange
+                                      },
+                                      model: {
+                                        value: _vm.selection.phone,
+                                        callback: function($$v) {
+                                          _vm.$set(_vm.selection, "phone", $$v)
+                                        },
+                                        expression: "selection.phone"
+                                      }
+                                    })
+                                  ],
+                                  1
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("Email:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.email,
+                                        expression: "selection.email"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "email",
+                                      name: "email",
+                                      id: "email"
+                                    },
+                                    domProps: { value: _vm.selection.email },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "email",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("language (emails):")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c(
+                                    "select",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.selection.lang,
+                                          expression: "selection.lang"
+                                        }
+                                      ],
+                                      on: {
+                                        change: function($event) {
+                                          var $$selectedVal = Array.prototype.filter
+                                            .call(
+                                              $event.target.options,
+                                              function(o) {
+                                                return o.selected
+                                              }
+                                            )
+                                            .map(function(o) {
+                                              var val =
+                                                "_value" in o
+                                                  ? o._value
+                                                  : o.value
+                                              return val
+                                            })
+                                          _vm.$set(
+                                            _vm.selection,
+                                            "lang",
+                                            $event.target.multiple
+                                              ? $$selectedVal
+                                              : $$selectedVal[0]
+                                          )
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c("option", { attrs: { value: "en" } }, [
+                                        _vm._v("English")
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("option", { attrs: { value: "nl" } }, [
+                                        _vm._v("Nederlands")
+                                      ])
+                                    ]
+                                  )
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("guestlist comments:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("textarea", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.guestlist_comments,
+                                        expression:
+                                          "selection.guestlist_comments"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      name: "guestlist_comments",
+                                      id: "guestlist_comments",
+                                      cols: "30",
+                                      rows: "2"
+                                    },
+                                    domProps: {
+                                      value: _vm.selection.guestlist_comments
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "guestlist_comments",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("admin comments:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("textarea", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.selection.admin_comments,
+                                        expression: "selection.admin_comments"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      name: "admin_comments",
+                                      id: "admin_comments",
+                                      cols: "30",
+                                      rows: "2"
+                                    },
+                                    domProps: {
+                                      value: _vm.selection.admin_comments
+                                    },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.selection,
+                                          "admin_comments",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "form-group row" }, [
+                                _c(
+                                  "label",
+                                  {
+                                    staticClass: "col-sm-3 col-form-label",
+                                    attrs: { for: "name" }
+                                  },
+                                  [_vm._v("New payment:")]
+                                ),
+                                _vm._v(" "),
+                                _c("div", { staticClass: "col-sm-8" }, [
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.paying_now_div_100,
+                                        expression: "paying_now_div_100"
+                                      }
+                                    ],
+                                    staticClass: "form-control",
+                                    attrs: {
+                                      required: "",
+                                      type: "number",
+                                      step: "1",
+                                      name: "paying_now",
+                                      id: "paying_now"
+                                    },
+                                    domProps: { value: _vm.paying_now_div_100 },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.paying_now_div_100 =
+                                          $event.target.value
+                                      }
+                                    }
+                                  })
+                                ])
+                              ])
+                            ]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "row mt-2" }, [
+                          _vm.selection.nr_tickets > 0 &&
+                          _vm.selection.ticket_id
+                            ? _c("div", { staticClass: "col-sm-11" }, [
+                                _c("ul", [
+                                  _vm.valid_promocode
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between bg-light"
+                                        },
+                                        [
+                                          _c("span", [
+                                            _vm._v("Total without discount")
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("strong", [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  _vm.selection.total_amount +
+                                                    _vm.selection.total_discount
+                                                )
+                                              )
+                                            )
+                                          ])
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.valid_promocode
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between bg-light"
+                                        },
+                                        [
+                                          _c(
+                                            "div",
+                                            { staticClass: "text-success" },
+                                            [
+                                              _c(
+                                                "h6",
+                                                { staticClass: "my-0" },
+                                                [
+                                                  _vm._v(
+                                                    "Promo code Discount\n                                "
+                                                  ),
+                                                  _c("small", [
+                                                    _vm.promocode
+                                                      .discount_amount
+                                                      ? _c("span", [
+                                                          _vm._v(
+                                                            "- " +
+                                                              _vm._s(
+                                                                _vm._f(
+                                                                  "toCurrency"
+                                                                )(
+                                                                  _vm.promocode
+                                                                    .discount_amount
+                                                                )
+                                                              )
+                                                          )
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode.discount_perc
+                                                      ? _c("span", [
+                                                          _vm._v(
+                                                            _vm._s(
+                                                              _vm.promocode
+                                                                .discount_perc
+                                                            ) + " %."
+                                                          ),
+                                                          _c("br"),
+                                                          _vm._v(
+                                                            "Applicable on:"
+                                                          )
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode
+                                                      .discount_perc &&
+                                                    _vm.promocode
+                                                      .apply_to_tickets
+                                                      ? _c("span", [
+                                                          _vm._v(" tickets")
+                                                        ])
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
+                                                    _vm.promocode
+                                                      .discount_perc &&
+                                                    _vm.promocode
+                                                      .apply_to_extras
+                                                      ? _c("span", [
+                                                          _vm._v(" extras")
+                                                        ])
+                                                      : _vm._e()
+                                                  ])
+                                                ]
+                                              )
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "span",
+                                            { staticClass: "text-success" },
+                                            [
+                                              _vm._v(
+                                                "- " +
+                                                  _vm._s(
+                                                    _vm._f("toCurrency")(
+                                                      _vm.selection
+                                                        .total_discount
+                                                    )
+                                                  )
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [_vm._v("Total")]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.totalAmount
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _vm.selection.amount_paid > 0
+                                    ? _c(
+                                        "li",
+                                        {
+                                          staticClass:
+                                            "list-group-item d-flex justify-content-between"
+                                        },
+                                        [
+                                          _c("span", [_vm._v("Already paid")]),
+                                          _vm._v(" "),
+                                          _c("strong", [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("toCurrency")(
+                                                  _vm.selection.amount_paid
+                                                )
+                                              )
+                                            )
+                                          ])
+                                        ]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [_vm._v("Paying now")]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.selection.paying_now
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "li",
+                                    {
+                                      staticClass:
+                                        "list-group-item d-flex justify-content-between"
+                                    },
+                                    [
+                                      _c("span", [
+                                        _vm._v("Remaining after payment")
+                                      ]),
+                                      _vm._v(" "),
+                                      _c("strong", [
+                                        _vm._v(
+                                          _vm._s(
+                                            _vm._f("toCurrency")(
+                                              _vm.remaining_after_paying_now
+                                            )
+                                          )
+                                        )
+                                      ])
+                                    ]
+                                  )
+                                ])
+                              ])
+                            : _vm._e()
+                        ])
+                      ],
+                      2
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("hr")
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "modal-footer" }, [
+                _vm.add_update == "add"
+                  ? _c("span", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary btn-outline",
+                          attrs: { type: "button", "data-dismiss": "modal" },
+                          on: { click: _vm.cancelAddSale }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _vm.selection.nr_tickets > 0 && _vm.selection.ticket_id
+                        ? _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary",
+                              attrs: { type: "button" },
+                              on: { click: _vm.createSale }
+                            },
+                            [_vm._v("Make reservation")]
+                          )
+                        : _vm._e()
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.add_update == "update"
+                  ? _c("span", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-default",
+                          attrs: { type: "button", "data-dismiss": "modal" },
+                          on: { click: _vm.cancelUpdateSale }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "button" },
+                          on: { click: _vm.updateSale }
+                        },
+                        [_vm._v("Update")]
+                      )
+                    ])
+                  : _vm._e()
+              ])
+            ])
+          ]
+        )
+      ]
+    )
   ])
 }
 var staticRenderFns = [
@@ -66465,9 +67987,28 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("details")]),
         _vm._v(" "),
+        _c("th", [_vm._v("ticket sent")]),
+        _vm._v(" "),
         _c("th", [_vm._v("Action")])
       ])
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
   }
 ]
 render._withStripped = true

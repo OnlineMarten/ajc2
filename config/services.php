@@ -29,11 +29,16 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-    'adyen' => [
-        'merchantaccount' => env('ADYEN_MERCHANT_ACCOUNT'),
-        'xapikey' => env('ADYEN_X_API_KEY'),
-        'originkey_test' => env('MIX_ADYEN_ORIGINKEY_TEST'),
-        'originkey_ajc' => env('MIX_ADYEN_ORIGINKEY_AJC'),
+
+    'msp' => [
+        'test_env' => env('MSP_TEST_ENV'),
+        'prod_env' => env('MSP_PROD_ENV'),
+        'api_key' => env('MSP_API_KEY'),
+    ],
+
+    'google' => [
+        'account_id' => env('GOOGLE_ACCOUNT_ID'),
     ],
 
 ];
+

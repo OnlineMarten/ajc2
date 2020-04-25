@@ -31,28 +31,38 @@
                     <table class="table table-striped table-bordered table-responsive table-sm" v-if="baskets.length > 0" ref="table">
                         <thead>
                             <tr>
+                                <th>Id</th>
                                 <th>Idle time (minutes)</th>
                                 <th>Last updated</th>
                                 <th>Created</th>
+                                <th>Ticket nr</th>
                                 <th>Event Date</th>
                                 <th>Tickets</th>
                                 <th>Name</th>
                                 <th>Country</th>
                                 <th>Promocode</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(basket, index) in baskets" :key="basket.id">
                          <!--   <template v-if="show_past_sales || (!show_past_sales && (new Date(sale.event_date) >= Date.now()))">
--->                             <td>
-                                    {{ Math.floor((Date.now()- new Date(basket.updated_at))/(1000*60)) }}
+-->
+                                <td>
+                                    {{ basket.id}}
+                                </td>
+                                <td>
+                                    {{ Math.floor((Date.now()- new Date(basket.updated_at))/(1000*60)) }} min.
                                 </td>
                                 <td>
                                     {{ new Date(basket.updated_at) | dateFormat('dd DD MMM HH:mm ') }}
                                 </td>
                                 <td>
                                     {{ new Date(basket.created_at) | dateFormat('dd DD MMM HH:mm ') }}
+                                </td>
+                                 <td>
+                                    {{ basket.ticket_nr}}
                                 </td>
                                 <td>
                                     {{ new Date(basket.event_date) | dateFormat('dd DD MMM YYYY') }}
@@ -68,6 +78,9 @@
                                 </td>
                                 <td>
                                        <span v-if="basket.promocode">{{ basket.promocode}}</span>
+                                </td>
+                                <td>
+                                    {{ basket.status}}
                                 </td>
                                 <td>
                                     <button @click="deleteBasket(index)" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i>Delete</button>

@@ -24,27 +24,18 @@ class BasketController extends Controller
             ->leftjoin('tickets','tickets.id', '=', 'baskets.ticket_id')
             ->leftjoin('promo_codes','promo_codes.id', '=','baskets.promocode_id' )
             //leftjoin uses all columns in left table, even if not match in right table
-
-      //      ->where('events.id','=', $id)
-
+            //->where('events.id','=', $id)
             ->select('baskets.*', 'events.event_date','tickets.title as ticket_title','promo_codes.code as promocode' )
-                    ->orderby('updated_at','desc')
+            ->orderby('updated_at','desc')
             ->get();
 
+            return response()->json([
+                'baskets'    => $baskets,
+            ], 200);
 
+        }
 
-/*
-            $sales = Sale::
-
-            orderBy("created_at")
-            ->get();
-*/
-                return response()->json([
-                    'baskets'    => $baskets,
-                ], 200);
-            }
-
-            return view('admin.basket');
+        return view('admin.basket');
 
     }
 
@@ -69,13 +60,10 @@ class BasketController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'event_id'         => 'required',
-            'nr_tickets'         => 'required|min:0',
+            'event_id'         => 'numeric|required|min:1',
+            'nr_tickets'         => 'numeric|required|min:0',
 
         ]);
-
-
-
 
         $event = Event::find($request->event_id);
         //logger()->channel('info')->info('event:'.$event);
@@ -111,28 +99,29 @@ class BasketController extends Controller
         $basket = Basket::updateOrCreate(
 
             [ 'id'                    => $basket_id
-        ],
+            ],
 
             [
-            'event_id'                 => request('event_id'),
-            'ticket_id'           => request('ticket_id'),
-            'promocode_id'           => request('promocode_id'),
-            'promocode_code'           => request('promocode_code'),
-            'nr_tickets'           => request('nr_tickets'),
-            'name'           => request('name'),
-            'email'           => request('email'),
-            'phone'           => request('phone'),
-            'country_code'           => request('country_code'),
-            'dial_code'           => request('dial_code'),
-            'lang'           => request('lang'),
-            'amount_paid'           => request('paying_now'),
-            'total_amount'           => request('total_amount'),
-            'total_discount'           => request('total_discount'),
-            'guestlist_comments'           => request('guestlist_comments'),
-            'admin_comments'           => request('admin_comments'),
-            'ticket_nr'           => request('ticket_nr'),
-            'extras'        => request('extras'),
-        ]);
+                'event_id'                 => request('event_id'),
+                'ticket_id'           => request('ticket_id'),
+                'promocode_id'           => request('promocode_id'),
+                'promocode_code'           => request('promocode_code'),
+                'nr_tickets'           => request('nr_tickets'),
+                'name'           => request('name'),
+                'email'           => request('email'),
+                'phone'           => request('phone'),
+                'country_code'           => request('country_code'),
+                'dial_code'           => request('dial_code'),
+                'lang'           => request('lang'),
+                'amount_paid'           => request('paying_now'),
+                'total_amount'           => request('total_amount'),
+                'total_discount'           => request('total_discount'),
+                'guestlist_comments'           => request('guestlist_comments'),
+                'admin_comments'           => request('admin_comments'),
+                'ticket_nr'           => request('ticket_nr'),
+                'extras'        => request('extras'),
+                'status'        => '',
+            ]);
 
         //set (or overwrite) basket id in session
         session(['basket_id' => $basket['id']]);
@@ -229,6 +218,7 @@ class BasketController extends Controller
             'admin_comments'           => request('admin_comments'),
             'ticket_nr'           => request('ticket_nr'),
             'extras'        => request('extras'),
+            'status'        => 'psp',
         ]);
 
 
@@ -241,12 +231,12 @@ class BasketController extends Controller
         //set (or overwrite) basket id in session
         session(['basket_id' => $basket['id']]);
         //place ticket number in session. Used on front to show on confirmation screen
-        session(['ticket_nr' => $request->reference]);
+   //     session(['ticket_nr' => $request->reference]);
 
 
         logger()->channel('info')->info('basket complete and updated');
 
-        //return the ticketnumber so we can send it to Adyen
+        //return the ticketnumber so we can send it to psp
         return response()->json([
             'ticket_nr'       => $basket->ticket_nr
         ], 200);
@@ -284,29 +274,7 @@ class BasketController extends Controller
      */
     public function update(Request $request, $id)
     {
-       /*
-        $this->validate($request, [
-            'event_id'         => 'required',
-            'ticket_id'         => 'required',
-            'nr_tickets'         => 'required|min:1',
 
-        ]);
-
-        $basket = Basket::findOrFail($id);
-
-        $basket->event_id = request('event_id');
-
-        if (!$basket->update()) {
-            return response()->json([
-                'message' => 'update failed'
-            ], 200);
-
-        }
-
-        return response()->json([
-            'message' => 'success'
-        ], 200);
-        */
     }
 
     /**
@@ -324,7 +292,7 @@ class BasketController extends Controller
             $message='Basket (last updated: "'.$basket->updated_at.'") deleted ';
         }
 
-        logger()->channel('info')->info('Reservation: "'.$basket->updated_at.'" deleted by '.auth()->user()->name);
+        logger()->channel('info')->info('Basket: "'.$basket->updated_at.'" deleted by '.auth()->user()->name);
       //  session()->flash('alert-success', 'Basket (last updated: '.$basket->updated_at.') deleted');
         // return redirect( route('events.index') );
         return response()->json([
@@ -378,6 +346,7 @@ class BasketController extends Controller
 
     public function refreshBaskets()
     {
+        logger()->channel('info')->info('refreshing baskets');
         //possible update: from baskets older than 10 minutes only remove tickets and delete baskets after approx 30 minutes.
 
         //go through all baskets and delete the ones that have not been updated for longer than the threshold
@@ -386,24 +355,46 @@ class BasketController extends Controller
         $date->modify(- $minutes.' minutes');
         $deadline = $date->format('Y-m-d H:i:s');
 
-        Basket::where('updated_at', '<' , $deadline)->delete();
-        /*
-        return response()->json([
-            'message' => 'deadline'.$deadline
-        ], 200);
-        */
+        //get all expired baskets
+        $baskets = Basket::where('updated_at', '<' , $deadline)->get();
+
+        //check all expired baskets for open statusses, which can not be deleted
+        //if open baskets are found, the status will be set to admin and a warning will be emailed and logged
+        foreach ($baskets as $basket) {
+           // logger()->channel('info')->info('expired basket found with id: ' . $basket->id);
+
+            if ($basket->status == "completed" ||
+                $basket->status == "initialized" ||
+                $basket->status == "uncleared" ||
+                $basket->status == "psp" ||
+                $basket->status == "admincheck"){
+
+                if ($basket->status != "admincheck"){
+                    //update status and warn admin
+                    logger()->channel('info')->info('ADMIN WARNING: check basket with id: ' . $basket->id . " and ticket nr: ". $basket->ticket_nr . " Status was: ".$basket->status);
+                    $basket->updateStatus("admincheck");
+                    //TODO send admin email
+
+                }
+            }
+            else{
+                $basket->delete();
+            }
+        }
     }
 
     public function getSessionBasket(){
 
         $basket_id = session('basket_id');
+
         if($basket_id){
+
             $basket = Basket::find($basket_id);
+
             if ($basket){
                 return response()->json([
                     'basket'    => $basket,
                 ], 200);
-
             }
         }
     }

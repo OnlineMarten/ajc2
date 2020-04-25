@@ -46,7 +46,8 @@ export default {
     }
   },
   mounted() {
-    this.readEvents()
+    this.readEvents();
+    this.refreshBaskets();//every time the calendar is viewed the baskets are refreshed
 
   },
   methods: {
@@ -56,6 +57,14 @@ export default {
         this.events = response.data.events;
     });
   },
+  refreshBaskets(){
+    axios
+        .get("/refreshbaskets")
+        .then(response => {
+        })
+        .catch(error => {
+        });
+    },
 
     handleEventClick(arg) {
    //     if (arg.event.classNames=="closed") alert('closed!');

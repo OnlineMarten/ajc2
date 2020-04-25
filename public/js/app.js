@@ -13346,21 +13346,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     makePayment: function makePayment(data) {
       console.log("data=" + data);
       axios.post("/makepayment", {
-        paymentDetails: data.paymentMethod,
         amount: this.selection.total_amount,
         shopperEmail: this.selection.email,
         shopperName: this.selection.name,
         telephoneNumber: this.selection.phone,
-        shopperStatement: this.selection.nr_tickets + " tickets Dinner Cruise " + this.ticket.title,
+        shopperStatement: this.selection.nr_tickets + " tickets " + this.ticket.title,
         countryCode: this.phone_data.iso2,
-        reference: this.selection.ticket_nr,
-        tickets: this.selection.nr_tickets + " " + this.ticket.title
+        ticket_nr: this.selection.ticket_nr,
+        tickets: this.selection.nr_tickets + " " + this.ticket.title,
+        event_id: this.selection.event_id
       }).then(function (response) {
         // handle success
+        console.log('response from makepayment:' + response.data);
         console.log("payment data:" + response.data.payment_url);
         window.location = response.data.payment_url;
       })["catch"](function (error) {
-        console.log("error= " + error);
+        //we could not create payment link
+        console.log(error.toJSON()); //TODO send damin email?
       });
     },
     cancel: function cancel() {
@@ -13526,6 +13528,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     this.readEvents();
+    this.refreshBaskets(); //every time the calendar is viewed the baskets are refreshed
   },
   methods: {
     readEvents: function readEvents() {
@@ -13535,6 +13538,9 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("calendarevents").then(function (response) {
         _this.events = response.data.events;
       });
+    },
+    refreshBaskets: function refreshBaskets() {
+      axios.get("/refreshbaskets").then(function (response) {})["catch"](function (error) {});
     },
     handleEventClick: function handleEventClick(arg) {
       var _this2 = this;

@@ -8,33 +8,45 @@ use Whitecube\MultiSafepay\Client;
 use App\Sale;
 use App\Basket;
 use App\Mail\ReservationConfirmation;
+use App\Mail\AdminMessage;
 
 class MultiSafePay extends Controller
 {
+
+    private function newClient()
+    {
+        if (config("app.env")=="local") $client = new Client(config('services.msp.test_env'), config('services.msp.api_key'));
+        if (config("app.env")=="production") $client = new Client(config('services.msp.prod_env'), config('services.msp.api_key'));
+        return $client;
+
+    }
+
     public function makePayment(Request $request)
     {
         logger()->channel('info')->info('in makepayment multisafepay');
-        logger()->channel('info')->info($request->reference);
-        logger()->channel('info')->info($request->amount);
 
-        $client = new Client('test', '3db48b42ebb597147859973c89a691898dd250a2');
+
+        //logger()->channel('info')->info($request->ticket_nr);
+        //logger()->channel('info')->info($request->amount);
+
+        $client = $this->newClient();
 
         $order = $client->orders()->create([
 
-            'order_id' => $request->reference,
+            'order_id' => $request->ticket_nr,
             'type' => 'redirect',
             'amount' => $request->amount,
             'currency' => 'EUR',
             'description' => $request->shopperStatement,
 
             "google_analytics" => [
-                "account"=> "UA-XXXXXXXXX" //nog invullen
+                "account"=> config('services.google.account_id')
                 ],
 
             'payment_options' => [
-                'notification_url' => 'https://marten-d8db7a49.localhost.run/ajc2/public/api/notification',
-                'redirect_url' => 'http://localhost/ajc2/public/checkout',
-                'cancel_url' => 'http://localhost/ajc2/public/booking/28?type=cancel',
+                'notification_url' => 'https://marten-228e90f6.localhost.run/ajc2/public/api/notification',//TODO wijzigen url en in config zetten
+                'redirect_url' => config('app.url')."/checkout",
+                'cancel_url' => config('app.url')."/booking/".$request->event_id."?type=cancel",
                 'close_window' => ''
                 ],
 
@@ -49,7 +61,7 @@ class MultiSafePay extends Controller
 
                 ],
 
-            "seconds_active" => 30,
+            "seconds_active" => config('custom.psp_lifetime'),//can be set in config/custom.php
             "var1" => $request->tickets
         ]);
 
@@ -58,7 +70,6 @@ class MultiSafePay extends Controller
        //add some details to session to show on confirmation screen
        session(['shopperName' => $request->shopperName]);
        session(['shopperEmail' => $request->shopperEmail]);
-
         return response()->json(
              $order
         , 200);
@@ -68,11 +79,12 @@ class MultiSafePay extends Controller
 
         //log every notification
         logger()->channel('info')->info( "New notification");
-        $logtext= "new notification";
+
         //logger()->channel('info')->info("New notification");
-      //  logger()->channel('info')->info($request);
+        //logger()->channel('info')->info($request);
 
        $transactionid = $request->transactionid;
+       logger()->channel('info')->info("transactionid = ".$transactionid);
 
        if (!$transactionid){
            //notification called but not by msp?
@@ -80,7 +92,7 @@ class MultiSafePay extends Controller
             return;
        }
 
-       $client = new Client('test', '3db48b42ebb597147859973c89a691898dd250a2');
+       $client = $this->newClient();
        $order = $client->orders()->fetch($transactionid);
       // logger()->channel('info')->info(print_r($order, true));
 
@@ -93,12 +105,6 @@ class MultiSafePay extends Controller
             return;
        }
 
-       if ($order->status == "initialized")
-       {
-           //this is sent when a customer goes to 3d verification of a cc payment?
-        logger()->channel('info')->info('Order status: initialized, no action taken');
-        return;
-       }
 
        if ($order->status == "completed")
        {
@@ -122,31 +128,40 @@ class MultiSafePay extends Controller
             //basket gone, check if already processed
            // logger()->channel('info')->info('no basket found');
             $salefound = Sale::where('ticket_nr', $ticket_nr)->count();
+
             if (!$salefound){
                 //not processed and no basket, should never happen, log data and send email to admin
                 logger()->channel('info')->info('WARNING: No basket and no sale found. Ticketnr: '.$ticket_nr);
                 logger()->channel('info')->info(print_r($order, true));
                 //TODO send email here
+                try{
+                    \Mail::to('onlinemarten@gmail.com')->send(new AdminMessage("WARNING: No basket and no sale found. Ticketnr: ".$ticket_nr));
+                }
+                catch(\Exception $e){
+                    // Get error here
+                    logger()->channel('info')->info("Sending mail failed. Ticket number: ".$ticket_nr. " error details: ".$e);
+                    $mail_sent = false;
+                    //TODO send admin email here with error (e)
+                }
 
                 return;
              }
             else{
-                $logtext .= "Already processed (".$ticket_nr.")<br>";
                 logger()->channel('info')->info('Already processed, no further action. Ticket number: '.$ticket_nr);
                 //sale found, so already processed: do nothing
             }
             return;
         }
+
         //we have a basket, now process it
-        $logtext="msp_notification with transactionid: ".$order->transaction_id."/n";
         logger()->channel('info')->info('processing sale');
         $sale = new Sale;
         $sale->amount_paid = $order->amount;
         $sale->pspReference = $order->transaction_id;
 
         if ($sale->createSale($basket)){
-            $logtext.="Sale added. Success.<br>";
             logger()->channel('info')->info('Sale added');
+
             //email tickets
             $saleDetails = $sale->getSale();
             $mail_sent = true;
@@ -155,33 +170,43 @@ class MultiSafePay extends Controller
             }
             catch(\Exception $e){
                 // Get error here
-                $logtext.="Sending mail failed.<br>";
+                logger()->channel('info')->info("Sending mail failed. Ticket number: ".$ticket_nr. " error details: ".$e);
                 $mail_sent = false;
+                //TODO send admin email here with error (e)
             }
             if ($mail_sent){
-                $logtext.="Mail sent successfully.<br>";
-                //here update the sent ticket field in sale
-                $sale->updateTicketSent();
+                logger()->channel('info')->info("Mail sent successfully");
+                $sale->updateTicketSent();// update the sent ticket timestamp in sale
             }
         }
         else{
-            $logtext.="Processing sale finished. FAILED! No email sent.<br>";
             logger()->channel('info')->info('Failed to add sale. No email sent. Ticket nr: '.$ticket_nr);
             logger()->channel('info')->info(print_r($order, true));
-            //send email here
+            //TODO send admin email here
         }
     }
-    else{//order status is not completed
+    else{//order status is not completed, update status in basket
 
-        logger()->channel('info')->info('order status: '. $order->status.'. No action taken.');
-        logger()->channel('info')->info(print_r($order, true));
+        logger()->channel('info')->info('order status: '. $order->status);
+
+        $basket =  Basket::where('ticket_nr', $order->order_id)->first();
+        if ($basket){
+            $basket->updateStatus($order->status);
+            logger()->channel('info')->info('updated status in basket.');
+        }
+        else{
+            logger()->channel('info')->info("trying to update basket status, but could not find basket:".print_r($order, true));
+            //TODO mail admin?
+
+        }
+       // logger()->channel('info')->info(print_r($order, true));
     }
 }
 
 
 public function checkout(Request $request){
-    //this function is called from adyen after a redirect, in our case iDeal
-    //or it is called from a direct payment, so not going through Adyen.
+    //this function is called from msp after a succesfull payment
+    //or it is called from a direct payment, so not going through a psp.
 
     logger()->channel('info')->info($request);
    // logger()->channel('info')->info('ticket_nr from url:'.$request->ticket_nr);

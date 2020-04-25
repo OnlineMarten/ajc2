@@ -329,14 +329,9 @@ export default {
 
 
     mounted() {
-
         this.event_id = _.last( window.location.pathname.split( '/' ) );
         console.log(this.event_id);
-
-
         this.getEvent();
-
-
 
         let uri = window.location.search.substring(1);
         let params = new URLSearchParams(uri);
@@ -350,7 +345,6 @@ export default {
             this.error = "The payment has been refused. Please check your card details or try another card"
             this.show_error = true;
         }
-
     },
 
     methods: {
@@ -579,34 +573,31 @@ export default {
 
         makePayment(data){
             console.log("data="+data);
-
-
             axios.post("/makepayment",{
-                    paymentDetails: data.paymentMethod,
-                    amount: this.selection.total_amount,
-                    shopperEmail: this.selection.email,
-                    shopperName:this.selection.name,
-                    telephoneNumber: this.selection.phone,
-                    shopperStatement: this.selection.nr_tickets +" tickets Dinner Cruise "+this.ticket.title,
-                    countryCode: this.phone_data.iso2,
-                    reference: this.selection.ticket_nr,
-                    tickets:this.selection.nr_tickets +" "+this.ticket.title,
+                amount: this.selection.total_amount,
+                shopperEmail: this.selection.email,
+                shopperName:this.selection.name,
+                telephoneNumber: this.selection.phone,
+                shopperStatement: this.selection.nr_tickets +" tickets "+this.ticket.title,
+                countryCode: this.phone_data.iso2,
+                ticket_nr: this.selection.ticket_nr,
+                tickets:this.selection.nr_tickets +" "+this.ticket.title,
+                event_id: this.selection.event_id,
 
-                })
-                .then(function (response) {
-                    // handle success
-                    console.log("payment data:"+ response.data.payment_url);
-                    window.location = response.data.payment_url;
-                })
-                .catch(function (error) {
-                    console.log("error= " + error);
-                })
+            })
+            .then(function (response) {
+                // handle success
+                console.log( 'response from makepayment:' + response.data)
+                console.log("payment data:"+ response.data.payment_url);
 
-
-
+                window.location = response.data.payment_url;
+            })
+            .catch(function (error) {
+                //we could not create payment link
+                console.log(error.toJSON());
+                //TODO send damin email?
+            })
         },
-
-
 
         cancel(){
             window.history.back();

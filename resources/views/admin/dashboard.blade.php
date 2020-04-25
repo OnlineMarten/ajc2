@@ -45,6 +45,10 @@ foreach($arr as $key => $value) {
 }
 
 echo "app url:". config('app.url');
+echo "<br>";
+echo "google: " . config('services.google.account_id');
+
+echo "random number: ".time();
 ?>
 
 @endsection

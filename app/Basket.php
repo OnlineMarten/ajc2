@@ -19,6 +19,13 @@ class Basket extends Model
         logger()->channel('info')->info('extended basket lifetime');
     }
 
+    function updateStatus($status){
+
+        $this->status = $status;
+        $this->save();
+        //logger()->channel('info')->info('basket status updated: '. $status);
+    }
+
 
 
 }
