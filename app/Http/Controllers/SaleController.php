@@ -27,7 +27,7 @@ class SaleController extends Controller
 
       //      ->where('events.id','=', $id)
 
-            ->select('sales.*', 'events.event_date','tickets.title as ticket_title' )
+            ->select('sales.*', 'events.event_date','tickets.title as ticket_title','promo_codes.code as promocode_code' )
                     ->orderby('created_at','desc')
             ->get();
                 return response()->json([

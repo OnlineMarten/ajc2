@@ -72,8 +72,8 @@ with the checkavailability call
                                 </td>
                                 <td>
                                    <small>{{ sale.ticket_nr}}<br>
-                                       <span v-if="sale.promocode_id">
-                                           Promocode:{{ getPromoCode(sale.promocode_id)}}<br></span>
+
+                                           <span v-if="sale.promocode_code">Promocode: {{sale.promocode_code}}<br></span>
 
                                        Total: {{(sale.total_amount+sale.total_discount) | toCurrency}}
                                        <span v-if="sale.promocode_id">Discount: {{(sale.total_discount) | toCurrency}} </span>
@@ -130,7 +130,13 @@ with the checkavailability call
                     <div class="alert alert-danger" v-if="errors.length > 0">
                         We have errors:
                         <ul>
-                            <span v-html="errors">{{ errors }}</span>
+                            <span v-html="errors">{{showErrors()}}</span>
+                        </ul>
+                    </div>
+                    <div class="alert alert-danger" v-if="show_warning">
+                        Warning messages:
+                        <ul>
+                            {{ warning_messages }}
                         </ul>
                     </div>
 
@@ -141,9 +147,10 @@ with the checkavailability call
                         Select event:
                     </div>
                     <div class="col-sm-8">
+                        <div v-if="add_update=='update'">Current reservation date: {{new Date(selected_event_date) | dateFormat('dd DD MMM YYYY')}}</div>
                         <!--show select box for choosing event date-->
                         <select v-model="selection.event_id" v-on:change="onEventChange()">
-                            <option value="" selected disabled>Choose date</option>
+                            <option v-if="add_update=='add'" value="" selected disabled>Choose date</option>
                             <option v-for="event in events" :value="event.id" :key="event.id">{{new Date(event.date) | dateFormat('dd DD MMM YYYY')}}</option>
                         </select>
                     </div>
@@ -458,6 +465,7 @@ export default {
         extras:[],
         show_deleted_sales:false,
         not_enough_tickets:false,
+        selected_event_date:"",
     }//return
   },//data
 
@@ -467,8 +475,9 @@ export default {
 
         //load promocodes and available events so it is ready in case we want to add or update a sale.
         this.readPromoCodes();
+        this.readAllEvents();
         this.readSales();
-        this.readAvailableEvents();
+
 
     },//mounted
 
@@ -522,23 +531,31 @@ export default {
             this.show_warning=false;
             this.not_enough_tickets=false;
             this.show_deleted_sales=false;
+            this.show_warning=false;
         },
 
 
 
-        readSales(){
-            axios.get("/admin/sale").then(response => {
+        async readSales(){
+            console.log('get sales before');
+           try{
+                let response = await axios.get("/admin/sale");
                 this.sales = response.data.sales;
-            });
+            }
+            catch(error){
+                console.log(error)
+            }
+            console.log('get sales after');
         },
+
         readDeletedSales(){
             axios.get("/admin/deletedsales").then(response => {
                 this.sales = response.data.sales;
             });
         },
 
-        readAvailableEvents(){
-            axios.get("openevents").then(response => {
+        readAllEvents(){
+            axios.get("allevents").then(response => {
                 this.events = response.data.events;
             });
         },
@@ -575,11 +592,19 @@ export default {
             });
         },
 
-        readPromoCodes(){
-            axios.get("admin/promocode").then(response => {
+        async readPromoCodes(){
+            console.log('get promocodes before');
+           try{
+                let response = await axios.get("/admin/promocode");
                 this.promocodes = response.data.promocodes;
-            });
+            }
+            catch(error){
+                console.log(error)
+            }
+            console.log('get promocodes after');
         },
+
+
 
         checkSaleDateTransferrable(){
                 console.log('checking sale transferrable');
@@ -588,7 +613,7 @@ export default {
            // this.extras=[];
             //selected date event details are in this.selection, this.tickets and this.extras
             //current sale details are stored in this.selected_sale and this.selected_extras
-            // now compare and set all seleted options into new date where possible and notify where not possible
+            // now compare and set all selected options into new date where possible and notify where not possible
             this.warning_messages="Not found: ";
             var warnings=false;
 
@@ -673,8 +698,8 @@ export default {
                         nr: 0});
                     }//for extras
                 }//for catagories
-
-
+                console.log("current event date:"+this.event.event_date);
+                this.selected_event_date = this.event.event_date;//used for displaying original date in update screen
                 //get selected extras sale
                 this.temp=[];
                 this.selected_extras=[];
@@ -733,7 +758,10 @@ export default {
 
             }
             else{
-
+                if (this.selected_event_date !== this.event.event_date){
+                    console.log('date changed');
+                    this.selection.admin_comments+="* date changed, original date:"+this.selected_event_date;
+                }
                 axios
                     .put("/admin/sale/" + this.selection.id, this.selection)
 
@@ -957,10 +985,10 @@ export default {
                 }
         },
         getPromoCode(id){//show promocode code in sales list
-        console.log('getting promocode');
-           // this.promocode = this.promocodes.find(promocode => promocode.id === id);
-           // console.log("promocode id="+id+". code found ="+this.promocode.code);
-            return this.promocodes.find(promocode => promocode.id === id).code;
+            console.log('getting promocode');
+            this.promocode = this.promocodes.find(promocode => promocode.id === id);
+            console.log("promocode id="+id+". code found ="+this.promocode.code);
+            return this.promocode.code;
         },
         onEventChange(){
             console.log('event change')

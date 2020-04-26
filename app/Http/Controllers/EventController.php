@@ -287,6 +287,7 @@ class EventController extends Controller
 
     public function calendarEvents()
     {
+        //gets all events with a label and color code for available for booking or not
         $events = Event::
         orderBy("event_date")
         ->get();
@@ -376,7 +377,7 @@ class EventController extends Controller
                 $minutes=date('i', strtotime($event->start_time));
                 $date= strtotime($event->event_date);
                 $minutes_close_sale_before_start = config('custom.minutes_close_sale_before_start');//stop verkoop aantal minuten vooraf  aanvang
-
+                //TODO deadline tijd klopt nog niet?
                 $deadline = date('Y-m-d H:i:s', $date+$hours*60*60+$minutes*60);//create date including start time cruise and set tis as deadline
 
                 if (strtotime($deadline)> time()) {//cruise nog voor deadline verkoop = aanvangstijd cruise
@@ -392,6 +393,29 @@ class EventController extends Controller
         // Output json for our calendar
         return response()->json([
             'events'    => $calendarevents,
+        ], 200);
+    }
+
+    public function allEvents()
+    {
+        $events = Event::
+        orderBy("event_date")
+        ->get();
+
+
+        $allevents = [];
+        $e=[];
+
+        foreach ($events as $event) {
+
+            $e['id'] =$event->id;
+            $e['date'] = $event->event_date;
+            array_push($allevents,$e);
+        }
+
+        // Output json for our calendar
+        return response()->json([
+            'events'    => $allevents,
         ], 200);
     }
 

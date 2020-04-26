@@ -25,6 +25,7 @@ Route::get('/booking/{event_id}', function () {
 });
 Route::get('/calendarevents', 'EventController@calendarEvents')->name('calendarEvents');
 Route::get('/openevents', 'EventController@openEvents')->name('openEvents');
+Route::get('/allevents', 'EventController@allEvents')->name('allEvents');
 Route::post('eventcheckavailability', 'EventController@checkAvailability')->name('eventcheckavailability');
 Route::get('checkEventAvailable/{event_id}', 'EventController@checkEventAvailable')->name('checkevent');//axios get event available for sale
 Route::get('getevent/{event_id}', 'EventController@show')->name('getevent');//axios get event details

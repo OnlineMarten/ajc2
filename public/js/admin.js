@@ -86,6 +86,18 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/@babel/runtime/regenerator/index.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! regenerator-runtime */ "./node_modules/regenerator-runtime/runtime.js");
+
+
+/***/ }),
+
 /***/ "./node_modules/axios/index.js":
 /*!*************************************!*\
   !*** ./node_modules/axios/index.js ***!
@@ -3568,7 +3580,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue_tel_input__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-tel-input */ "./node_modules/vue-tel-input/dist/vue-tel-input.esm.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3958,7 +3985,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_0__["VueTelInput"]
+    VueTelInput: vue_tel_input__WEBPACK_IMPORTED_MODULE_1__["VueTelInput"]
   },
   data: function data() {
     return {
@@ -4022,7 +4049,8 @@ __webpack_require__.r(__webpack_exports__);
       selected_extras: [],
       extras: [],
       show_deleted_sales: false,
-      not_enough_tickets: false
+      not_enough_tickets: false,
+      selected_event_date: ""
     }; //return
   },
   //data
@@ -4030,8 +4058,8 @@ __webpack_require__.r(__webpack_exports__);
     console.log('mounted'); //load promocodes and available events so it is ready in case we want to add or update a sale.
 
     this.readPromoCodes();
+    this.readAllEvents();
     this.readSales();
-    this.readAvailableEvents();
   },
   //mounted
   methods: {
@@ -4082,52 +4110,88 @@ __webpack_require__.r(__webpack_exports__);
       this.show_warning = false;
       this.not_enough_tickets = false;
       this.show_deleted_sales = false;
+      this.show_warning = false;
     },
-    readSales: function readSales() {
+    readSales: function () {
+      var _readSales = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                console.log('get sales before');
+                _context.prev = 1;
+                _context.next = 4;
+                return axios.get("/admin/sale");
+
+              case 4:
+                response = _context.sent;
+                this.sales = response.data.sales;
+                _context.next = 11;
+                break;
+
+              case 8:
+                _context.prev = 8;
+                _context.t0 = _context["catch"](1);
+                console.log(_context.t0);
+
+              case 11:
+                console.log('get sales after');
+
+              case 12:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this, [[1, 8]]);
+      }));
+
+      function readSales() {
+        return _readSales.apply(this, arguments);
+      }
+
+      return readSales;
+    }(),
+    readDeletedSales: function readDeletedSales() {
       var _this = this;
 
-      axios.get("/admin/sale").then(function (response) {
+      axios.get("/admin/deletedsales").then(function (response) {
         _this.sales = response.data.sales;
       });
     },
-    readDeletedSales: function readDeletedSales() {
+    readAllEvents: function readAllEvents() {
       var _this2 = this;
 
-      axios.get("/admin/deletedsales").then(function (response) {
-        _this2.sales = response.data.sales;
-      });
-    },
-    readAvailableEvents: function readAvailableEvents() {
-      var _this3 = this;
-
-      axios.get("openevents").then(function (response) {
-        _this3.events = response.data.events;
+      axios.get("allevents").then(function (response) {
+        _this2.events = response.data.events;
       });
     },
     readEvent: function readEvent() {
-      var _this4 = this;
+      var _this3 = this;
 
       this.show_warning = false;
       this.warning_messages = "";
       axios.get("/getevent/" + this.selection.event_id).then(function (response) {
-        _this4.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
+        _this3.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
         //load event details
 
-        _this4.categories = response.data.event.categories;
-        _this4.tickets = response.data.event.tickets;
-        _this4.show_event_details = true;
-        _this4.extras = [];
+        _this3.categories = response.data.event.categories;
+        _this3.tickets = response.data.event.tickets;
+        _this3.show_event_details = true;
+        _this3.extras = [];
 
-        for (var i = 0; i < _this4.categories.length; i++) {
-          for (var n = 0; n < _this4.categories[i].extras.length; n++) {
+        for (var i = 0; i < _this3.categories.length; i++) {
+          for (var n = 0; n < _this3.categories[i].extras.length; n++) {
             //rebuild extras selection array with extra id and amount(nr)
-            console.log('pushing: ' + _this4.categories[i].extras[n].title);
+            console.log('pushing: ' + _this3.categories[i].extras[n].title);
 
-            _this4.extras.push({
-              title: _this4.categories[i].extras[n].title,
-              max: _this4.categories[i].extras[n].max,
-              price: _this4.categories[i].extras[n].price,
-              id: _this4.categories[i].extras[n].id,
+            _this3.extras.push({
+              title: _this3.categories[i].extras[n].title,
+              max: _this3.categories[i].extras[n].max,
+              price: _this3.categories[i].extras[n].price,
+              id: _this3.categories[i].extras[n].id,
               nr: 0
             });
           } //for extras
@@ -4135,35 +4199,70 @@ __webpack_require__.r(__webpack_exports__);
         } //for catagories
 
 
-        if (_this4.add_update === "update") {
+        if (_this3.add_update === "update") {
           console.log('compare events');
 
-          _this4.checkSaleDateTransferrable();
+          _this3.checkSaleDateTransferrable();
         }
       });
     },
-    readPromoCodes: function readPromoCodes() {
-      var _this5 = this;
+    readPromoCodes: function () {
+      var _readPromoCodes = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                console.log('get promocodes before');
+                _context2.prev = 1;
+                _context2.next = 4;
+                return axios.get("/admin/promocode");
 
-      axios.get("admin/promocode").then(function (response) {
-        _this5.promocodes = response.data.promocodes;
-      });
-    },
+              case 4:
+                response = _context2.sent;
+                this.promocodes = response.data.promocodes;
+                _context2.next = 11;
+                break;
+
+              case 8:
+                _context2.prev = 8;
+                _context2.t0 = _context2["catch"](1);
+                console.log(_context2.t0);
+
+              case 11:
+                console.log('get promocodes after');
+
+              case 12:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this, [[1, 8]]);
+      }));
+
+      function readPromoCodes() {
+        return _readPromoCodes.apply(this, arguments);
+      }
+
+      return readPromoCodes;
+    }(),
     checkSaleDateTransferrable: function checkSaleDateTransferrable() {
-      var _this6 = this;
+      var _this4 = this;
 
       console.log('checking sale transferrable'); //move extras to
       //  this.selected_extras=this.extras;
       // this.extras=[];
       //selected date event details are in this.selection, this.tickets and this.extras
       //current sale details are stored in this.selected_sale and this.selected_extras
-      // now compare and set all seleted options into new date where possible and notify where not possible
+      // now compare and set all selected options into new date where possible and notify where not possible
 
       this.warning_messages = "Not found: ";
       var warnings = false; //first check tickets
 
       if (this.tickets.find(function (ticket) {
-        return ticket.id === _this6.selected_sale.ticket_id;
+        return ticket.id === _this4.selected_sale.ticket_id;
       })) {
         console.log('ticket found');
         this.selection.ticket_id = this.selected_sale.ticket_id;
@@ -4178,7 +4277,7 @@ __webpack_require__.r(__webpack_exports__);
 
       for (var i = 0; i < this.selected_extras.length; i++) {
         var index = this.extras.findIndex(function (extra) {
-          return extra.id === _this6.selected_extras[i].id;
+          return extra.id === _this4.selected_extras[i].id;
         });
 
         if (index >= 0) {
@@ -4208,7 +4307,7 @@ __webpack_require__.r(__webpack_exports__);
       $("#add_sale_model").modal("show");
     },
     initUpdateSale: function initUpdateSale(index) {
-      var _this7 = this;
+      var _this5 = this;
 
       this.add_update = "update";
       this.paying_now_div_100 = "0";
@@ -4220,69 +4319,72 @@ __webpack_require__.r(__webpack_exports__);
       // this.selection.extras=[];
 
       axios.get("/getevent/" + this.selection.event_id).then(function (response) {
-        _this7.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
+        _this5.event = response.data.event.event; //do we need to check if still available?->no, will be chekced with updatebasket
         //load event details
 
-        _this7.categories = response.data.event.categories;
-        _this7.tickets = response.data.event.tickets;
-        _this7.show_event_details = true;
-        _this7.extras = [];
+        _this5.categories = response.data.event.categories;
+        _this5.tickets = response.data.event.tickets;
+        _this5.show_event_details = true;
+        _this5.extras = [];
 
-        for (var i = 0; i < _this7.categories.length; i++) {
-          for (var n = 0; n < _this7.categories[i].extras.length; n++) {
+        for (var i = 0; i < _this5.categories.length; i++) {
+          for (var n = 0; n < _this5.categories[i].extras.length; n++) {
             //rebuild extras selection array with extra id and amount(nr)
-            console.log('pushing: ' + _this7.categories[i].extras[n].title);
+            console.log('pushing: ' + _this5.categories[i].extras[n].title);
 
-            _this7.extras.push({
-              title: _this7.categories[i].extras[n].title,
-              max: _this7.categories[i].extras[n].max,
-              price: _this7.categories[i].extras[n].price,
-              id: _this7.categories[i].extras[n].id,
+            _this5.extras.push({
+              title: _this5.categories[i].extras[n].title,
+              max: _this5.categories[i].extras[n].max,
+              price: _this5.categories[i].extras[n].price,
+              id: _this5.categories[i].extras[n].id,
               nr: 0
             });
           } //for extras
 
         } //for catagories
+
+
+        console.log("current event date:" + _this5.event.event_date);
+        _this5.selected_event_date = _this5.event.event_date; //used for displaying original date in update screen
         //get selected extras sale
 
+        _this5.temp = [];
+        _this5.selected_extras = [];
+        axios.get("admin/salegetextras/" + _this5.sales[index].id).then(function (response) {
+          _this5.temp = response.data.extras;
 
-        _this7.temp = [];
-        _this7.selected_extras = [];
-        axios.get("admin/salegetextras/" + _this7.sales[index].id).then(function (response) {
-          _this7.temp = response.data.extras;
-
-          for (var i = 0; i < _this7.temp.length; i++) {
+          for (var i = 0; i < _this5.temp.length; i++) {
             var newItem = {
-              title: _this7.temp[i].title,
-              max: _this7.temp[i].max,
-              price: _this7.temp[i].price,
-              id: _this7.temp[i].id,
-              nr: _this7.temp[i].pivot.nr
+              title: _this5.temp[i].title,
+              max: _this5.temp[i].max,
+              price: _this5.temp[i].price,
+              id: _this5.temp[i].id,
+              nr: _this5.temp[i].pivot.nr
             };
 
-            _this7.selected_extras.push(newItem);
+            _this5.selected_extras.push(newItem);
           }
 
           ; //for extras
           //compare event extras with sale extras
 
-          _this7.checkSaleDateTransferrable(); //if we are editing an exisiting sale we have to get the selected ticket and promocode details
+          _this5.checkSaleDateTransferrable(); //if we are editing an exisiting sale we have to get the selected ticket and promocode details
 
 
-          if (_this7.selection.ticket_id > 0) {
-            _this7.ticket = _this7.tickets.find(function (ticket) {
-              return ticket.id === _this7.selection.ticket_id;
+          if (_this5.selection.ticket_id > 0) {
+            _this5.ticket = _this5.tickets.find(function (ticket) {
+              return ticket.id === _this5.selection.ticket_id;
             });
             console.log('current ticket loaded');
           }
 
-          if (_this7.selection.promocode_id > 0) {
-            _this7.promocode = _this7.promocodes.find(function (promocode) {
-              return promocode.id === _this7.selection.promocode_id;
+          if (_this5.selection.promocode_id > 0) {
+            _this5.promocode = _this5.promocodes.find(function (promocode) {
+              return promocode.id === _this5.selection.promocode_id;
             });
             console.log('current promocode loaded'); //if we have a promocode we also need to fake a promocode on change event to set all the values:
 
-            _this7.onChangePromoCode();
+            _this5.onChangePromoCode();
           } //this.onChangePromoCode();
 
 
@@ -4290,37 +4392,42 @@ __webpack_require__.r(__webpack_exports__);
         })["catch"](function (error) {
           //error.response.data.errors
           //  console.log('error = '+error.response.data.errors);
-          _this7.showErrors(error);
+          _this5.showErrors(error);
         });
       });
     },
     updateSale: function updateSale() {
-      var _this8 = this;
+      var _this6 = this;
 
       console.log('update sale');
       this.checkAvailability(); //we need to recheck at the moment we are actually updating as in the meantime the status could hgave changed
 
       if (this.not_enough_tickets) {} else {
+        if (this.selected_event_date !== this.event.event_date) {
+          console.log('date changed');
+          this.selection.admin_comments += "* date changed, original date:" + this.selected_event_date;
+        }
+
         axios.put("/admin/sale/" + this.selection.id, this.selection).then(function (response) {
           $("#add_sale_model").modal("hide");
 
-          _this8.readSales();
+          _this6.readSales();
 
-          _this8.showMessage(response.data.message);
+          _this6.showMessage(response.data.message);
 
-          _this8.reset();
+          _this6.reset();
 
           console.log('response');
         })["catch"](function (error) {
           //error.response.data.errors
           console.log('error = ' + error.response.data.errors);
 
-          _this8.showErrors(error);
+          _this6.showErrors(error);
         });
       }
     },
     createSale: function createSale() {
-      var _this9 = this;
+      var _this7 = this;
 
       // create a ticket number
       var random_nr = Math.floor(Math.random() * (99999 - 10000)) + 10000;
@@ -4328,21 +4435,21 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post("/basket", this.selection).then(function (response) {
         //basket succesfuly updated, now add sale
-        axios.post("/admin/sale", _this9.selection).then(function (response) {
+        axios.post("/admin/sale", _this7.selection).then(function (response) {
           $("#add_sale_model").modal("hide"); //refresh table on screen (there may be a better way of doing this) *verbeterpunt*
 
-          _this9.readSales();
+          _this7.readSales();
 
-          _this9.showMessage(response.data.message);
+          _this7.showMessage(response.data.message);
 
-          _this9.reset();
+          _this7.reset();
         })["catch"](function (error) {
           //coud not add sale, show error
-          _this9.showErrors(error);
+          _this7.showErrors(error);
         });
       })["catch"](function (error) {
         //could not update basket, show error
-        _this9.showErrors(error);
+        _this7.showErrors(error);
       });
     },
     deleteBasket: function deleteBasket() {
@@ -4353,7 +4460,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     deleteSale: function deleteSale(index) {
-      var _this10 = this;
+      var _this8 = this;
 
       if (this.show_deleted_sales) {
         //we are destroying a deleted sale
@@ -4361,11 +4468,11 @@ __webpack_require__.r(__webpack_exports__);
 
         if (conf === true) {
           axios.get("/admin/forcedeletesale/" + this.sales[index].id).then(function (response) {
-            _this10.sales.splice(index, 1);
+            _this8.sales.splice(index, 1);
 
-            _this10.showMessage(response.data.message);
+            _this8.showMessage(response.data.message);
           })["catch"](function (error) {
-            _this10.showMessage(error.response.data.message); // Error
+            _this8.showMessage(error.response.data.message); // Error
 
           });
         }
@@ -4375,30 +4482,30 @@ __webpack_require__.r(__webpack_exports__);
 
         if (_conf === true) {
           axios["delete"]("/admin/sale/" + this.sales[index].id).then(function (response) {
-            _this10.sales.splice(index, 1);
+            _this8.sales.splice(index, 1);
 
-            _this10.showMessage(response.data.message);
+            _this8.showMessage(response.data.message);
           })["catch"](function (error) {
-            _this10.showMessage(error.response.data.message); // Error
+            _this8.showMessage(error.response.data.message); // Error
 
           });
         }
       }
     },
     updateBasket: function updateBasket() {
-      var _this11 = this;
+      var _this9 = this;
 
       if (this.selection.event_id > 0 && this.selection.nr_tickets > 0 && this.selection.ticket_id > 0) {
         axios.post("/basket", this.selection).then(function (response) {
           console.log('basket updated');
         })["catch"](function (error) {
-          _this11.showErrors(error);
+          _this9.showErrors(error);
         });
       } //end if
 
     },
     checkAvailability: function checkAvailability() {
-      var _this12 = this;
+      var _this10 = this;
 
       this.show_warning = false;
       axios.post("/eventcheckavailability", {
@@ -4408,21 +4515,21 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         console.log(response.data);
 
-        if (response.data.available < _this12.selection.nr_tickets) {
+        if (response.data.available < _this10.selection.nr_tickets) {
           //not enough tickets
           console.log('not enough tickets');
-          _this12.not_enough_tickets = true; //will be checked before updating sale
+          _this10.not_enough_tickets = true; //will be checked before updating sale
 
           if (response.data.available === 0) {
-            _this12.warning_messages = "Another customer is currently holding the last tickets, please try again in 10 minutes.";
+            _this10.warning_messages = "Another customer is currently holding the last tickets, please try again in 10 minutes.";
           } else {
-            _this12.warning_messages = "not enough tickets, only " + response.data.available + " available.";
+            _this10.warning_messages = "not enough tickets, only " + response.data.available + " available.";
           }
 
-          _this12.showWarningMessage(_this12.warning_messages);
+          _this10.showWarningMessage(_this10.warning_messages);
         } else {
           //enough tickets available
-          _this12.not_enough_tickets = false;
+          _this10.not_enough_tickets = false;
         }
       })["catch"](function (error) {});
     },
@@ -4437,10 +4544,10 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     onTicketChange: function onTicketChange() {
-      var _this13 = this;
+      var _this11 = this;
 
       this.ticket = this.tickets.find(function (ticket) {
-        return ticket.id === _this13.selection.ticket_id;
+        return ticket.id === _this11.selection.ticket_id;
       });
       if (this.add_update === "add") this.updateBasket();else {//we are updating a sale, no basket, nothing needs to be done
       }
@@ -4455,7 +4562,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log('nrtickets changed:' + this.selection.nr_tickets);
     },
     onChangePromoCode: function onChangePromoCode() {
-      var _this14 = this;
+      var _this12 = this;
 
       console.log('promocode changed');
       this.promocode_error_message = false;
@@ -4464,7 +4571,7 @@ __webpack_require__.r(__webpack_exports__);
       if (this.selection.promocode_id > 0) {
         //check code
         this.promocode = this.promocodes.find(function (promocode) {
-          return promocode.id === _this14.selection.promocode_id;
+          return promocode.id === _this12.selection.promocode_id;
         });
         console.log('checking ' + this.promocode.code);
         axios.get("/checkpromocode/" + this.promocode.code).then(function (response) {
@@ -4472,13 +4579,13 @@ __webpack_require__.r(__webpack_exports__);
 
           if (response.data.promocode != 'false') {
             //we have a valid code
-            _this14.valid_promocode = true; //this.promocode = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id);
+            _this12.valid_promocode = true; //this.promocode = this.promocodes.find(promocode => promocode.id === this.selection.promocode_id);
 
-            console.log("we have a valid code. ID= " + _this14.selection.promocode_id);
+            console.log("we have a valid code. ID= " + _this12.selection.promocode_id);
           } else {
             console.log("invalid code");
-            _this14.valid_promocode = false;
-            _this14.promocode_error_message = true;
+            _this12.valid_promocode = false;
+            _this12.promocode_error_message = true;
           }
         });
       } else {
@@ -4488,12 +4595,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     getPromoCode: function getPromoCode(id) {
       //show promocode code in sales list
-      console.log('getting promocode'); // this.promocode = this.promocodes.find(promocode => promocode.id === id);
-      // console.log("promocode id="+id+". code found ="+this.promocode.code);
-
-      return this.promocodes.find(function (promocode) {
+      console.log('getting promocode');
+      this.promocode = this.promocodes.find(function (promocode) {
         return promocode.id === id;
-      }).code;
+      });
+      console.log("promocode id=" + id + ". code found =" + this.promocode.code);
+      return this.promocode.code;
     },
     onEventChange: function onEventChange() {
       console.log('event change');
@@ -4541,12 +4648,12 @@ __webpack_require__.r(__webpack_exports__);
       this.show_warning = true;
     },
     showErrors: function showErrors(error) {
-      var _this15 = this;
+      var _this13 = this;
 
       this.errors = "<ul>";
       var response = error.response;
       Object.keys(response.data.errors).forEach(function (item) {
-        _this15.errors += "<li>" + response.data.errors[item] + "</li>";
+        _this13.errors += "<li>" + response.data.errors[item] + "</li>";
       });
       this.errors += "</ul>";
     }
@@ -40317,6 +40424,743 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/regenerator-runtime/runtime.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+var runtime = (function (exports) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  exports.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  exports.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  exports.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  exports.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  exports.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return exports.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        // Note: ["return"] must be used for ES3 parsing compatibility.
+        if (delegate.iterator["return"]) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  exports.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  exports.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+
+  // Regardless of whether this script is executing as a CommonJS module
+  // or not, return the runtime object so that we can declare the variable
+  // regeneratorRuntime in the outer scope, which allows this module to be
+  // injected easily by `bin/regenerator --include-runtime script.js`.
+  return exports;
+
+}(
+  // If this script is executing as a CommonJS module, use module.exports
+  // as the regeneratorRuntime namespace. Otherwise create a new empty
+  // object. Either way, the resulting object will be used to initialize
+  // the regeneratorRuntime variable at the top of this file.
+   true ? module.exports : undefined
+));
+
+try {
+  regeneratorRuntime = runtime;
+} catch (accidentalStrictMode) {
+  // This module should not be running in strict mode, so the above
+  // assignment should always work unless something is misconfigured. Just
+  // in case runtime.js accidentally runs in strict mode, we can escape
+  // strict mode using a global Function call. This could conceivably fail
+  // if a Content Security Policy forbids using Function, but in that case
+  // the proper solution is to fix the accidental strict mode problem. If
+  // you've misconfigured your bundler to force strict mode and applied a
+  // CSP to forbid Function, and you're not willing to fix either of those
+  // problems, please detail your unique predicament in a GitHub issue.
+  Function("r", "regeneratorRuntime = r")(runtime);
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/setimmediate/setImmediate.js":
 /*!***************************************************!*\
   !*** ./node_modules/setimmediate/setImmediate.js ***!
@@ -66659,13 +67503,11 @@ var render = function() {
                               _vm._v(_vm._s(sale.ticket_nr)),
                               _c("br"),
                               _vm._v(" "),
-                              sale.promocode_id
+                              sale.promocode_code
                                 ? _c("span", [
                                     _vm._v(
-                                      "\n                                           Promocode:" +
-                                        _vm._s(
-                                          _vm.getPromoCode(sale.promocode_id)
-                                        )
+                                      "Promocode: " +
+                                        _vm._s(sale.promocode_code)
                                     ),
                                     _c("br")
                                   ])
@@ -66803,7 +67645,22 @@ var render = function() {
                         _c(
                           "span",
                           { domProps: { innerHTML: _vm._s(_vm.errors) } },
-                          [_vm._v(_vm._s(_vm.errors))]
+                          [_vm._v(_vm._s(_vm.showErrors()))]
+                        )
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.show_warning
+                  ? _c("div", { staticClass: "alert alert-danger" }, [
+                      _vm._v(
+                        "\n                        Warning messages:\n                        "
+                      ),
+                      _c("ul", [
+                        _vm._v(
+                          "\n                            " +
+                            _vm._s(_vm.warning_messages) +
+                            "\n                        "
                         )
                       ])
                     ])
@@ -66817,6 +67674,20 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-sm-8" }, [
+                    _vm.add_update == "update"
+                      ? _c("div", [
+                          _vm._v(
+                            "Current reservation date: " +
+                              _vm._s(
+                                _vm._f("dateFormat")(
+                                  new Date(_vm.selected_event_date),
+                                  "dd DD MMM YYYY"
+                                )
+                              )
+                          )
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
                     _c(
                       "select",
                       {
@@ -66854,11 +67725,15 @@ var render = function() {
                         }
                       },
                       [
-                        _c(
-                          "option",
-                          { attrs: { value: "", selected: "", disabled: "" } },
-                          [_vm._v("Choose date")]
-                        ),
+                        _vm.add_update == "add"
+                          ? _c(
+                              "option",
+                              {
+                                attrs: { value: "", selected: "", disabled: "" }
+                              },
+                              [_vm._v("Choose date")]
+                            )
+                          : _vm._e(),
                         _vm._v(" "),
                         _vm._l(_vm.events, function(event) {
                           return _c(
