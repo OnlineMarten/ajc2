@@ -22,6 +22,12 @@ window.Vue = require('vue');
 //import VueMiniCalendar from 'vue-mini-calendar'
 //Vue.component('VueMiniCalendar', require('vue-mini-calendar').default);
 
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+
+// Install BootstrapVue
+Vue.use(BootstrapVue)
+// Optionally install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin)
 
 Vue.filter('toCurrency', function (value) {
 
@@ -34,11 +40,85 @@ Vue.filter('toCurrency', function (value) {
         symbol = '€ ';
     }
     value = symbol + parseFloat(value/100).toFixed(2);
-
-
     return value.replace(".00", "");//replace in case format is en
 });
 
+
+//toasted
+import Toasted from 'vue-toasted';
+Vue.use(Toasted);
+
+
+// register a toast with a custom message
+Vue.toasted.register('ajc_error',
+    (payload) => {
+
+        // if there is no message passed show default message
+        if(! payload.message) {
+    	    return "Oops.. Something Went Wrong.."
+        }
+
+        // if there is a message show it with the message
+        return payload.message;
+    },
+    // options to the toast
+    {
+        theme: "bubble",
+        type : 'error',
+        //icon : 'error_outline',
+        duration: '5000',
+        action : [
+            {
+                text : 'X',
+                onClick : (e, toastObject) => {
+                    toastObject.goAway(0);
+                }
+            },
+        ]
+    }
+)
+// register a toast with a custom message
+Vue.toasted.register('ajc_success',
+    (payload) => {
+
+        // if there is no message passed show default message
+        if(! payload.message) {
+    	    return "Success!"
+        }
+
+        // if there is a message show it with the message
+        return payload.message;
+    },
+    // options to the toast
+    {
+        theme: "bubble",
+        type : 'success',
+       // icon : 'plus-square',
+        duration: '5000',
+
+    }
+)
+// register a toast with a custom message
+Vue.toasted.register('ajc_info',
+    (payload) => {
+
+        // if there is no message passed show default message
+        if(! payload.message) {
+    	    return "Done!"
+        }
+
+        // if there is a message show it with the message
+        return payload.message;
+    },
+    // options to the toast
+    {
+        theme: "bubble",
+        type : 'info',
+       // icon : 'plus-square',
+        duration: '5000',
+
+    }
+)
 
 //const VueFilterDateFormat = require('vue-filter-date-format');
 import VueFilterDateFormat from 'vue-filter-date-format';
@@ -62,6 +142,8 @@ Vue.use(VueFilterDateFormat, {
         ]
 });
 
+
+
 Vue.component('multipleDatepicker', require('vue-multiple-datepicker').default);
 
 
@@ -72,7 +154,7 @@ Vue.component('date-picker', require('./components/VCalendarComponent.vue').defa
 //Vue.component('booking-selection', require('./components/BookingSelection.vue').default);
 
 //Vue.component('VueFilterDateFormat', require('vue-filter-date-format').default);
-//Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('category-component', require('./components/CategoryComponent.vue').default);
 Vue.component('ticketgroup-component', require('./components/TicketGroupComponent.vue').default);
 Vue.component('ticket-component', require('./components/TicketComponent.vue').default);
@@ -82,6 +164,7 @@ Vue.component('event-component', require('./components/EventComponent.vue').defa
 Vue.component('extra-component', require('./components/ExtraComponent.vue').default);
 Vue.component('promocode-component', require('./components/PromoCodeComponent.vue').default);
 
+//Vue.component('crud-sale-component', require('./components/CrudSaleComponent.vue').default);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

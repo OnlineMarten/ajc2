@@ -10,8 +10,8 @@ class TicketGroup extends Model
 
     public function tickets()
     {
-        //return all tickets connected to an ticketgroup, sorted by order
-        return $this->belongsToMany('App\Ticket');
+        //return all tickets connected to a ticketgroup, sorted by order
+        return $this->belongsToMany('App\Ticket')->orderBy('order');
     }
 
     public function events()

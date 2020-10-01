@@ -74,10 +74,15 @@ Route::group(['middleware' => 'auth'], function () {
     //sales
     Route::get('/admin/deletedsales', 'SaleController@deletedSales')->name('deletedsales');
     Route::get('/admin/salegetextras/{sale_id}', 'SaleController@allExtrasConnectedToSale')->name('salegetextras');
-    Route::get('/admin/forcedeletesale/{sale_id}', 'SaleController@forceDeleteSale')->name('forceeletesale');
+    Route::get('/admin/getsale/{sale_id}', 'SaleController@getSale')->name('getsale');
+    Route::get('/admin/forcedeletesale/{sale_id}', 'SaleController@forceDeleteSale')->name('forcedeletesale');
+    Route::get('/admin/getsales/{event_id}', 'SaleController@getSales')->name('getsales');
+    Route::get('/admin/saletickets/{sale_id}', 'SaleController@emailTickets')->name('saletickets');
     //event
     Route::get('/admin/eventgetcategories/{event_id}', 'EventController@allCategoriesConnectedToEvent')->name('eventgetcategories');
+    Route::get('/admin/adjustreservedtickets', 'EventController@adjustReservedTickets')->name('adjustreservedtickets');
     Route::get('/admin/eventgetticketgroups/{event_id}', 'EventController@allTicketgroupsConnectedToEvent')->name('eventgetticketgroups');
+    Route::get('/admin/getevents/{all}', 'EventController@getEvents')->name('getevents');
     //category
     Route::get('/admin/categorygetextras/{category_id}', 'CategoryController@allExtrasConnectedToCategory')->name('categorygetextras');
     //tickets
@@ -85,6 +90,11 @@ Route::group(['middleware' => 'auth'], function () {
     //basket
     Route::get('/admin/deletesessionbasket', 'BasketController@deleteSessionBasket')->name('deletesessionbasket');
 
+    Route::get('mail', function () {
+        $sale = App\Sale::find(66);
+
+        return new App\Mail\ReservationConfirmation($sale);
+    });
 
 
 });//end route group admin

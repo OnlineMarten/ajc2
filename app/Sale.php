@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Mail\ReservationConfirmation;
 
 class Sale extends Model
 {
@@ -97,8 +98,27 @@ public function getSale(){
 public function updateTicketSent() {
 
         $this->ticket_sent=now();
+        $this->timestamps=false;
         $this->save();
 
+}
+
+public function emailTickets()
+{
+
+    try{
+        \Mail::to($this->email)->bcc('info@amsterdamjewelcruises.com')->send(new ReservationConfirmation($this->getSale()));
+        //TODO replace hardcoded bcc by setting
+    }
+    catch(\Exception $e){
+        // Get error here
+        logger()->channel('info')->info("Sending mail failed. Ticket number: ".$this->ticket_nr. " error details: ".$e);
+        //TODO send admin email here with error (e)
+        return false;
+    }
+    logger()->channel('info')->info("Mail sent successfully. Reservation: ".$this->name .", ". $this->ticket_nr);
+    $this->updateTicketSent();// update the sent ticket timestamp in sale
+    return true;
 }
 
 }

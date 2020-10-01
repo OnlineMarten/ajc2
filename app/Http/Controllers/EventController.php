@@ -21,6 +21,8 @@ class EventController extends Controller
     public function index(Request $request)
     {
         //used from router to display page and from an axios call to get the (initial) data
+
+
         if($request->wantsJson())  {
 
 
@@ -243,7 +245,7 @@ class EventController extends Controller
         if (!$event->update()) {
             return response()->json([
                 'message' => 'update failed'
-            ], 200);
+            ], 422);
 
         }
 
@@ -269,7 +271,7 @@ class EventController extends Controller
         if ($event->tickets_sold > 0){
             return response()->json([
                 'message'       => 'Can not delete the event of "'.\Carbon\Carbon::parse($event->event_date)->formatLocalized('%a %d %b %Y'). '" , because there are already tickets sold!'
-            ], 200);
+            ], 422);
            // session()->flash('alert-danger', 'Can not delete the event of '. \Carbon\Carbon::parse($event->event_date)->formatLocalized('%a %d %b %Y').', because there are already tickets sold!');
         }
         else{
@@ -320,7 +322,7 @@ class EventController extends Controller
                 else{
                     $e['id'] = $event->id;
                     //green
-                    if ($event->tickets_sold < 8 ) {
+                    if ($event->tickets_sold < 8 ) { //TODO threshold (8) via config laten lopen
                         $e['title'] = ucwords($event->title)."\nBook Now";
                         $e['backgroundColor'] ="#70CA2E";
                         $e['classNames'] =[ 'open' ];
@@ -376,9 +378,8 @@ class EventController extends Controller
                 $hours=date('H', strtotime($event->start_time));
                 $minutes=date('i', strtotime($event->start_time));
                 $date= strtotime($event->event_date);
-                $minutes_close_sale_before_start = config('custom.minutes_close_sale_before_start');//stop verkoop aantal minuten vooraf  aanvang
-                //TODO deadline tijd klopt nog niet?
-                $deadline = date('Y-m-d H:i:s', $date+$hours*60*60+$minutes*60);//create date including start time cruise and set tis as deadline
+                //deadline is de starttijd van de cruise, dit is voor admin reserveringen, dus daarom tot starttijd
+                $deadline = date('Y-m-d H:i:s', $date+$hours*60*60+$minutes*60);//create date including start time cruise and set this as deadline
 
                 if (strtotime($deadline)> time()) {//cruise nog voor deadline verkoop = aanvangstijd cruise
                     if (!$event->sold_out){//niet uitverkocht
@@ -465,6 +466,7 @@ class EventController extends Controller
         return $event;
     }
 
+
     public function checkAvailability(Request $request){
         $event = Event::find($request->event_id);//get event
         $available = $event->getAvailableTickets($request->sale_id,$request->ignore_reserved);
@@ -474,7 +476,75 @@ class EventController extends Controller
 
     }
 
+    public function getEvents($which="all"){
+        if($which == "all"){
+            //get all events
+            $events = Event::
+                withCount('categories')
+                ->orderBy("event_date")
+                ->get();
+            return response()->json([
+                'events'    => $events,
+            ], 200);
+        }
+        else if($which == "future"){
+            //get only events today and in future
+            $events = Event::
+                withCount('categories')
+                ->whereDate("event_date", ">=" , now() )
+                ->orderBy("event_date")
+                ->get();
+            return response()->json([
+                'events'    => $events,
+            ], 200);
 
+        }
+        else{//$which should be an id
+            $event = Event::
+                withCount('categories')
+                ->find($which);
+            return response()->json([
+                'event'    => $event,
+            ], 200);
+        }
+    }
+
+    public function adjustReservedTickets(Request $request){
+        $event = Event::find($request->event_id);
+
+        if (!$event)
+            return response()->json([
+                'message'    => "event not found, id= ".$request->event_id,
+            ], 422);
+
+        if($request->reserved<0)
+            return response()->json([
+                'message'    => "minimal reservable tickets is zero",
+                'reserved'  => 0
+            ], 422);
+
+        $max_reservable = $event->getAvailableTickets(NULL,true);//true means ignore reserved tickets
+
+        if ($request->reserved<=$max_reservable){
+            $event->tickets_reserved=$request->reserved;
+            $event->save();
+            $event->updateEventAvailability();
+            return response()->json([
+                'message'    => "number of reserved tickets adjusted to ".$request->reserved,
+                'reserved'  => $request->reserved
+            ], 200);
+        }
+        else{
+            $event->tickets_reserved=$max_reservable;
+            $event->save();
+            $event->updateEventAvailability();
+            return response()->json([
+                'message'    => "maximal reservable number of tickets is ".$max_reservable,
+                'reserved'  => $max_reservable
+            ], 422);
+        }
+
+    }
 
 
 

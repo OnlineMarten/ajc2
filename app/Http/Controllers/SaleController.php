@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Sale;
 use App\Basket;
 use App\Event;
+use App\TicketGroup;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -79,7 +80,9 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-
+            //when creating a sale directly from admin only the below validation is done,
+            //we have less requirements here, for insantce no email address is needed
+            //when creating a sale through a basket, there are more required fields through the basket
 
         $this->validate($request, [
             'event_id'    => 'required',
@@ -207,11 +210,13 @@ class SaleController extends Controller
 
         $restored_sale = false;
         $sale = Sale::withTrashed()->findOrFail($request->id);
+        if ($sale) logger()->channel('info')->info('sale found');
         $old_event_id = $sale->event_id;
         $old_nr_tickets = $sale->nr_tickets;
         //do a restore if sale is trashed
         if ($sale->trashed()) {
             $sale->restore();
+            logger()->channel('info')->info('we have found a restored sale');
             $restored_sale = true;//if a sale is being restored we do not have to check event change as it was not listed at an event anymore
         }
 
@@ -238,7 +243,7 @@ class SaleController extends Controller
         if (!$sale->update()) {
             return response()->json([
                 'message' => 'update failed'
-            ], 200);
+            ], 422);
 
         }
 
@@ -256,13 +261,13 @@ class SaleController extends Controller
             }
         }
 
-        //if we do not have a restored sale we have to heck for an event change
+        //if we do not have a restored sale we have to check for an event change
 
         //update event availability
         $event = Event::find($sale->event_id);
 
         if (!$restored_sale){//no restored sale
-
+            logger()->channel('info')->info('no restored sale');
             $old_event = Event::find($old_event_id);
 
             if ($old_event_id!=$sale->event_id){
@@ -286,6 +291,7 @@ class SaleController extends Controller
 
         else{//restored sale, date change unimportant, just add new tickets
             $event->tickets_sold += $sale->nr_tickets;
+            logger()->channel('info')->info('restoring sale, adding tickets: ' . $sale->nr_tickets);
         }
         //update event
         $event->save();
@@ -320,8 +326,8 @@ class SaleController extends Controller
         $sold = $event->tickets_sold;
         $event->tickets_sold = $sold - $sale->nr_tickets;
         $event->save();
-        $event->updateEventAvailability();
         $sale->delete();
+        $event->updateEventAvailability();
 
         logger()->channel('info')->info('Reservation: "'.$sale->ticket_nr.'" soft deleted by '.auth()->user()->name);
         session()->flash('alert-success', 'Sale '.$sale->ticket_nr.' deleted');
@@ -358,6 +364,19 @@ class SaleController extends Controller
         ], 200);
     }
 
+    public function getSale($sale_id)
+    {
+        //get all tickets  connected to a specific sale
+
+        $sale = Sale::withTrashed()->findOrFail($sale_id);
+        $extras = $sale->extras()->get();//->pluck('extra_id','pivot->nr');
+
+
+        return response()->json([
+            'sale' => $sale,
+            'extras' => $extras,
+        ], 200);
+    }
 
     public function allExtrasConnectedToSale($sale_id)
     {
@@ -383,4 +402,84 @@ class SaleController extends Controller
 
 
     }
+
+    public function getSales($event_id){
+
+        //get all sales
+        $sales = Sale::join('events','events.id', '=', 'sales.event_id')
+            ->join('tickets','tickets.id', '=', 'sales.ticket_id')
+            ->leftjoin('promo_codes','promo_codes.id', '=','sales.promocode_id' )
+            //leftjoin uses all columns in left table, even if not match in right table
+
+            ->where('events.id','=', $event_id)
+
+            ->select('sales.*', 'events.event_date','tickets.title as ticket_title','promo_codes.code as promocode_code' )
+                    ->orderby('created_at','desc')
+            ->get();
+
+            $tickets=[];
+            if ($sales){
+                $extras=[];
+                //get ticket types connected to this event
+                $ticket_types = TicketGroup::find(Event::find($event_id)->ticket_group_id)->tickets;
+
+                //place all ticket types connected to event in array, ordered by order and with number sold at 0
+                foreach($ticket_types as $ticket_type){
+                    $tickets[$ticket_type->title]=0;
+                }
+
+                //get all tickets types sold and add number of tickets sold per type
+                foreach($sales as $sale){
+
+                    if (array_key_exists($sale->ticket_title, $tickets)){
+                            $tickets[$sale->ticket_title]+=$sale->nr_tickets;
+                    }
+                    else{
+                        //if we find a type in the sales that is not (anymore) in the list of tickets connected to the event,
+                        //we will create an addition to the list
+                        $tickets[$sale->ticket_title]=$sale->nr_tickets;
+                    }
+
+                    //get extras per sale
+                    $sale->extras = $sale->extras()->get();
+                   // $e['id'] =$sale->id;
+                   // $e['extras'] = $sale->extras()->get();
+                   // array_push($extras,$e);
+
+                }
+
+
+            }
+        return response()->json([
+            'sales_per_ticket_type' => $tickets,
+            'sales'    => $sales,
+          //  'extras'   => $extras
+        ], 200);
+    }
+
+    public function emailTickets($sale_id){
+        $sale = Sale::find($sale_id);
+        if ($sale){
+            if(!$sale->email){
+                return response()->json([
+                    'message' => 'No email address found. No tickets emailed.',
+                ], 422);
+            }
+            if ($sale->emailTickets()){
+                return response()->json([
+                    'message' => 'tickets successfully emailed',
+                ], 200);
+
+            }
+            return response()->json([
+                'message' => 'ERROR: could not email tickets. Please check email address and try again.',
+            ], 422);
+        }
+        return response()->json([
+            'message' => 'Could not find reservation. No tickets emailed.',
+        ], 422);
+
+
+        }
+
 }

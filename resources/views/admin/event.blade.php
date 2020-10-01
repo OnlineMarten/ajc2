@@ -4,6 +4,12 @@
 
 @section('page-specific-scripts-stylesheets')
     <!-- insert page specific scripts here, will be loaded after general scripts-->
+    <style>
+        /*needed to ofer print portait or landscape option*/
+        @page {
+        size: auto;
+        }
+    </style>
 
 @endsection
 

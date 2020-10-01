@@ -20,6 +20,7 @@ class Event extends Model
         //return all categories connected to an event, sorted by order
         return $this->belongsToMany('App\Category');
     }
+
 /*
     public function tickets()
     {
@@ -61,18 +62,18 @@ class Event extends Model
             if ($this->tickets_reserved>0){//check if seats are reserved by admin
                 //seats are reserved, add them to salestable
                 array_push($tables, $this->tickets_reserved);
-             // logger()->channel('info')->info('pushing reserved:'.$this->tickets_reserved);
+              logger()->channel('info')->info('pushing reserved:'.$this->tickets_reserved);
             }
         }
         foreach ($baskets as $basket){
             if ($basket>0){
                 array_push($tables, $basket);
-            // logger()->channel('info')->info('pushing basket:'.$basket);
+             logger()->channel('info')->info('pushing basket:'.$basket);
             }
         }
         foreach ($sales as $sale){
             array_push($tables, $sale);
-           // logger()->channel('info')->info('pushing sale:'.$sale);
+            logger()->channel('info')->info('pushing sale:'.$sale);
         }
         rsort($tables);//sorteer verkopen van groot naar klein
         foreach ($tables as $table){
@@ -184,6 +185,7 @@ class Event extends Model
     public function updateEventAvailability(){
         logger()->channel('info')->info('updating availability');
         $available = $this->getAvailableTickets();
+        logger()->channel('info')->info('available tickets= '.$available);
         if ($available ==0){
             //no availability, check for active baskets
            // logger()->channel('info')->info('availability=0, checking baskets');
@@ -198,15 +200,15 @@ class Event extends Model
                 if ($nr==0){
                     $this->sold_out=true;
                     $this->save();
-                 //   logger()->channel('info')->info('only empty baskets, set event to sold out');
+                    logger()->channel('info')->info('only empty baskets, set event to sold out');
 
                 }
                 else{
-                  //  logger()->channel('info')->info('we have baskets with tickets ('.$nr.', do nothing');
+                    logger()->channel('info')->info('we have baskets with tickets ('.$nr.', do nothing');
                 }
             }
             else{
-             //   logger()->channel('info')->info('no baskets, set event to sold out');
+                logger()->channel('info')->info('no baskets, set event to sold out');
                 $this->sold_out=true;
                 $this->save();
             }
@@ -214,9 +216,10 @@ class Event extends Model
         else{//there is still availability
             $this->sold_out=false;
                 $this->save();
-              //  logger()->channel('info')->info('set event to open');
+                logger()->channel('info')->info('set event to open');
         }
 
 
     }
+
 }

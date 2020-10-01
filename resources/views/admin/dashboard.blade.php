@@ -26,7 +26,7 @@
 <hr>
 <h2></h2>
 <hr>
-<booking-selection></booking-selection>
+<example-component></example-component>
 
 <?php echo "de merchant account =".config('services.adyen.merchantaccount')."<br><br>";
 

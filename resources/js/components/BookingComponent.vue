@@ -1,5 +1,9 @@
 <template>
 <div>
+     <hr><hr>
+<b-button @click="initAddSale()" variant="info" class="float-sm-left"><b-icon icon="plus-square"></b-icon> Add New Reservation</b-button>
+
+    <hr><hr>
     <div v-if="event">
         <div class="row mt-1">
 
@@ -269,7 +273,7 @@ export default {
 
   data(){
     return {
-         errors: "",
+        errors: "",
         message: "",
         show:false,
         show_titles:true,

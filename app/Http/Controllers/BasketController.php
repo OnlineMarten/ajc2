@@ -81,7 +81,6 @@ class BasketController extends Controller
         }
 
         $available_tickets = $event->getAvailableTickets();
-
         //now we know the availability, let's see if we have enough
         if ($available_tickets < $request->nr_tickets){
 
@@ -302,7 +301,7 @@ class BasketController extends Controller
 
     public function deleteSessionBasket()
     {
-        $message="";
+        $message="no session basket found, nothing deleted";
 
             //check if basket is in session id
             $basket_id = session('basket_id');
@@ -398,6 +397,8 @@ class BasketController extends Controller
             }
         }
     }
+
+
 
 
 }

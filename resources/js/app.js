@@ -22,6 +22,12 @@ window.Vue = require('vue');
 //import VueMiniCalendar from 'vue-mini-calendar'
 //Vue.component('VueMiniCalendar', require('vue-mini-calendar').default);
 
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+
+// Install BootstrapVue
+Vue.use(BootstrapVue)
+// Optionally install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin)
 
 Vue.filter('toCurrency', function (value) {
 

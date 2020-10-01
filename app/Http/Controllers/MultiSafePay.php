@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Whitecube\MultiSafepay\Client;
-//use Whitecube\MultiSafepay\Entities\Order;
 use App\Sale;
 use App\Basket;
-use App\Mail\ReservationConfirmation;
 use App\Mail\AdminMessage;
 
 class MultiSafePay extends Controller
@@ -44,7 +42,7 @@ class MultiSafePay extends Controller
                 ],
 
             'payment_options' => [
-                'notification_url' => 'https://marten-228e90f6.localhost.run/ajc2/public/api/notification',//TODO wijzigen url en in config zetten
+                'notification_url' => 'https://fluffy-penguin.loca.lt/ajc2/public/api/notification',//TODO wijzigen url en in config zetten
                 'redirect_url' => config('app.url')."/checkout",
                 'cancel_url' => config('app.url')."/booking/".$request->event_id."?type=cancel",
                 'close_window' => ''
@@ -163,21 +161,7 @@ class MultiSafePay extends Controller
             logger()->channel('info')->info('Sale added');
 
             //email tickets
-            $saleDetails = $sale->getSale();
-            $mail_sent = true;
-            try{
-                \Mail::to('onlinemarten@gmail.com')->send(new ReservationConfirmation($saleDetails));
-            }
-            catch(\Exception $e){
-                // Get error here
-                logger()->channel('info')->info("Sending mail failed. Ticket number: ".$ticket_nr. " error details: ".$e);
-                $mail_sent = false;
-                //TODO send admin email here with error (e)
-            }
-            if ($mail_sent){
-                logger()->channel('info')->info("Mail sent successfully");
-                $sale->updateTicketSent();// update the sent ticket timestamp in sale
-            }
+           $sale->emailTickets();
         }
         else{
             logger()->channel('info')->info('Failed to add sale. No email sent. Ticket nr: '.$ticket_nr);
@@ -224,7 +208,7 @@ public function checkout(Request $request){
     }
 
 
-    //show confirmaion screen
+    //show confirmation screen
     return view('checkout', compact('ticket_nr', 'name', 'email'));
 }
 
