@@ -2,11 +2,13 @@
 
 <template>
 
-  <FullCalendar  defaultView="dayGridMonth"
+  <FullCalendar
+  defaultView="dayGridMonth"
   :plugins="calendarPlugins"
   :events="events"
   @eventClick="handleEventClick"
   :showNonCurrentDates="false"
+
 
    />
 

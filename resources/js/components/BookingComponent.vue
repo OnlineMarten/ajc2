@@ -1,9 +1,6 @@
 <template>
 <div>
-     <hr><hr>
-<b-button @click="initAddSale()" variant="info" class="float-sm-left"><b-icon icon="plus-square"></b-icon> Add New Reservation</b-button>
 
-    <hr><hr>
     <div v-if="event">
         <div class="row mt-1">
 
@@ -599,7 +596,7 @@ export default {
             .catch(function (error) {
                 //we could not create payment link
                 console.log(error.toJSON());
-                //TODO send damin email?
+                //TODO send admin email?
             })
         },
 

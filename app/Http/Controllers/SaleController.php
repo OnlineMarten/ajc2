@@ -280,6 +280,7 @@ class SaleController extends Controller
 
                 //new event add new tickets sold
                 $event->tickets_sold+=$sale->nr_tickets;
+
             }
 
             else{//not restored, no date change, deduct old nr tickets and add new nr

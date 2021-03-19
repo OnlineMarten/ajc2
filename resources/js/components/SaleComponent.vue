@@ -761,6 +761,9 @@ export default {
                 if (this.selected_event_date !== this.event.event_date){
                     console.log('date changed');
                     this.selection.admin_comments+="* date changed, original date:"+this.selected_event_date;
+                    // date changed, so create a new ticket number
+                    let random_nr = Math.floor(Math.random() * (99999 - 10000) ) + 10000;
+                    this.selection.ticket_nr="AJC-"+this.formatDate(this.event.event_date)+'-'+this.formatDate(new Date(),true)+'-'+random_nr;
                 }
                 axios
                     .put("/admin/sale/" + this.selection.id, this.selection)

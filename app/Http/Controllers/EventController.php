@@ -326,6 +326,7 @@ class EventController extends Controller
                         $e['title'] = ucwords($event->title)."\nBook Now";
                         $e['backgroundColor'] ="#70CA2E";
                         $e['classNames'] =[ 'open' ];
+                        $e['displayEventTime'] = true;
                     }
                     //yellow
                     if ($event->tickets_sold >= 8 ) {

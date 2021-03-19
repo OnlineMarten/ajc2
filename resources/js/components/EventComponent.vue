@@ -713,7 +713,7 @@ export default {
         let conf = confirm(
         'Do you ready want to delete reservation "' +
           this.sales[index].name + " " +this.sales[index].ticket_nr +
-          '"?'
+          '"?  (It will be placed in deleted reservations and can be restored later)'
         );
         if (conf === true) {
             axios
@@ -742,7 +742,7 @@ export default {
     emailTickets(index) {
         console.log('index='+index);
         let conf = confirm(
-        'Do you want to email the tickets (again) to the guests "' +
+        'Do you want to email the tickets (again!?) to the guests "' +
           this.sales[index].name + " " +this.sales[index].ticket_nr +
           '"?'
         );

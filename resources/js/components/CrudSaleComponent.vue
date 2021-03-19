@@ -55,7 +55,7 @@ with the checkavailability call
                     </div>
                 </div>
 
-                <div class="row" v-if="!event_id"><!-- if no event_id is given, the date is flexible, so show dates-->
+                <div class="row" v-if="!event_id || add_update=='update'"><!-- if no event_id is given, or if it is an update of an existing sale the date is flexible, so show dates-->
                     <div class="col-sm-3">
                         Select date:
                     </div>
@@ -497,6 +497,9 @@ export default {
                 if (this.selected_event_date !== this.event.event_date){
                     console.log('date changed');
                     this.selection.admin_comments+="* date changed, original date:"+this.selected_event_date;
+                    // date changed, so create a new ticket number
+                    let random_nr = Math.floor(Math.random() * (99999 - 10000) ) + 10000;
+                    this.selection.ticket_nr="AJC-"+this.formatDate(this.event.event_date)+'-'+this.formatDate(new Date(),true)+'-'+random_nr;
                 }
                 axios
                     .put("/admin/sale/" + this.selection.id, this.selection)
